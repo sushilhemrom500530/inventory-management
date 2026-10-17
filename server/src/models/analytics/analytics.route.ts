@@ -13,6 +13,20 @@ router.get(
 );
 
 router.get(
+  "/summary",
+  auth("common"),
+  cacheMiddleware("dashboard_overview", 30),
+  AnalyticsController.getDashboardOverview,
+);
+
+router.get(
+  "/",
+  auth("common"),
+  cacheMiddleware("dashboard_overview", 30),
+  AnalyticsController.getDashboardOverview,
+);
+
+router.get(
   "/low-stock-alerts",
   auth("common"),
   AnalyticsController.getLowStockAlerts,

@@ -13,6 +13,10 @@ const saleItemSchema = new Schema<ISaleItem>(
       required: true,
       trim: true,
     },
+    productNameSnapshot: {
+      type: String,
+      trim: true,
+    },
     sku: {
       type: String,
       required: true,
@@ -39,12 +43,29 @@ const saleItemSchema = new Schema<ISaleItem>(
       required: true,
       min: 0,
     },
+    lineTotal: {
+      type: Number,
+    },
   },
   { _id: false },
 );
 
+// Auto-fill snapshots if not provided
+saleItemSchema.pre("save", function () {
+  if (!this.productNameSnapshot) {
+    this.productNameSnapshot = this.productName;
+  }
+  if (this.lineTotal === undefined) {
+    this.lineTotal = this.subtotal;
+  }
+});
+
 const saleSchema = new Schema<ISale>(
   {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
     invoiceNumber: {
       type: String,
       required: true,
@@ -116,10 +137,17 @@ const saleSchema = new Schema<ISale>(
   },
   {
     timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   },
 );
 
+saleSchema.virtual("totalAmount").get(function () {
+  return this.grandTotal;
+});
+
 saleSchema.index({ invoiceNumber: 1 });
+saleSchema.index({ userId: 1, createdAt: -1 });
 saleSchema.index({ cashier: 1, createdAt: -1 });
 saleSchema.index({ createdAt: -1 });
 

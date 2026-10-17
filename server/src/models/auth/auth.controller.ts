@@ -203,6 +203,21 @@ const successLogin = catchAsync(async (req: Request, res: Response) => {
     data: { token, user },
   });
 });
+
+const getMe = catchAsync(async (req: Request, res: Response) => {
+  const { id: userId } = req.user as JwtUserPayload;
+  const user = await User.findById(userId).select("-password");
+  if (!user) {
+    throw new AppError(StatusCodes.NOT_FOUND, "User not found");
+  }
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Current authenticated user profile retrieved successfully.",
+    data: user,
+  });
+});
+
 export const AuthController = {
   registerUser,
   loginUser,
@@ -214,4 +229,5 @@ export const AuthController = {
   changePassword,
   refreshToken,
   successLogin,
+  getMe,
 };

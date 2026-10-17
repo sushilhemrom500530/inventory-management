@@ -8,23 +8,32 @@ import QueryBuilder from "../../shared/queryBuilder";
 import { Types } from "mongoose";
 
 const createProduct = async (
-  payload: Partial<IProduct>,
+  payload: any,
   creatorId?: string,
 ): Promise<IProduct> => {
   const normalizedSku = payload.sku!.trim().toUpperCase();
 
-  const existingSku = await Product.findOne({ sku: normalizedSku, isDeleted: false });
+  // Resolve aliases
+  const targetCategory = payload.category || payload.categoryId;
+  const sellingPrice = payload.sellingPrice !== undefined ? Number(payload.sellingPrice) : Number(payload.price);
+  const costPrice = payload.costPrice !== undefined ? Number(payload.costPrice) : Math.round(sellingPrice * 0.65 * 100) / 100;
+  const threshold = payload.lowStockThreshold !== undefined ? Number(payload.lowStockThreshold) : (payload.reorderLevel !== undefined ? Number(payload.reorderLevel) : 5);
+  const initialQty = Number(payload.quantity) || 0;
+
+  const existingSku = await Product.findOne({
+    sku: normalizedSku,
+    isDeleted: false,
+    ...(creatorId ? { userId: new Types.ObjectId(creatorId) } : {}),
+  });
+
   if (existingSku) {
-    throw new AppError(StatusCodes.CONFLICT, `A product with SKU "${normalizedSku}" already exists`);
+    throw new AppError(StatusCodes.CONFLICT, `A product with SKU "${normalizedSku}" already exists in your inventory`);
   }
 
-  const categoryExists = await Category.findById(payload.category);
+  const categoryExists = await Category.findById(targetCategory);
   if (!categoryExists) {
     throw new AppError(StatusCodes.BAD_REQUEST, "Selected category does not exist");
   }
-
-  const initialQty = Number(payload.quantity) || 0;
-  const threshold = Number(payload.lowStockThreshold) || 5;
 
   let initialStatus: "in_stock" | "low_stock" | "out_of_stock" = "in_stock";
   if (initialQty <= 0) initialStatus = "out_of_stock";
@@ -32,7 +41,11 @@ const createProduct = async (
 
   const product = await Product.create({
     ...payload,
+    userId: creatorId ? new Types.ObjectId(creatorId) : undefined,
+    category: new Types.ObjectId(targetCategory),
     sku: normalizedSku,
+    costPrice,
+    sellingPrice,
     quantity: initialQty,
     lowStockThreshold: threshold,
     status: initialStatus,
@@ -54,8 +67,13 @@ const createProduct = async (
   return product;
 };
 
-const getAllProducts = async (query: Record<string, unknown>) => {
-  const baseQuery = Product.find({ isDeleted: false }).populate("category", "name slug color");
+const getAllProducts = async (
+  query: Record<string, unknown>,
+  _scopedUserId?: string,
+) => {
+  const baseFind: Record<string, unknown> = { isDeleted: false };
+
+  const baseQuery = Product.find(baseFind).populate("category", "name slug color");
 
   const productQuery = new QueryBuilder(baseQuery, query)
     .search(["name", "sku", "barcode"])
@@ -73,14 +91,19 @@ const getAllProducts = async (query: Record<string, unknown>) => {
   };
 };
 
-const getProductById = async (id: string): Promise<IProduct | null> => {
-  const product = await Product.findOne({ _id: id, isDeleted: false }).populate(
+const getProductById = async (
+  id: string,
+  _scopedUserId?: string,
+): Promise<IProduct | null> => {
+  const findQuery: Record<string, unknown> = { _id: id, isDeleted: false };
+
+  const product = await Product.findOne(findQuery).populate(
     "category",
     "name slug color description",
   );
 
   if (!product) {
-    throw new AppError(StatusCodes.NOT_FOUND, "Product not found");
+    throw new AppError(StatusCodes.NOT_FOUND, "Product not found or access denied");
   }
 
   return product;
@@ -88,12 +111,14 @@ const getProductById = async (id: string): Promise<IProduct | null> => {
 
 const updateProduct = async (
   id: string,
-  payload: Partial<IProduct>,
+  payload: any,
   updaterId?: string,
 ): Promise<IProduct | null> => {
-  const product = await Product.findOne({ _id: id, isDeleted: false });
+  const findQuery: Record<string, unknown> = { _id: id, isDeleted: false };
+
+  const product = await Product.findOne(findQuery);
   if (!product) {
-    throw new AppError(StatusCodes.NOT_FOUND, "Product not found");
+    throw new AppError(StatusCodes.NOT_FOUND, "Product not found or access denied");
   }
 
   if (payload.sku) {
@@ -109,16 +134,25 @@ const updateProduct = async (
     payload.sku = normalizedSku;
   }
 
-  if (payload.category) {
-    const categoryExists = await Category.findById(payload.category);
+  const targetCategory = payload.category || payload.categoryId;
+  if (targetCategory) {
+    const categoryExists = await Category.findById(targetCategory);
     if (!categoryExists) {
       throw new AppError(StatusCodes.BAD_REQUEST, "Selected category does not exist");
     }
+    payload.category = new Types.ObjectId(targetCategory);
+  }
+
+  if (payload.price !== undefined && payload.sellingPrice === undefined) {
+    payload.sellingPrice = Number(payload.price);
+  }
+  if (payload.reorderLevel !== undefined && payload.lowStockThreshold === undefined) {
+    payload.lowStockThreshold = Number(payload.reorderLevel);
   }
 
   // Handle direct quantity modification with audit log
   const previousQuantity = product.quantity;
-  if (payload.quantity !== undefined && payload.quantity !== previousQuantity) {
+  if (payload.quantity !== undefined && Number(payload.quantity) !== previousQuantity) {
     const newQty = Number(payload.quantity);
     if (newQty < 0) {
       throw new AppError(StatusCodes.BAD_REQUEST, "Product quantity cannot be negative");
@@ -141,15 +175,20 @@ const updateProduct = async (
   return product;
 };
 
-const deleteProduct = async (id: string): Promise<IProduct | null> => {
+const deleteProduct = async (
+  id: string,
+  _scopedUserId?: string,
+): Promise<IProduct | null> => {
+  const findQuery: Record<string, unknown> = { _id: id, isDeleted: false };
+
   const product = await Product.findOneAndUpdate(
-    { _id: id, isDeleted: false },
+    findQuery,
     { isDeleted: true },
     { new: true },
   );
 
   if (!product) {
-    throw new AppError(StatusCodes.NOT_FOUND, "Product not found");
+    throw new AppError(StatusCodes.NOT_FOUND, "Product not found or access denied");
   }
 
   return product;

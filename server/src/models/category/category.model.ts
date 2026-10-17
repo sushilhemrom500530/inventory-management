@@ -3,17 +3,19 @@ import { ICategory } from "./category.interface";
 
 const categorySchema = new Schema<ICategory>(
   {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
     name: {
       type: String,
       required: true,
       trim: true,
-      unique: true,
     },
     slug: {
       type: String,
       required: true,
       trim: true,
-      unique: true,
       lowercase: true,
     },
     description: {
@@ -35,5 +37,9 @@ const categorySchema = new Schema<ICategory>(
     timestamps: true,
   },
 );
+
+// Indexes
+categorySchema.index({ slug: 1 });
+categorySchema.index({ userId: 1, name: 1 });
 
 export const Category = model<ICategory>("Category", categorySchema);

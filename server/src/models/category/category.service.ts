@@ -15,7 +15,9 @@ const generateSlug = (text: string): string => {
 
 const createCategory = async (payload: Partial<ICategory>): Promise<ICategory> => {
   const slug = generateSlug(payload.name!);
-  const existing = await Category.findOne({ $or: [{ name: payload.name }, { slug }] });
+  const existing = await Category.findOne({
+    $or: [{ name: payload.name }, { slug }],
+  });
 
   if (existing) {
     throw new AppError(StatusCodes.CONFLICT, "Category with this name already exists");
@@ -29,8 +31,13 @@ const createCategory = async (payload: Partial<ICategory>): Promise<ICategory> =
   return category;
 };
 
-const getAllCategories = async (query: Record<string, unknown>) => {
-  const categoryQuery = new QueryBuilder(Category.find(), query)
+const getAllCategories = async (
+  query: Record<string, unknown>,
+  _scopedUserId?: string,
+) => {
+  const baseFind: Record<string, unknown> = {};
+
+  const categoryQuery = new QueryBuilder(Category.find(baseFind), query)
     .search(["name", "description"])
     .filter()
     .sort()
@@ -75,6 +82,7 @@ const getCategoryById = async (id: string): Promise<ICategory | null> => {
 const updateCategory = async (
   id: string,
   payload: Partial<ICategory>,
+  _scopedUserId?: string,
 ): Promise<ICategory | null> => {
   if (payload.name) {
     payload.slug = generateSlug(payload.name);
@@ -99,7 +107,10 @@ const updateCategory = async (
   return updatedCategory;
 };
 
-const deleteCategory = async (id: string): Promise<ICategory | null> => {
+const deleteCategory = async (
+  id: string,
+  _scopedUserId?: string,
+): Promise<ICategory | null> => {
   // Safeguard: Check if any active products belong to this category
   const productCount = await Product.countDocuments({ category: id, isDeleted: false });
   if (productCount > 0) {

@@ -10,12 +10,29 @@ import {
 
 const router = express.Router();
 
+// Create Category (POST / and POST /create)
+router.post(
+  "/",
+  auth("admin", "manager"),
+  clearCacheMiddleware("categories"),
+  validateRequest(CategoryValidation.createCategoryZodSchema),
+  CategoryController.createCategory,
+);
+
 router.post(
   "/create",
   auth("admin", "manager"),
   clearCacheMiddleware("categories"),
   validateRequest(CategoryValidation.createCategoryZodSchema),
   CategoryController.createCategory,
+);
+
+// Get All Categories (GET / and GET /get-all)
+router.get(
+  "/",
+  auth("common"),
+  cacheMiddleware("categories", 60),
+  CategoryController.getAllCategories,
 );
 
 router.get(
@@ -25,12 +42,20 @@ router.get(
   CategoryController.getAllCategories,
 );
 
+// Get Single Category (GET /:id and GET /find/:id)
 router.get(
   "/find/:id",
   auth("common"),
   CategoryController.getCategoryById,
 );
 
+router.get(
+  "/:id",
+  auth("common"),
+  CategoryController.getCategoryById,
+);
+
+// Update Category (PATCH /:id and PATCH /update/:id)
 router.patch(
   "/update/:id",
   auth("admin", "manager"),
@@ -39,8 +64,24 @@ router.patch(
   CategoryController.updateCategory,
 );
 
+router.patch(
+  "/:id",
+  auth("admin", "manager"),
+  clearCacheMiddleware("categories"),
+  validateRequest(CategoryValidation.updateCategoryZodSchema),
+  CategoryController.updateCategory,
+);
+
+// Delete Category (DELETE /:id and DELETE /delete/:id)
 router.delete(
   "/delete/:id",
+  auth("admin"),
+  clearCacheMiddleware("categories"),
+  CategoryController.deleteCategory,
+);
+
+router.delete(
+  "/:id",
   auth("admin"),
   clearCacheMiddleware("categories"),
   CategoryController.deleteCategory,

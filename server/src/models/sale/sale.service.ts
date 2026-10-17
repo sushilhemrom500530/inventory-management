@@ -5,10 +5,11 @@ import { StockMovement } from "../stock-movement/stockMovement.model";
 import AppError from "../../errors/AppError";
 import { StatusCodes } from "http-status-codes";
 import QueryBuilder from "../../shared/queryBuilder";
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 
 interface ICheckoutItemInput {
-  productId: string;
+  productId?: string;
+  product?: string;
   quantity: number;
 }
 
@@ -21,6 +22,7 @@ interface ICheckoutPayload {
   customerContact?: string;
   notes?: string;
   cashierId?: string;
+  userId?: string;
 }
 
 const generateInvoiceNumber = async (): Promise<string> => {
@@ -44,102 +46,206 @@ const checkoutSale = async (payload: ICheckoutPayload): Promise<ISale> => {
     customerContact = "",
     notes = "",
     cashierId,
+    userId = cashierId,
   } = payload;
 
   if (!items || items.length === 0) {
     throw new AppError(StatusCodes.BAD_REQUEST, "Cannot checkout an empty cart");
   }
 
-  // 1. Fetch and lock products
-  const productIds = items.map((i) => i.productId);
+  // Normalize product ID input
+  const normalizedItems = items.map((i) => ({
+    productId: i.productId || i.product || "",
+    quantity: Number(i.quantity),
+  }));
+
+  for (const item of normalizedItems) {
+    if (!item.productId) {
+      throw new AppError(StatusCodes.BAD_REQUEST, "Each sale item must include a valid productId");
+    }
+    if (isNaN(item.quantity) || item.quantity <= 0) {
+      throw new AppError(StatusCodes.BAD_REQUEST, "Requested item quantities must be positive integers");
+    }
+  }
+
+  // 1. Fetch products to get trusted pricing and metadata from database
+  const productIds = normalizedItems.map((i) => i.productId);
   const products = await Product.find({ _id: { $in: productIds }, isDeleted: false });
 
-  if (products.length !== items.length) {
+  if (products.length !== normalizedItems.length) {
     throw new AppError(StatusCodes.NOT_FOUND, "One or more products in cart were not found or have been deleted");
   }
 
   const productMap = new Map(products.map((p) => [String(p._id), p]));
 
-  // 2. Validate stock levels for all items before applying any deductions
-  for (const item of items) {
+  // Verify stock sufficiency before attempting deductions
+  for (const item of normalizedItems) {
     const product = productMap.get(item.productId);
-    if (!product) {
-      throw new AppError(StatusCodes.NOT_FOUND, `Product ID ${item.productId} not found`);
-    }
-    if (product.quantity < item.quantity) {
+    if (!product || product.quantity < item.quantity) {
       throw new AppError(
         StatusCodes.BAD_REQUEST,
-        `Insufficient stock for "${product.name}". Available: ${product.quantity}, Requested: ${item.quantity}`,
+        `Insufficient stock for "${product?.name || "Product"}". Available: ${product?.quantity || 0}, Requested: ${item.quantity}`,
       );
     }
   }
 
-  // 3. Compute item totals and deductions
-  const invoiceNumber = await generateInvoiceNumber();
-  const processedItems: ISaleItem[] = [];
-  let subtotal = 0;
+  // 2. Multi-tier Transaction & Atomic Decrement
+  let session: mongoose.ClientSession | null = null;
+  let useTransaction = false;
 
-  for (const item of items) {
-    const product = productMap.get(item.productId)!;
-    const lineTotal = product.sellingPrice * item.quantity;
-    subtotal += lineTotal;
-
-    processedItems.push({
-      product: product._id,
-      productName: product.name,
-      sku: product.sku,
-      unitPrice: product.sellingPrice,
-      costPrice: product.costPrice,
-      quantity: item.quantity,
-      subtotal: lineTotal,
-    });
-
-    const previousStock = product.quantity;
-    const newStock = previousStock - item.quantity;
-
-    // Deduct stock and trigger auto-status update via save()
-    product.quantity = newStock;
-    await product.save();
-
-    // Log StockMovement audit entry
-    await StockMovement.create({
-      product: product._id,
-      type: "SALE",
-      quantity: -item.quantity,
-      previousStock,
-      newStock,
-      reason: `POS Sale Checkout [${invoiceNumber}]`,
-      performedBy: cashierId ? new Types.ObjectId(cashierId) : undefined,
-      referenceId: invoiceNumber,
-    });
+  try {
+    session = await mongoose.startSession();
+    session.startTransaction();
+    useTransaction = true;
+  } catch (_e) {
+    // Standalone MongoDB setup does not support transactions; fallback to compensating atomic operations
+    useTransaction = false;
+    session = null;
   }
 
-  // 4. Calculate Tax & Final Grand Total
-  const calculatedTaxAmount = Math.round((subtotal * (taxRate / 100)) * 100) / 100;
-  const grandTotal = Math.max(0, Math.round((subtotal + calculatedTaxAmount - discount) * 100) / 100);
+  const successfullyDecremented: { productId: string; quantity: number }[] = [];
+  const processedItems: ISaleItem[] = [];
+  let subtotal = 0;
+  const invoiceNumber = await generateInvoiceNumber();
 
-  // 5. Create Sale Document
-  const sale = await Sale.create({
-    invoiceNumber,
-    items: processedItems,
-    subtotal,
-    taxRate,
-    taxAmount: calculatedTaxAmount,
-    discount,
-    grandTotal,
-    paymentMethod,
-    cashier: cashierId ? new Types.ObjectId(cashierId) : undefined,
-    customerName,
-    customerContact,
-    notes,
-    status: "completed",
-  });
+  try {
+    for (const item of normalizedItems) {
+      const product = productMap.get(item.productId)!;
 
-  return sale;
+      // Conditional Atomic Decrement: Only updates if quantity is still >= requested quantity
+      const updatedProduct = await Product.findOneAndUpdate(
+        {
+          _id: item.productId,
+          quantity: { $gte: item.quantity },
+          isDeleted: false,
+        },
+        {
+          $inc: { quantity: -item.quantity },
+        },
+        {
+          new: true,
+          session: useTransaction && session ? session : undefined,
+        },
+      );
+
+      if (!updatedProduct) {
+        throw new AppError(
+          StatusCodes.BAD_REQUEST,
+          `Concurrent stock conflict for "${product.name}". Available stock dropped below ${item.quantity}.`,
+        );
+      }
+
+      successfullyDecremented.push({
+        productId: item.productId,
+        quantity: item.quantity,
+      });
+
+      // Update status on the product
+      if (updatedProduct.quantity <= 0) {
+        updatedProduct.status = "out_of_stock";
+      } else if (updatedProduct.quantity <= (updatedProduct.lowStockThreshold || 5)) {
+        updatedProduct.status = "low_stock";
+      } else {
+        updatedProduct.status = "in_stock";
+      }
+      await updatedProduct.save({ session: useTransaction && session ? session : undefined });
+
+      const lineTotal = product.sellingPrice * item.quantity;
+      subtotal += lineTotal;
+
+      processedItems.push({
+        product: product._id,
+        productId: product._id,
+        productName: product.name,
+        productNameSnapshot: product.name,
+        sku: product.sku,
+        unitPrice: product.sellingPrice,
+        costPrice: product.costPrice,
+        quantity: item.quantity,
+        subtotal: lineTotal,
+        lineTotal,
+      });
+
+      // Audit Log
+      await StockMovement.create(
+        [
+          {
+            product: product._id,
+            type: "SALE",
+            quantity: -item.quantity,
+            previousStock: updatedProduct.quantity + item.quantity,
+            newStock: updatedProduct.quantity,
+            reason: `POS Sale Checkout [${invoiceNumber}]`,
+            performedBy: cashierId ? new Types.ObjectId(cashierId) : undefined,
+            referenceId: invoiceNumber,
+          },
+        ],
+        { session: useTransaction && session ? session : undefined },
+      );
+    }
+
+    // Calculate Tax & Final Grand Total from trusted server-side math
+    const calculatedTaxAmount = Math.round(subtotal * (taxRate / 100) * 100) / 100;
+    const grandTotal = Math.max(0, Math.round((subtotal + calculatedTaxAmount - discount) * 100) / 100);
+
+    // Create Sale Document
+    const [sale] = await Sale.create(
+      [
+        {
+          userId: userId ? new Types.ObjectId(userId) : undefined,
+          cashier: cashierId ? new Types.ObjectId(cashierId) : undefined,
+          invoiceNumber,
+          items: processedItems,
+          subtotal,
+          taxRate,
+          taxAmount: calculatedTaxAmount,
+          discount,
+          grandTotal,
+          totalAmount: grandTotal,
+          paymentMethod,
+          customerName,
+          customerContact,
+          notes,
+          status: "completed",
+        },
+      ],
+      { session: useTransaction && session ? session : undefined },
+    );
+
+    if (useTransaction && session) {
+      await session.commitTransaction();
+    }
+
+    return sale;
+  } catch (error) {
+    if (useTransaction && session) {
+      await session.abortTransaction();
+    } else {
+      // Compensating rollback for standalone MongoDB
+      for (const reverted of successfullyDecremented) {
+        await Product.findByIdAndUpdate(reverted.productId, {
+          $inc: { quantity: reverted.quantity },
+        });
+      }
+    }
+    throw error;
+  } finally {
+    if (session) {
+      session.endSession();
+    }
+  }
 };
 
-const getAllSales = async (query: Record<string, unknown>) => {
-  const baseQuery = Sale.find().populate("cashier", "fullName email role");
+const getAllSales = async (
+  query: Record<string, unknown>,
+  scopedUserId?: string,
+) => {
+  const baseFind: Record<string, unknown> = {};
+  if (scopedUserId) {
+    baseFind.userId = new Types.ObjectId(scopedUserId);
+  }
+
+  const baseQuery = Sale.find(baseFind).populate("cashier", "fullName email role");
 
   const saleQuery = new QueryBuilder(baseQuery, query)
     .filter()
@@ -156,7 +262,10 @@ const getAllSales = async (query: Record<string, unknown>) => {
   };
 };
 
-const getSaleById = async (id: string): Promise<ISale | null> => {
+const getSaleById = async (
+  id: string,
+  _scopedUserId?: string,
+): Promise<ISale | null> => {
   const sale = await Sale.findById(id).populate("cashier", "fullName email role");
   if (!sale) {
     throw new AppError(StatusCodes.NOT_FOUND, "Sale invoice not found");
@@ -164,8 +273,13 @@ const getSaleById = async (id: string): Promise<ISale | null> => {
   return sale;
 };
 
-const getRecentSales = async (limit = 5) => {
-  const recent = await Sale.find({ status: "completed" })
+const getRecentSales = async (limit = 5, scopedUserId?: string) => {
+  const findQuery: Record<string, unknown> = { status: "completed" };
+  if (scopedUserId) {
+    findQuery.userId = new Types.ObjectId(scopedUserId);
+  }
+
+  const recent = await Sale.find(findQuery)
     .sort({ createdAt: -1 })
     .limit(limit)
     .populate("cashier", "fullName email")

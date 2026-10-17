@@ -43,6 +43,7 @@ const envSchema = z.object({
   CLOUDINARY_API_SECRET: z.string().optional(),
   CLOUDINARY_API_KEY: z.string().optional(),
   CLOUDINARY_NAME: z.string().optional(),
+  AI_SERVICE_URL: z.string().default("http://127.0.0.1:8000"),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
@@ -78,4 +79,5 @@ export const {
   CLOUDINARY_API_SECRET,
   CLOUDINARY_API_KEY,
   CLOUDINARY_NAME,
+  AI_SERVICE_URL,
 } = parsedEnv.data;

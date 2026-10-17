@@ -20,6 +20,12 @@ router.post(
   AuthController.loginUser,
 );
 
+router.get(
+  "/me",
+  auth("common"),
+  AuthController.getMe,
+);
+
 router.post(
   "/verify-otp",
   clearCacheMiddleware("users"),

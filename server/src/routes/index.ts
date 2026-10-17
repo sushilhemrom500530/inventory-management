@@ -24,28 +24,58 @@ const apiRoutes: any[] = [
     path: "/notification",
     route: NotificationRoutes,
   },
+  // Categories (both /category and /categories supported)
   {
     path: "/category",
     route: CategoryRoutes,
   },
   {
+    path: "/categories",
+    route: CategoryRoutes,
+  },
+  // Products (both /product and /products supported)
+  {
     path: "/product",
     route: ProductRoutes,
   },
+  {
+    path: "/products",
+    route: ProductRoutes,
+  },
+  // Stock Movements & Ledger
   {
     path: "/stock-movement",
     route: StockMovementRoutes,
   },
   {
+    path: "/stock-movements",
+    route: StockMovementRoutes,
+  },
+  // Sales & POS Checkout (both /sale and /sales supported)
+  {
     path: "/sale",
     route: SaleRoutes,
   },
+  {
+    path: "/sales",
+    route: SaleRoutes,
+  },
+  // Dashboard & Analytics (both /dashboard and /analytics supported)
   {
     path: "/analytics",
     route: AnalyticsRoutes,
   },
   {
+    path: "/dashboard",
+    route: AnalyticsRoutes,
+  },
+  // AI Advisor (both /ai and /ai-advisor supported)
+  {
     path: "/ai-advisor",
+    route: AIAdvisorRoutes,
+  },
+  {
+    path: "/ai",
     route: AIAdvisorRoutes,
   },
 ];

@@ -12,4 +12,10 @@ router.get(
   AIAdvisorController.getStockForecast,
 );
 
+router.post(
+  "/stock-advice",
+  auth("common"),
+  AIAdvisorController.getStockAdvice,
+);
+
 export const AIAdvisorRoutes = router;

@@ -3,6 +3,10 @@ import { IProduct } from "./product.interface";
 
 const productSchema = new Schema<IProduct>(
   {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
     name: {
       type: String,
       required: true,
@@ -11,7 +15,6 @@ const productSchema = new Schema<IProduct>(
     sku: {
       type: String,
       required: true,
-      unique: true,
       trim: true,
       uppercase: true,
     },
@@ -72,8 +75,21 @@ const productSchema = new Schema<IProduct>(
   },
   {
     timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   },
 );
+
+// Virtual aliases for compatibility with diverse frontend / doc naming
+productSchema.virtual("price").get(function () {
+  return this.sellingPrice;
+});
+productSchema.virtual("reorderLevel").get(function () {
+  return this.lowStockThreshold;
+});
+productSchema.virtual("categoryId").get(function () {
+  return this.category;
+});
 
 // Automatic status assignment pre-save hook
 productSchema.pre("save", function () {
@@ -86,8 +102,9 @@ productSchema.pre("save", function () {
   }
 });
 
-// Indexes for high performance searches and filters
+// Indexes for high performance searches and unique constraint per user/store
 productSchema.index({ sku: 1 });
+productSchema.index({ userId: 1, sku: 1 });
 productSchema.index({ name: "text", sku: "text", barcode: "text" });
 productSchema.index({ category: 1, isDeleted: 1 });
 productSchema.index({ status: 1, isDeleted: 1 });
