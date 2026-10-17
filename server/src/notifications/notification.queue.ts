@@ -17,7 +17,7 @@ let notificationWorker: Worker | null = null;
 
 if (redis) {
   notificationQueue = new Queue(NOTIFICATION_QUEUE_NAME, {
-    connection: redis,
+    connection: redis as any,
     defaultJobOptions: {
       removeOnComplete: true,
       removeOnFail: 1000,
@@ -37,7 +37,7 @@ if (redis) {
       await notificationService.sendNotification(job.data);
     },
     {
-      connection: redis,
+      connection: redis as any,
     },
   );
 
