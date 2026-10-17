@@ -14,12 +14,22 @@ import swaggerSpec from "./config/swagger";
 const app: Application = express();
 
 // ------------------ Security & Performance ------------------
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
+  }),
+);
 
 app.use(
   cors({
-    origin: true,
+    origin: (origin, callback) => {
+      // In development, allow all incoming origins (localhost, 127.0.0.1, LAN IPs)
+      callback(null, true);
+    },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "Accept", "X-Requested-With"],
   }),
 );
 
