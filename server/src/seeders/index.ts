@@ -37,6 +37,50 @@ async function seedDatabase() {
       console.log("ℹ️ Admin already exists");
     }
 
+    // 1b. Seed StockWise Demo Accounts
+    const demoAccounts = [
+      {
+        fullName: "StockWise Admin",
+        email: "admin@stockwise.com",
+        password: "admin123",
+        role: "admin" as const,
+        phone: "01700000000",
+        dateOfBirth: "1995-01-01",
+        status: "active" as const,
+      },
+      {
+        fullName: "StockWise Manager",
+        email: "manager@stockwise.com",
+        password: "manager123",
+        role: "manager" as const,
+        phone: "01700000001",
+        dateOfBirth: "1996-01-01",
+        status: "active" as const,
+      },
+      {
+        fullName: "StockWise Cashier",
+        email: "employee@stockwise.com",
+        password: "employee123",
+        role: "employee" as const,
+        phone: "01700000002",
+        dateOfBirth: "1997-01-01",
+        status: "active" as const,
+      },
+    ];
+
+    for (const d of demoAccounts) {
+      let existingDemo = await User.findOne({ email: d.email });
+      if (!existingDemo) {
+        await User.create(d);
+        console.log(`✅ Created demo user: ${d.email}`);
+      } else {
+        existingDemo.password = d.password;
+        existingDemo.status = "active";
+        await existingDemo.save();
+        console.log(`ℹ️ Demo user updated: ${d.email}`);
+      }
+    }
+
     // 2. Seed Managers & Employees
     for (const u of users) {
       const exists = await User.exists({ email: u.email });

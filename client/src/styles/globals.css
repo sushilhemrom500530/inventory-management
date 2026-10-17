@@ -1,26 +1,232 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #F8FAFC;
+  --foreground: #0F172A;
+  --natural: #FFFFFF;
+  --surface: #FFFFFF;
+  --surface-hover: #F1F5F9;
+  --border: #E2E8F0;
+  --primary: #0F42C0;
+  --primary-hover: #0C369E;
+  --primary-subtle: #EFF6FF;
+  --primary-border: #BFDBFE;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-natural: var(--natural);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-primary: #0F42C0;
+  --color-secondary: #EFF6FF;
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  overflow-x: hidden;
+}
+
+.custom-container {
+  max-width: 1440px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Scrollbar Styling for Light Theme */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+*::-webkit-scrollbar-track {
+  background: #F1F5F9;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: #CBD5E1;
+  border-radius: 4px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background-color: #94A3B8;
+}
+
+/* Primary Utility Classes */
+.primary {
+  color: #0F42C0 !important;
+}
+
+.bg-primary {
+  background-color: #0F42C0 !important;
+}
+
+.border-primary {
+  border-color: #0F42C0 !important;
+}
+
+.text-primary-accent {
+  color: #0F42C0 !important;
+}
+
+/* High-End Solid Primary Button */
+.button-primary {
+  background-color: #0F42C0;
+  color: #FFFFFF;
+  font-weight: 600;
+  border-radius: 9999px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 14px 0 rgba(15, 66, 192, 0.25);
+}
+.button-primary:hover {
+  background-color: #0C369E;
+  box-shadow: 0 6px 20px 0 rgba(15, 66, 192, 0.4);
+  transform: translateY(-1px);
+}
+
+.button-shadow {
+  border-radius: 9999px;
+  background-color: #0F42C0;
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(15, 66, 192, 0.2);
+  font-weight: 500;
+}
+
+/* Ant Design SaaS Light Overrides */
+.ant-pagination-item {
+  background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease;
+}
+
+.ant-pagination-item a {
+  color: #475569 !important;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.ant-pagination-item:hover {
+  border-color: #0F42C0 !important;
+}
+
+.ant-pagination-item:hover a {
+  color: #0F42C0 !important;
+}
+
+.ant-pagination-item-active {
+  background-color: #0F42C0 !important;
+  border-color: #0F42C0 !important;
+}
+
+.ant-pagination-item-active a {
+  color: #FFFFFF !important;
+  font-weight: 700;
+}
+
+.ant-pagination-prev .ant-pagination-item-link,
+.ant-pagination-next .ant-pagination-item-link {
+  background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  color: #64748B !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease;
+}
+
+.ant-pagination-prev:hover .ant-pagination-item-link,
+.ant-pagination-next:hover .ant-pagination-item-link {
+  border-color: #0F42C0 !important;
+  color: #0F42C0 !important;
+}
+
+.ant-pagination-disabled .ant-pagination-item-link {
+  opacity: 0.4 !important;
+  border-color: #E2E8F0 !important;
+}
+
+.ant-select-selector {
+  background-color: #FFFFFF !important;
+  border-color: #CBD5E1 !important;
+  color: #0F172A !important;
+  border-radius: 8px !important;
+}
+
+.ant-select-arrow {
+  color: #64748B !important;
+}
+
+/* Ant Design Light Modal styling */
+.ant-modal-content {
+  background-color: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 16px !important;
+  color: #0F172A !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+}
+.ant-modal-header {
+  background-color: transparent !important;
+  border-bottom: 1px solid #F1F5F9 !important;
+  padding-bottom: 12px !important;
+}
+.ant-modal-title {
+  color: #0F172A !important;
+  font-weight: 700 !important;
+}
+.ant-modal-close {
+  color: #64748B !important;
+}
+.ant-modal-close:hover {
+  color: #0F172A !important;
+}
+
+/* Ant Design Primary Buttons and Active States */
+.ant-btn-primary {
+  background-color: #0F42C0 !important;
+  border-color: #0F42C0 !important;
+  box-shadow: 0 2px 8px rgba(15, 66, 192, 0.25) !important;
+  color: #FFFFFF !important;
+}
+.ant-btn-primary:hover, .ant-btn-primary:focus {
+  background-color: #0C369E !important;
+  border-color: #0C369E !important;
+}
+
+.ant-input, .ant-input-number {
+  background-color: #FFFFFF !important;
+  border-color: #CBD5E1 !important;
+  color: #0F172A !important;
+  border-radius: 8px !important;
+}
+
+.ant-input:focus, .ant-input-focused,
+.ant-input-number:focus, .ant-input-number-focused {
+  border-color: #0F42C0 !important;
+  box-shadow: 0 0 0 2px rgba(15, 66, 192, 0.15) !important;
+}
+
+.ant-switch-checked {
+  background-color: #0F42C0 !important;
+}
+
+.ant-checkbox-checked .ant-checkbox-inner {
+  background-color: #0F42C0 !important;
+  border-color: #0F42C0 !important;
+}
+
+.ant-radio-checked .ant-radio-inner {
+  border-color: #0F42C0 !important;
+}
+.ant-radio-checked .ant-radio-inner::after {
+  background-color: #0F42C0 !important;
 }
