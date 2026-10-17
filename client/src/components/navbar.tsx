@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import Link from "next/link";
 import { Layers, ArrowRight, LayoutDashboard, ShoppingCart } from "lucide-react";
