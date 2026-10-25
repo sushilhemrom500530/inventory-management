@@ -42,7 +42,11 @@ export default function LoginPage() {
         (typeof window !== "undefined" &&
           new URLSearchParams(window.location.search).get("callbackUrl")) ||
         "/dashboard";
-      router.push(targetUrl);
+      if (typeof window !== "undefined") {
+        window.location.href = targetUrl;
+      } else {
+        router.push(targetUrl);
+      }
     } catch (err: any) {
       message.error(err?.message || "Invalid email or password");
     } finally {

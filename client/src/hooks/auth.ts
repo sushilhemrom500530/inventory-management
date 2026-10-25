@@ -12,7 +12,14 @@ export function useAuthService() {
 
   const fetchProfile = useCallback(async () => {
     try {
-      const token = Cookies.get("token");
+      let token = Cookies.get("token");
+      if (!token && typeof window !== "undefined") {
+        token = localStorage.getItem("token") || undefined;
+        if (token) {
+          Cookies.set("token", token, { path: "/", expires: 7, sameSite: "lax" });
+        }
+      }
+
       if (!token) {
         setCurrentUser(null);
         setLoading(false);
@@ -23,12 +30,18 @@ export function useAuthService() {
       if (res?.success && res.data) {
         const userObj = res.data.user || res.data.results || res.data;
         setCurrentUser(userObj);
-        Cookies.set("user", JSON.stringify(userObj));
-        Cookies.set("role", userObj.role || "");
+        Cookies.set("user", JSON.stringify(userObj), { path: "/", expires: 7, sameSite: "lax" });
+        Cookies.set("role", userObj.role || "", { path: "/", expires: 7, sameSite: "lax" });
+        if (typeof window !== "undefined") {
+          localStorage.setItem("user", JSON.stringify(userObj));
+          localStorage.setItem("role", userObj.role || "");
+        }
       }
     } catch (_error) {
       // Token might be invalid or expired
-      const cached = Cookies.get("user");
+      const cached =
+        Cookies.get("user") ||
+        (typeof window !== "undefined" ? localStorage.getItem("user") : null);
       if (cached) {
         try {
           setCurrentUser(JSON.parse(cached));
@@ -55,11 +68,18 @@ export function useAuthService() {
         const token = res.data.token || res.data.accessToken;
         const user = res.data.user || res.data.results || res.data;
         if (token) {
-          Cookies.set("token", token, { expires: 7 });
+          Cookies.set("token", token, { path: "/", expires: 7, sameSite: "lax" });
+          if (typeof window !== "undefined") {
+            localStorage.setItem("token", token);
+          }
         }
         if (user && typeof user === "object") {
-          Cookies.set("user", JSON.stringify(user), { expires: 7 });
-          Cookies.set("role", user.role || "", { expires: 7 });
+          Cookies.set("user", JSON.stringify(user), { path: "/", expires: 7, sameSite: "lax" });
+          Cookies.set("role", user.role || "", { path: "/", expires: 7, sameSite: "lax" });
+          if (typeof window !== "undefined") {
+            localStorage.setItem("user", JSON.stringify(user));
+            localStorage.setItem("role", user.role || "");
+          }
           setCurrentUser(user);
         }
         return res;
@@ -84,12 +104,23 @@ export function useAuthService() {
   };
 
   const logoutUser = () => {
+    Cookies.remove("token", { path: "/" });
+    Cookies.remove("token", { path: "/auth" });
     Cookies.remove("token");
-    Cookies.remove("refreshToken");
-    Cookies.remove("user");
-    Cookies.remove("role");
+    Cookies.remove("refreshToken", { path: "/" });
+    Cookies.remove("user", { path: "/" });
+    Cookies.remove("role", { path: "/" });
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("role");
+    }
     setCurrentUser(null);
-    router.push("/auth/login");
+    if (typeof window !== "undefined") {
+      window.location.href = "/auth/login";
+    } else {
+      router.push("/auth/login");
+    }
   };
 
   return {

@@ -1,4 +1,5 @@
 "use client";
+// StockWise Master Dashboard Layout
 import { ReactNode, useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
@@ -14,33 +15,26 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter();
   const [navOpened, setNavOpened] = useState<boolean>(false);
-  const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
   const { logoutUser } = useAuthService();
 
   useEffect(() => {
-    const token = Cookies.get("token");
+    let token = Cookies.get("token");
+    if (!token && typeof window !== "undefined") {
+      token = localStorage.getItem("token") || undefined;
+      if (token) {
+        // Sync token back to cookie with root path
+        Cookies.set("token", token, { path: "/", expires: 7, sameSite: "lax" });
+      }
+    }
+
     if (!token) {
-      router.replace("/auth/login");
-    } else {
-      setIsAuthorized(true);
+      if (typeof window !== "undefined") {
+        window.location.href = `/auth/login?callbackUrl=${encodeURIComponent(window.location.pathname)}`;
+      } else {
+        router.replace("/auth/login");
+      }
     }
   }, [router]);
-
-  if (!isAuthorized) {
-    return (
-      <div className="flex min-h-screen w-full items-center justify-center bg-[#F8FAFC]">
-        <div className="flex flex-col items-center gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0F42C0] text-white shadow-md shadow-[#0F42C0]/20">
-            <Layers className="h-6 w-6 animate-pulse" />
-          </div>
-          <div className="flex flex-col items-center gap-1">
-            <h3 className="text-sm font-bold text-slate-900">Verifying Authorization...</h3>
-            <p className="text-xs text-slate-500">Securing your session with StockWise Guard</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="flex min-h-screen h-full bg-[#F8FAFC] text-slate-900">
