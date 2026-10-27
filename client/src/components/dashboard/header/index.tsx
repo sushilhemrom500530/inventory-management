@@ -33,6 +33,7 @@ export default function Header({ navOpened, setNavOpened }: HeaderProps) {
   const displayName = currentUser?.fullName || currentUser?.name || "Inventory Manager";
   const displayEmail = currentUser?.email || "manager@stockwise.com";
   const displayRole = (currentUser?.role || "Manager").toUpperCase();
+  const isEmployee = (currentUser?.role || "").toLowerCase() === "employee";
 
   // Generate page title from pathname
   const getPageTitle = () => {
@@ -148,14 +149,16 @@ export default function Header({ navOpened, setNavOpened }: HeaderProps) {
                     <span>My Profile</span>
                   </Link>
 
-                  <Link
-                    href="/settings"
-                    onClick={() => setDropdownOpen(false)}
-                    className="flex items-center gap-3 px-3 py-2 text-xs text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors"
-                  >
-                    <Settings size={15} />
-                    <span>Store Settings</span>
-                  </Link>
+                  {!isEmployee && (
+                    <Link
+                      href="/settings"
+                      onClick={() => setDropdownOpen(false)}
+                      className="flex items-center gap-3 px-3 py-2 text-xs text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors"
+                    >
+                      <Settings size={15} />
+                      <span>Store Settings</span>
+                    </Link>
+                  )}
                 </div>
 
                 <div className="border-t border-slate-100 my-1" />

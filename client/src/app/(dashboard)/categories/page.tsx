@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { fetchApi } from "@/utils/api";
 import { message, Modal, Input } from "antd";
+import Cookies from "js-cookie";
+import { useAuthService } from "@/hooks/auth";
 
 interface Category {
   _id: string;
@@ -25,6 +27,10 @@ interface Category {
 }
 
 export default function CategoriesPage() {
+  const { user: currentUser } = useAuthService();
+  const userRole = (currentUser?.role || Cookies.get("role") || "").toLowerCase();
+  const isEmployee = userRole === "employee";
+
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -142,12 +148,14 @@ export default function CategoriesPage() {
           </p>
         </div>
 
-        <button
-          onClick={openCreateModal}
-          className="flex items-center gap-2 rounded-xl bg-[#0F42C0] px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-[#0F42C0]/20 transition hover:bg-[#0C369E]"
-        >
-          <Plus className="h-4 w-4" /> Add Category
-        </button>
+        {!isEmployee && (
+          <button
+            onClick={openCreateModal}
+            className="flex items-center gap-2 rounded-xl bg-[#0F42C0] px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-[#0F42C0]/20 transition hover:bg-[#0C369E]"
+          >
+            <Plus className="h-4 w-4" /> Add Category
+          </button>
+        )}
       </div>
 
       {/* KPI Overview & Search Filter */}
@@ -193,7 +201,7 @@ export default function CategoriesPage() {
           <p className="mt-1 text-xs text-slate-500">
             {searchQuery ? "Try refining your search keyword" : "Get started by creating your first category."}
           </p>
-          {!searchQuery && (
+          {!searchQuery && !isEmployee && (
             <button
               onClick={openCreateModal}
               className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#0F42C0] px-4 py-2 text-xs font-semibold text-white hover:bg-[#0C369E]"
@@ -225,22 +233,24 @@ export default function CategoriesPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => openEditModal(cat)}
-                      className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition"
-                      title="Edit Category"
-                    >
-                      <Edit2 className="h-3.5 w-3.5" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(cat)}
-                      className="rounded-lg p-1.5 text-rose-500 hover:bg-rose-50 transition"
-                      title="Delete Category"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
+                  {!isEmployee && (
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => openEditModal(cat)}
+                        className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition"
+                        title="Edit Category"
+                      >
+                        <Edit2 className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(cat)}
+                        className="rounded-lg p-1.5 text-rose-500 hover:bg-rose-50 transition"
+                        title="Delete Category"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 <p className="mt-3 text-xs leading-relaxed text-slate-600 line-clamp-2">

@@ -21,6 +21,8 @@ import {
 } from "lucide-react";
 import { fetchApi } from "@/utils/api";
 import { message, Modal, InputNumber, Input } from "antd";
+import { useAuthService } from "@/hooks/auth";
+import RestrictedAccess from "@/components/reuseable/restricted-access";
 
 interface ProductForecast {
   productId: string;
@@ -58,6 +60,9 @@ interface ForecastResponse {
 }
 
 export default function AiAdvisorPage() {
+  const { user: currentUser, loading: authLoading } = useAuthService();
+  const isEmployee = (currentUser?.role || "").toLowerCase() === "employee";
+
   const [data, setData] = useState<ForecastResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<string>("ALL");
@@ -71,6 +76,10 @@ export default function AiAdvisorPage() {
   const [submittingRestock, setSubmittingRestock] = useState(false);
 
   const loadForecast = async () => {
+    if (isEmployee) {
+      setLoading(false);
+      return;
+    }
     try {
       setLoading(true);
       const res = await fetchApi<ForecastResponse>("/ai/forecast");
@@ -85,8 +94,18 @@ export default function AiAdvisorPage() {
   };
 
   useEffect(() => {
-    loadForecast();
-  }, []);
+    if (!authLoading) {
+      if (isEmployee) {
+        setLoading(false);
+      } else {
+        loadForecast();
+      }
+    }
+  }, [authLoading, isEmployee]);
+
+  if (!authLoading && isEmployee) {
+    return <RestrictedAccess featureName="AI Stock Advisor" />;
+  }
 
   const openRestockModal = (forecast: ProductForecast) => {
     setSelectedForecast(forecast);

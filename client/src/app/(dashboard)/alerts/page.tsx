@@ -13,10 +13,13 @@ import {
   CheckCircle2,
   TrendingDown,
   Sparkles,
+  Eye,
 } from "lucide-react";
 import { fetchApi } from "@/utils/api";
 import { StockBadge } from "@/components/reuseable/stock-badge";
 import { message, Modal, InputNumber, Input } from "antd";
+import Cookies from "js-cookie";
+import { useAuthService } from "@/hooks/auth";
 
 interface AlertProduct {
   _id: string;
@@ -45,6 +48,10 @@ interface AlertsResponse {
 }
 
 export default function StockAlertsPage() {
+  const { user: currentUser } = useAuthService();
+  const userRole = (currentUser?.role || Cookies.get("role") || "").toLowerCase();
+  const isEmployee = userRole === "employee";
+
   const [alertsData, setAlertsData] = useState<AlertsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [filterTab, setFilterTab] = useState<"ALL" | "CRITICAL" | "LOW">("ALL");
@@ -312,12 +319,21 @@ export default function StockAlertsPage() {
                       </td>
 
                       <td className="py-3.5 pr-6 text-right">
-                        <button
-                          onClick={() => openRestockModal(p)}
-                          className="inline-flex items-center gap-1.5 rounded-xl bg-[#0F42C0] px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm shadow-[#0F42C0]/20 hover:bg-[#0C369E] transition"
-                        >
-                          <PlusCircle className="h-3.5 w-3.5" /> Restock
-                        </button>
+                        {isEmployee ? (
+                          <Link
+                            href={`/products/${p._id}`}
+                            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:text-[#0F42C0] hover:border-[#0F42C0] transition shadow-sm"
+                          >
+                            <Eye className="h-3.5 w-3.5" /> View SKU
+                          </Link>
+                        ) : (
+                          <button
+                            onClick={() => openRestockModal(p)}
+                            className="inline-flex items-center gap-1.5 rounded-xl bg-[#0F42C0] px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm shadow-[#0F42C0]/20 hover:bg-[#0C369E] transition"
+                          >
+                            <PlusCircle className="h-3.5 w-3.5" /> Restock
+                          </button>
+                        )}
                       </td>
                     </tr>
                   );

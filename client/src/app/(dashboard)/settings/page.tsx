@@ -12,8 +12,19 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import { message } from "antd";
+import Cookies from "js-cookie";
+import { useAuthService } from "@/hooks/auth";
+import RestrictedAccess from "@/components/reuseable/restricted-access";
 
 export default function SettingsPage() {
+  const { user: currentUser } = useAuthService();
+  const userRole = (currentUser?.role || Cookies.get("role") || "").toLowerCase();
+  const isEmployee = userRole === "employee";
+
+  if (isEmployee) {
+    return <RestrictedAccess featureName="Store & System Settings" />;
+  }
+
   const [storeName, setStoreName] = useState("StockWise Smart Retail Hub");
   const [currency, setCurrency] = useState("USD ($)");
   const [defaultTaxRate, setDefaultTaxRate] = useState<number>(5);

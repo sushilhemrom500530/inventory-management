@@ -21,7 +21,38 @@ export default function Sidebar({ navOpened, setNavOpened }: SidebarProps) {
 
   const menuSections = adminMenuData?.linkData || [];
   const displayName = currentUser?.fullName || currentUser?.name || "Inventory Manager";
-  const displayRole = (currentUser?.role || "Manager").toUpperCase();
+  const userRole = (currentUser?.role || Cookies.get("role") || "").toLowerCase();
+  const displayRole = (currentUser?.role || Cookies.get("role") || "Manager").toUpperCase();
+  const isEmployee = userRole === "employee";
+
+  // Filter navigation items: restricted strictly for EMPLOYEE, untouched for admin/manager
+  const visibleMenuSections = menuSections
+    .map((section) => {
+      if (!isEmployee) return section;
+
+      const filteredMenu = section.menu
+        .filter((item) => {
+          if (item.href === "/ai-advisor") return false;
+          if (item.href === "/reports") return false;
+          if (item.href === "/settings") return false;
+          return true;
+        })
+        .map((item) => {
+          if (item.submenu) {
+            return {
+              ...item,
+              submenu: item.submenu.filter((sub) => sub.href !== "/products/new"),
+            };
+          }
+          return item;
+        });
+
+      return {
+        ...section,
+        menu: filteredMenu,
+      };
+    })
+    .filter((section) => section.menu.length > 0);
 
   const closeAllSubmenus = (): void => {
     setOpenSubmenu(null);
@@ -63,7 +94,7 @@ export default function Sidebar({ navOpened, setNavOpened }: SidebarProps) {
 
             {/* Navigation links */}
             <nav className="p-3 space-y-4">
-              {menuSections.map((section, sIndex) => (
+              {visibleMenuSections.map((section, sIndex) => (
                 <div key={sIndex} className="space-y-1">
                   {section.sectionTitle && (
                     <div className="px-4 py-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">

@@ -14,6 +14,9 @@ import {
 } from "lucide-react";
 import { fetchApi } from "@/utils/api";
 import { message } from "antd";
+import Cookies from "js-cookie";
+import { useAuthService } from "@/hooks/auth";
+import RestrictedAccess from "@/components/reuseable/restricted-access";
 
 interface Category {
   _id: string;
@@ -28,6 +31,14 @@ export default function EditProductPage({
   const resolvedParams = use(params);
   const productId = resolvedParams.id;
   const router = useRouter();
+
+  const { user: currentUser } = useAuthService();
+  const userRole = (currentUser?.role || Cookies.get("role") || "").toLowerCase();
+  const isEmployee = userRole === "employee";
+
+  if (isEmployee) {
+    return <RestrictedAccess featureName="Edit Product Details" />;
+  }
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);

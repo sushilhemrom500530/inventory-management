@@ -13,9 +13,20 @@ import {
 } from "lucide-react";
 import { apiClient } from "@/utils/api";
 import { message } from "antd";
+import Cookies from "js-cookie";
+import { useAuthService } from "@/hooks/auth";
+import RestrictedAccess from "@/components/reuseable/restricted-access";
 
 export default function AddProductPage() {
   const router = useRouter();
+  const { user: currentUser } = useAuthService();
+  const userRole = (currentUser?.role || Cookies.get("role") || "").toLowerCase();
+  const isEmployee = userRole === "employee";
+
+  if (isEmployee) {
+    return <RestrictedAccess featureName="Add New Product (Catalog Management)" />;
+  }
+
   const [categories, setCategories] = useState<any[]>([]);
   const [submitting, setSubmitting] = useState<boolean>(false);
 

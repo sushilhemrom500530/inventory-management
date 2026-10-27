@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { fetchApi } from "@/utils/api";
 import { message } from "antd";
+import { useAuthService } from "@/hooks/auth";
+import RestrictedAccess from "@/components/reuseable/restricted-access";
 
 interface AnalyticsOverview {
   kpis: {
@@ -46,11 +48,18 @@ interface AnalyticsOverview {
 }
 
 export default function ReportsPage() {
+  const { user: currentUser, loading: authLoading } = useAuthService();
+  const isEmployee = (currentUser?.role || "").toLowerCase() === "employee";
+
   const [data, setData] = useState<AnalyticsOverview | null>(null);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState<number>(30);
 
   const loadReport = async () => {
+    if (isEmployee) {
+      setLoading(false);
+      return;
+    }
     try {
       setLoading(true);
       const res = await fetchApi<AnalyticsOverview>(`/analytics/summary?days=${period}`);
@@ -65,8 +74,18 @@ export default function ReportsPage() {
   };
 
   useEffect(() => {
-    loadReport();
-  }, [period]);
+    if (!authLoading) {
+      if (isEmployee) {
+        setLoading(false);
+      } else {
+        loadReport();
+      }
+    }
+  }, [period, authLoading, isEmployee]);
+
+  if (!authLoading && isEmployee) {
+    return <RestrictedAccess featureName="Executive Reports & Financial Analytics" />;
+  }
 
   const kpis = data?.kpis;
   const salesTrends = data?.salesTrends || [];

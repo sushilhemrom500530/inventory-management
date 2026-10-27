@@ -12,12 +12,19 @@ import {
   Eye,
   RefreshCw,
   Sliders,
+  ShoppingCart,
 } from "lucide-react";
 import { apiClient } from "@/utils/api";
 import StockBadge from "@/components/reuseable/stock-badge";
 import { Modal, message } from "antd";
+import Cookies from "js-cookie";
+import { useAuthService } from "@/hooks/auth";
 
 export default function ProductsListPage() {
+  const { user: currentUser } = useAuthService();
+  const userRole = (currentUser?.role || Cookies.get("role") || "").toLowerCase();
+  const isEmployee = userRole === "employee";
+
   const [products, setProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -183,13 +190,23 @@ export default function ProductsListPage() {
             <span className="hidden sm:inline">Export CSV</span>
           </button>
 
-          <Link
-            href="/products/new"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0F42C0] hover:bg-[#0C369E] text-white text-xs font-bold shadow-md shadow-[#0F42C0]/20 transition-all cursor-pointer"
-          >
-            <Plus size={16} />
-            <span>Add Product</span>
-          </Link>
+          {isEmployee ? (
+            <Link
+              href="/sales/checkout"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0F42C0] hover:bg-[#0C369E] text-white text-xs font-bold shadow-md shadow-[#0F42C0]/20 transition-all cursor-pointer"
+            >
+              <ShoppingCart size={16} />
+              <span>POS Terminal</span>
+            </Link>
+          ) : (
+            <Link
+              href="/products/new"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0F42C0] hover:bg-[#0C369E] text-white text-xs font-bold shadow-md shadow-[#0F42C0]/20 transition-all cursor-pointer"
+            >
+              <Plus size={16} />
+              <span>Add Product</span>
+            </Link>
+          )}
         </div>
       </div>
 
@@ -350,17 +367,6 @@ export default function ProductsListPage() {
 
                       <td className="py-3.5 px-5 text-right">
                         <div className="flex items-center justify-end gap-1.5">
-                          <button
-                            onClick={() => {
-                              setSelectedProduct(product);
-                              setAdjustModalOpen(true);
-                            }}
-                            className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:text-[#0F42C0] hover:border-[#0F42C0] transition-colors cursor-pointer"
-                            title="Quick Adjust Stock"
-                          >
-                            <Sliders size={14} />
-                          </button>
-
                           <Link
                             href={`/products/${product._id}`}
                             className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:text-[#0F42C0] hover:border-[#0F42C0] transition-colors cursor-pointer"
@@ -369,21 +375,36 @@ export default function ProductsListPage() {
                             <Eye size={14} />
                           </Link>
 
-                          <Link
-                            href={`/products/${product._id}/edit`}
-                            className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:text-[#0F42C0] hover:border-[#0F42C0] transition-colors cursor-pointer"
-                            title="Edit Product"
-                          >
-                            <Edit2 size={14} />
-                          </Link>
+                          {!isEmployee && (
+                            <>
+                              <button
+                                onClick={() => {
+                                  setSelectedProduct(product);
+                                  setAdjustModalOpen(true);
+                                }}
+                                className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:text-[#0F42C0] hover:border-[#0F42C0] transition-colors cursor-pointer"
+                                title="Quick Adjust Stock"
+                              >
+                                <Sliders size={14} />
+                              </button>
 
-                          <button
-                            onClick={() => handleDeleteProduct(product)}
-                            className="p-1.5 rounded-lg border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors cursor-pointer"
-                            title="Delete Product"
-                          >
-                            <Trash2 size={14} />
-                          </button>
+                              <Link
+                                href={`/products/${product._id}/edit`}
+                                className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:text-[#0F42C0] hover:border-[#0F42C0] transition-colors cursor-pointer"
+                                title="Edit Product"
+                              >
+                                <Edit2 size={14} />
+                              </Link>
+
+                              <button
+                                onClick={() => handleDeleteProduct(product)}
+                                className="p-1.5 rounded-lg border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors cursor-pointer"
+                                title="Delete Product"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </>
+                          )}
                         </div>
                       </td>
                     </tr>

@@ -19,8 +19,14 @@ import {
 import { apiClient } from "@/utils/api";
 import StockBadge from "@/components/reuseable/stock-badge";
 import { Modal } from "antd";
+import Cookies from "js-cookie";
+import { useAuthService } from "@/hooks/auth";
 
 export default function DashboardPage() {
+  const { user: currentUser } = useAuthService();
+  const userRole = (currentUser?.role || Cookies.get("role") || "").toLowerCase();
+  const isEmployee = userRole === "employee";
+
   const [days, setDays] = useState<number>(30);
   const [loading, setLoading] = useState<boolean>(true);
   const [data, setData] = useState<any>(null);
@@ -227,13 +233,23 @@ export default function DashboardPage() {
                 Daily recorded transaction totals for past {days} days
               </p>
             </div>
-            <Link
-              href="/reports"
-              className="text-xs font-semibold text-[#0F42C0] hover:underline flex items-center gap-1 self-start sm:self-auto"
-            >
-              <span>View Financial Ledger</span>
-              <ArrowRight size={13} />
-            </Link>
+            {isEmployee ? (
+              <Link
+                href="/sales"
+                className="text-xs font-semibold text-[#0F42C0] hover:underline flex items-center gap-1 self-start sm:self-auto"
+              >
+                <span>View Sales History</span>
+                <ArrowRight size={13} />
+              </Link>
+            ) : (
+              <Link
+                href="/reports"
+                className="text-xs font-semibold text-[#0F42C0] hover:underline flex items-center gap-1 self-start sm:self-auto"
+              >
+                <span>View Financial Ledger</span>
+                <ArrowRight size={13} />
+              </Link>
+            )}
           </div>
 
           {/* SVG Bar Visualizer */}
@@ -286,37 +302,68 @@ export default function DashboardPage() {
 
         {/* AI Quick Actions & System Shortcuts */}
         <div className="space-y-6">
-          {/* AI Advisor Feature Callout */}
-          <div className="rounded-2xl border border-blue-200 bg-blue-50/50 p-6 shadow-sm">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#0F42C0] text-white">
-                <Sparkles size={16} />
+          {/* Feature Callout: Cashier POS for Employee, AI Advisor for Admin/Manager */}
+          {isEmployee ? (
+            <div className="rounded-2xl border border-blue-200 bg-blue-50/50 p-6 shadow-sm">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#0F42C0] text-white">
+                  <ShoppingCart size={16} />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-slate-900">Cashier POS Terminal</h4>
+                  <p className="text-[11px] text-slate-500">Retail Barcode & Instant Checkout</p>
+                </div>
               </div>
-              <div>
-                <h4 className="text-sm font-bold text-slate-900">AI Stock Advisor</h4>
-                <p className="text-[11px] text-slate-500">Python FastAPI Demand Intelligence</p>
+
+              <p className="mt-3 text-xs leading-relaxed text-slate-600">
+                Process customer orders quickly with real-time stock deductions, auto-calculated tax, item discounts, and instant receipt generation.
+              </p>
+
+              <div className="mt-4 pt-3 border-t border-blue-200/60 flex items-center justify-between">
+                <span className="text-xs font-semibold text-slate-700">
+                  Ready to serve
+                </span>
+                <Link
+                  href="/sales/checkout"
+                  className="px-3 py-1.5 rounded-lg bg-[#0F42C0] text-white text-xs font-semibold hover:bg-[#0C369E] transition-all flex items-center gap-1 shadow-sm"
+                >
+                  <span>Open POS</span>
+                  <ArrowRight size={12} />
+                </Link>
               </div>
             </div>
+          ) : (
+            <div className="rounded-2xl border border-blue-200 bg-blue-50/50 p-6 shadow-sm">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#0F42C0] text-white">
+                  <Sparkles size={16} />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-slate-900">AI Stock Advisor</h4>
+                  <p className="text-[11px] text-slate-500">Python FastAPI Demand Intelligence</p>
+                </div>
+              </div>
 
-            <p className="mt-3 text-xs leading-relaxed text-slate-600">
-              Demand velocity algorithms estimate days until stockout and recommend purchase quantities before stock is depleted.
-            </p>
+              <p className="mt-3 text-xs leading-relaxed text-slate-600">
+                Demand velocity algorithms estimate days until stockout and recommend purchase quantities before stock is depleted.
+              </p>
 
-            <div className="mt-4 pt-3 border-t border-blue-200/60 flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-700">
-                {kpis.lowStockCount + kpis.outOfStockCount > 0
-                  ? `${kpis.lowStockCount + kpis.outOfStockCount} items need attention`
-                  : "All inventory healthy"}
-              </span>
-              <Link
-                href="/ai-advisor"
-                className="px-3 py-1.5 rounded-lg bg-[#0F42C0] text-white text-xs font-semibold hover:bg-[#0C369E] transition-all flex items-center gap-1 shadow-sm"
-              >
-                <span>Open Advisor</span>
-                <ArrowRight size={12} />
-              </Link>
+              <div className="mt-4 pt-3 border-t border-blue-200/60 flex items-center justify-between">
+                <span className="text-xs font-semibold text-slate-700">
+                  {kpis.lowStockCount + kpis.outOfStockCount > 0
+                    ? `${kpis.lowStockCount + kpis.outOfStockCount} items need attention`
+                    : "All inventory healthy"}
+                </span>
+                <Link
+                  href="/ai-advisor"
+                  className="px-3 py-1.5 rounded-lg bg-[#0F42C0] text-white text-xs font-semibold hover:bg-[#0C369E] transition-all flex items-center gap-1 shadow-sm"
+                >
+                  <span>Open Advisor</span>
+                  <ArrowRight size={12} />
+                </Link>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Quick Shortcuts */}
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-3">
@@ -335,16 +382,29 @@ export default function DashboardPage() {
                 <span className="text-[10px] text-slate-500">POS Checkout</span>
               </Link>
 
-              <Link
-                href="/products/new"
-                className="flex flex-col items-center justify-center p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-blue-50 hover:border-blue-200 transition-all text-center group cursor-pointer"
-              >
-                <Plus size={20} className="text-[#0F42C0] mb-1.5" />
-                <span className="text-xs font-bold text-slate-900 group-hover:text-[#0F42C0]">
-                  Add Product
-                </span>
-                <span className="text-[10px] text-slate-500">Create SKU</span>
-              </Link>
+              {isEmployee ? (
+                <Link
+                  href="/products"
+                  className="flex flex-col items-center justify-center p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-blue-50 hover:border-blue-200 transition-all text-center group cursor-pointer"
+                >
+                  <Package size={20} className="text-[#0F42C0] mb-1.5" />
+                  <span className="text-xs font-bold text-slate-900 group-hover:text-[#0F42C0]">
+                    View Catalog
+                  </span>
+                  <span className="text-[10px] text-slate-500">Inventory</span>
+                </Link>
+              ) : (
+                <Link
+                  href="/products/new"
+                  className="flex flex-col items-center justify-center p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-blue-50 hover:border-blue-200 transition-all text-center group cursor-pointer"
+                >
+                  <Plus size={20} className="text-[#0F42C0] mb-1.5" />
+                  <span className="text-xs font-bold text-slate-900 group-hover:text-[#0F42C0]">
+                    Add Product
+                  </span>
+                  <span className="text-[10px] text-slate-500">Create SKU</span>
+                </Link>
+              )}
             </div>
           </div>
         </div>
