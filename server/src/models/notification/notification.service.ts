@@ -4,7 +4,15 @@ import QueryBuilder from "../../shared/queryBuilder";
 import { Types } from "mongoose";
 
 const getAllNotifaction = async (userId: string, query: any) => {
-  const filter: any = { ...query, receiver: new Types.ObjectId(userId) };
+  const userObjectId = Types.ObjectId.isValid(userId) ? new Types.ObjectId(userId) : null;
+  const filter: any = {
+    ...query,
+    $or: [
+      ...(userObjectId ? [{ receiver: userObjectId }] : []),
+      { receiver: null },
+      { receiver: { $exists: false } },
+    ],
+  };
 
   const notificationQuery = new QueryBuilder<INotification>(
     Notification.find(),
@@ -18,6 +26,7 @@ const getAllNotifaction = async (userId: string, query: any) => {
 
   const results = await notificationQuery.modelQuery
     .select("-isDeleted -__v")
+    .sort({ createdAt: -1 })
     .lean();
 
   const meta = await notificationQuery.countTotal();
@@ -28,7 +37,19 @@ const getAllNotifaction = async (userId: string, query: any) => {
   };
 };
 
-const markAsRead = async (id: string) => {
+const markAsRead = async (id?: string, userId?: string) => {
+  if (!id || id === "all") {
+    const userObjectId = userId && Types.ObjectId.isValid(userId) ? new Types.ObjectId(userId) : null;
+    const filter: any = {
+      $or: [
+        ...(userObjectId ? [{ receiver: userObjectId }] : []),
+        { receiver: null },
+        { receiver: { $exists: false } },
+      ],
+    };
+    return await Notification.updateMany(filter, { isRead: true });
+  }
+
   const readNotification = await Notification.findByIdAndUpdate(
     id,
     { isRead: true },

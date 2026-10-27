@@ -146,7 +146,6 @@ saleSchema.virtual("totalAmount").get(function () {
   return this.grandTotal;
 });
 
-saleSchema.index({ invoiceNumber: 1 });
 saleSchema.index({ userId: 1, createdAt: -1 });
 saleSchema.index({ cashier: 1, createdAt: -1 });
 saleSchema.index({ createdAt: -1 });

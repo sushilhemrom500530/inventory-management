@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.get(
   "/get-all",
-  auth("common"),
+  auth("admin"),
   cacheMiddleware("users", 60),
   UserController.getAll,
 );

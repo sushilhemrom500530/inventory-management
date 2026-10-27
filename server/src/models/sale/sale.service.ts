@@ -2,6 +2,8 @@ import { Sale } from "./sale.model";
 import { ISale, ISaleItem, PaymentMethod } from "./sale.interface";
 import { Product } from "../product/product.model";
 import { StockMovement } from "../stock-movement/stockMovement.model";
+import { Notification } from "../notification/notification.model";
+import { getIO } from "../../utils/io";
 import AppError from "../../errors/AppError";
 import { StatusCodes } from "http-status-codes";
 import QueryBuilder from "../../shared/queryBuilder";
@@ -105,6 +107,14 @@ const checkoutSale = async (payload: ICheckoutPayload): Promise<ISale> => {
 
   const successfullyDecremented: { productId: string; quantity: number }[] = [];
   const processedItems: ISaleItem[] = [];
+  const lowStockAlerts: {
+    productId: any;
+    productName: string;
+    sku: string;
+    quantity: number;
+    lowStockThreshold: number;
+    status: string;
+  }[] = [];
   let subtotal = 0;
   const invoiceNumber = await generateInvoiceNumber();
 
@@ -149,6 +159,18 @@ const checkoutSale = async (payload: ICheckoutPayload): Promise<ISale> => {
         updatedProduct.status = "in_stock";
       }
       await updatedProduct.save({ session: useTransaction && session ? session : undefined });
+
+      // Detect low stock threshold breaches for real-time notification
+      if (updatedProduct.quantity <= (updatedProduct.lowStockThreshold || 5)) {
+        lowStockAlerts.push({
+          productId: updatedProduct._id,
+          productName: updatedProduct.name,
+          sku: updatedProduct.sku,
+          quantity: updatedProduct.quantity,
+          lowStockThreshold: updatedProduct.lowStockThreshold || 5,
+          status: updatedProduct.status,
+        });
+      }
 
       const lineTotal = product.sellingPrice * item.quantity;
       subtotal += lineTotal;
@@ -214,6 +236,54 @@ const checkoutSale = async (payload: ICheckoutPayload): Promise<ISale> => {
 
     if (useTransaction && session) {
       await session.commitTransaction();
+    }
+
+    // Persist low stock notifications to DB
+    if (lowStockAlerts.length > 0) {
+      for (const alert of lowStockAlerts) {
+        const isOutOfStock = alert.quantity <= 0;
+        const alertTitle = isOutOfStock
+          ? `Critical: ${alert.productName} is Out of Stock`
+          : `Alert: Low Stock for ${alert.productName}`;
+        const alertBody = `Product "${alert.productName}" (${alert.sku}) has reached ${alert.quantity} unit(s) (threshold: ${alert.lowStockThreshold}). Immediate restock is advised.`;
+
+        await Notification.create({
+          title: alertTitle,
+          body: alertBody,
+          type: "update",
+          metadata: {
+            productId: alert.productId,
+            productName: alert.productName,
+            sku: alert.sku,
+            quantity: alert.quantity,
+            status: alert.status,
+            invoiceNumber,
+          },
+          isRead: false,
+        }).catch(() => {});
+      }
+    }
+
+    // Dispatch real-time Socket.io events
+    try {
+      const io = getIO();
+      if (io) {
+        for (const alert of lowStockAlerts) {
+          io.emit("low_stock_alert", {
+            ...alert,
+            invoiceNumber,
+            timestamp: new Date().toISOString(),
+          });
+        }
+        io.emit("sale_completed", {
+          invoiceNumber: sale.invoiceNumber,
+          grandTotal: sale.grandTotal,
+          itemCount: sale.items.length,
+          timestamp: new Date().toISOString(),
+        });
+      }
+    } catch (_ioErr) {
+      // Non-fatal if socket not active in test environment
     }
 
     return sale;

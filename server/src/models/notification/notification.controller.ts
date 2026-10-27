@@ -22,12 +22,13 @@ const getAllNotifaction = catchAsync(async (req: Request, res: Response) => {
 
 const markAsRead = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.query;
+  const user = req.user as JwtUserPayload;
 
-  const result = await NotificationService.markAsRead(id as string);
+  const result = await NotificationService.markAsRead(id as string, user?.id as string);
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
-    message: "Notification read successfully",
+    message: "Notification updated successfully",
     data: result,
   });
 });

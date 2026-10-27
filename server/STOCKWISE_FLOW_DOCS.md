@@ -128,6 +128,10 @@ All routes are prefixed with `/api/v1`.
 ### 3.7 AI Stock Advisor (`/api/v1/ai-advisor`)
 - `GET /forecast` — Compute daily velocity, run-out estimates, and AI recommendations (`admin`, `manager`).
 
+### 3.8 Notification Center & Real-Time Alerts (`/api/v1/notification`)
+- `GET /get-all` — Retrieve paginated notifications and system stock alerts (`common`).
+- `PATCH /mark-as-read` — Mark an individual notification or all notifications as read (`common`).
+
 ---
 
 ## 4. Business Logic & Transaction Guarantees
@@ -149,3 +153,7 @@ All routes are prefixed with `/api/v1`.
 
 3. **Audit Trail Integrity**:
    - Direct stock modifications are tracked with the user ID, previous balance, new balance, and reason note.
+
+4. **Real-Time WebSocket Events**:
+   - `low_stock_alert` — Dispatched automatically when an item's balance drops to or below its configured `lowStockThreshold` (payload: `productId`, `productName`, `sku`, `quantity`, `lowStockThreshold`, `status`, `timestamp`).
+   - `sale_completed` — Emitted upon successful checkout to synchronize frontend views and live analytics counter.

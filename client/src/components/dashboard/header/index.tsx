@@ -43,6 +43,7 @@ export default function Header({ navOpened, setNavOpened }: HeaderProps) {
     if (pathname.startsWith("/sales/checkout")) return "Point of Sale (POS)";
     if (pathname.startsWith("/sales")) return "Sales History";
     if (pathname.startsWith("/alerts")) return "Critical Stock Alerts";
+    if (pathname.startsWith("/notifications")) return "Notification Center";
     if (pathname.startsWith("/ai-advisor")) return "AI Stock Advisor";
     if (pathname.startsWith("/reports")) return "Analytics & Reports";
     if (pathname.startsWith("/profile")) return "User Profile";

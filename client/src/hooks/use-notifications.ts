@@ -17,7 +17,11 @@ export function useNotifications({ autoFetch = true }: UseNotificationsOptions =
     try {
       const res = await apiClient("/notification/get-all", { method: "GET" });
       if (res?.success && res.data) {
-        const items = Array.isArray(res.data) ? res.data : [];
+        const items = Array.isArray(res.data)
+          ? res.data
+          : Array.isArray(res.data.results)
+          ? res.data.results
+          : [];
         setNotifications(items);
         setUnreadCount(items.filter((n: any) => !n.isRead).length);
       }
