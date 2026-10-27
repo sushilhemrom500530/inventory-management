@@ -90,12 +90,32 @@ export default function PosCheckoutPage() {
     try {
       setLoading(true);
       const [prodRes, catRes] = await Promise.all([
-        fetchApi<Product[]>("/products"),
-        fetchApi<any[]>("/categories"),
+        fetchApi<any>("/products"),
+        fetchApi<any>("/categories"),
       ]);
 
-      if (prodRes?.data) setProducts(prodRes.data);
-      if (catRes?.data) setCategories(catRes.data);
+      const rawProds = Array.isArray(prodRes?.data)
+        ? prodRes.data
+        : Array.isArray(prodRes?.data?.data)
+        ? prodRes.data.data
+        : [];
+
+      const rawCats = Array.isArray(catRes?.data)
+        ? catRes.data
+        : Array.isArray(catRes?.data?.data)
+        ? catRes.data.data
+        : [];
+
+      const safeProds: Product[] = rawProds.map((p: any) => ({
+        ...p,
+        sellingPrice: Number(p.sellingPrice ?? p.price ?? 0),
+        costPrice: Number(p.costPrice ?? 0),
+        quantity: Number(p.quantity ?? 0),
+        status: p.status || (p.quantity <= 0 ? "out_of_stock" : "in_stock"),
+      }));
+
+      setProducts(safeProds);
+      setCategories(rawCats);
     } catch (err: any) {
       message.error(err?.message || "Failed to load inventory for POS");
     } finally {
@@ -161,12 +181,13 @@ export default function PosCheckoutPage() {
 
   // Calculations
   const subtotal = cart.reduce(
-    (acc, item) => acc + item.product.sellingPrice * item.quantity,
+    (acc, item) =>
+      acc + Number(item.product?.sellingPrice ?? (item.product as any)?.price ?? 0) * (item.quantity ?? 1),
     0
   );
-  const taxAmount = (subtotal * taxRate) / 100;
-  const grandTotal = Math.max(0, subtotal + taxAmount - discount);
-  const changeDue = paymentMethod === "cash" ? Math.max(0, cashTendered - grandTotal) : 0;
+  const taxAmount = (subtotal * (taxRate ?? 0)) / 100;
+  const grandTotal = Math.max(0, subtotal + taxAmount - (discount ?? 0));
+  const changeDue = paymentMethod === "cash" ? Math.max(0, (cashTendered ?? 0) - grandTotal) : 0;
 
   // Filter products
   const filteredProducts = products.filter((p) => {
@@ -213,12 +234,39 @@ export default function PosCheckoutPage() {
       });
 
       if (res?.data) {
-        setCompletedSale(res.data);
+        const rawSale = res.data as any;
+        const normalized: CompletedSale = {
+          _id: rawSale._id,
+          invoiceNumber: rawSale.invoiceNumber,
+          customerName: rawSale.customerName || "Walk-in Customer",
+          customerContact: rawSale.customerContact || "",
+          subtotal: Number(rawSale.subtotal ?? 0),
+          tax: Number(rawSale.tax ?? rawSale.taxAmount ?? 0),
+          discount: Number(rawSale.discount ?? 0),
+          total: Number(rawSale.total ?? rawSale.grandTotal ?? rawSale.totalAmount ?? 0),
+          paymentMethod: rawSale.paymentMethod || "cash",
+          createdAt: rawSale.createdAt || new Date().toISOString(),
+          items: (rawSale.items || []).map((it: any) => {
+            const itemPrice = Number(it.price ?? it.unitPrice ?? 0);
+            const itemQty = Number(it.quantity || 1);
+            return {
+              product: it.product,
+              name: it.name || it.productName || it.productNameSnapshot || "Product",
+              quantity: itemQty,
+              price: itemPrice,
+              subtotal: Number(it.subtotal ?? itemPrice * itemQty),
+            };
+          }),
+        };
+
+        setCompletedSale(normalized);
         setReceiptModalOpen(true);
         message.success("Sale completed successfully!");
 
         // Refresh inventory in background
         loadData();
+        clearCart();
+        setCashTendered(0);
       }
     } catch (err: any) {
       message.error(err?.message || "Checkout failed");
@@ -372,7 +420,7 @@ export default function PosCheckoutPage() {
 
                     <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-2">
                       <span className="text-sm font-bold text-slate-900">
-                        ${p.sellingPrice.toFixed(2)}
+                        ${Number(p.sellingPrice ?? (p as any).price ?? 0).toFixed(2)}
                       </span>
 
                       {inCartQty > 0 ? (
@@ -436,7 +484,7 @@ export default function PosCheckoutPage() {
                     <div className="max-w-[150px]">
                       <p className="text-xs font-semibold text-slate-900 truncate">{item.product.name}</p>
                       <p className="font-mono text-[10px] text-slate-500">
-                        ${item.product.sellingPrice.toFixed(2)} / unit
+                        ${Number(item.product.sellingPrice ?? (item.product as any).price ?? 0).toFixed(2)} / unit
                       </p>
                     </div>
 
@@ -458,7 +506,7 @@ export default function PosCheckoutPage() {
                       </div>
 
                       <span className="w-14 text-right font-mono text-xs font-bold text-slate-900">
-                        ${(item.product.sellingPrice * item.quantity).toFixed(2)}
+                        ${(Number(item.product.sellingPrice ?? (item.product as any).price ?? 0) * item.quantity).toFixed(2)}
                       </span>
 
                       <button
@@ -662,18 +710,23 @@ export default function PosCheckoutPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {completedSale.items.map((item, idx) => (
-                    <tr key={idx} className="text-slate-700">
-                      <td className="py-1 font-medium max-w-[120px] truncate">
-                        {item.name || item.product?.name || "Product"}
-                      </td>
-                      <td className="py-1 text-center">{item.quantity}</td>
-                      <td className="py-1 text-right">${item.price.toFixed(2)}</td>
-                      <td className="py-1 text-right font-semibold">
-                        ${(item.subtotal || item.price * item.quantity).toFixed(2)}
-                      </td>
-                    </tr>
-                  ))}
+                  {(completedSale.items || []).map((item, idx) => {
+                    const priceVal = Number(item.price ?? (item as any).unitPrice ?? 0);
+                    const qtyVal = Number(item.quantity || 1);
+                    const subtotalVal = Number(item.subtotal ?? priceVal * qtyVal);
+                    return (
+                      <tr key={idx} className="text-slate-700">
+                        <td className="py-1 font-medium max-w-[120px] truncate">
+                          {item.name || item.product?.name || "Product"}
+                        </td>
+                        <td className="py-1 text-center">{qtyVal}</td>
+                        <td className="py-1 text-right">${priceVal.toFixed(2)}</td>
+                        <td className="py-1 text-right font-semibold">
+                          ${subtotalVal.toFixed(2)}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -682,23 +735,23 @@ export default function PosCheckoutPage() {
             <div className="py-2.5 space-y-1 text-xs border-b border-dashed border-slate-300">
               <div className="flex justify-between text-slate-600">
                 <span>Subtotal</span>
-                <span>${completedSale.subtotal.toFixed(2)}</span>
+                <span>${Number(completedSale.subtotal ?? 0).toFixed(2)}</span>
               </div>
-              {completedSale.tax > 0 && (
+              {Number(completedSale.tax ?? (completedSale as any).taxAmount ?? 0) > 0 && (
                 <div className="flex justify-between text-slate-600">
                   <span>Tax</span>
-                  <span>${completedSale.tax.toFixed(2)}</span>
+                  <span>${Number(completedSale.tax ?? (completedSale as any).taxAmount ?? 0).toFixed(2)}</span>
                 </div>
               )}
-              {completedSale.discount > 0 && (
+              {Number(completedSale.discount ?? 0) > 0 && (
                 <div className="flex justify-between text-slate-600">
                   <span>Discount</span>
-                  <span>-${completedSale.discount.toFixed(2)}</span>
+                  <span>-${Number(completedSale.discount ?? 0).toFixed(2)}</span>
                 </div>
               )}
               <div className="flex justify-between text-sm font-black text-slate-900 pt-1">
                 <span>Total Paid</span>
-                <span>${completedSale.total.toFixed(2)}</span>
+                <span>${Number(completedSale.total ?? (completedSale as any).grandTotal ?? (completedSale as any).totalAmount ?? 0).toFixed(2)}</span>
               </div>
             </div>
 

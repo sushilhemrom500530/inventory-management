@@ -53,9 +53,27 @@ export default function SalesHistoryPage() {
   const loadSales = async () => {
     try {
       setLoading(true);
-      const res = await fetchApi<SaleRecord[]>("/sales");
+      const res = await fetchApi<any>("/sales");
       if (res?.data) {
-        setSales(res.data);
+        const rawSales = Array.isArray(res.data)
+          ? res.data
+          : Array.isArray(res.data?.data)
+          ? res.data.data
+          : [];
+        const safeSales: SaleRecord[] = rawSales.map((s: any) => ({
+          ...s,
+          subtotal: Number(s.subtotal ?? 0),
+          tax: Number(s.tax ?? s.taxAmount ?? 0),
+          discount: Number(s.discount ?? 0),
+          total: Number(s.total ?? s.grandTotal ?? s.totalAmount ?? 0),
+          items: (s.items || []).map((it: any) => ({
+            ...it,
+            name: it.name || it.productName || it.productNameSnapshot || "Product",
+            price: Number(it.price ?? it.unitPrice ?? 0),
+            subtotal: Number(it.subtotal ?? (Number(it.price ?? it.unitPrice ?? 0) * (it.quantity || 1))),
+          })),
+        }));
+        setSales(safeSales);
       }
     } catch (err: any) {
       message.error(err?.message || "Failed to load sales history");

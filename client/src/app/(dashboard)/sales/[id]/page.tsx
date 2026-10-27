@@ -58,9 +58,23 @@ export default function SaleInvoiceDetailPage({
     const loadSale = async () => {
       try {
         setLoading(true);
-        const res = await fetchApi<SaleDetail>(`/sales/${saleId}`);
+        const res = await fetchApi<any>(`/sales/${saleId}`);
         if (res?.data) {
-          setSale(res.data);
+          const raw = res.data;
+          const safeSale: SaleDetail = {
+            ...raw,
+            subtotal: Number(raw.subtotal ?? 0),
+            tax: Number(raw.tax ?? raw.taxAmount ?? 0),
+            discount: Number(raw.discount ?? 0),
+            total: Number(raw.total ?? raw.grandTotal ?? raw.totalAmount ?? 0),
+            items: (raw.items || []).map((it: any) => ({
+              ...it,
+              name: it.name || it.productName || it.productNameSnapshot || "Product",
+              price: Number(it.price ?? it.unitPrice ?? 0),
+              subtotal: Number(it.subtotal ?? (Number(it.price ?? it.unitPrice ?? 0) * (it.quantity || 1))),
+            })),
+          };
+          setSale(safeSale);
         }
       } catch (err: any) {
         message.error(err?.message || "Failed to load invoice details");

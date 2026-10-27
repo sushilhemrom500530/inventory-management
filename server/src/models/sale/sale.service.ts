@@ -286,7 +286,18 @@ const checkoutSale = async (payload: ICheckoutPayload): Promise<ISale> => {
       // Non-fatal if socket not active in test environment
     }
 
-    return sale;
+    const saleObj = sale.toObject ? sale.toObject() : sale;
+    return {
+      ...saleObj,
+      total: saleObj.grandTotal,
+      totalAmount: saleObj.grandTotal,
+      tax: saleObj.taxAmount,
+      items: (saleObj.items || []).map((it: any) => ({
+        ...it,
+        name: it.productName || it.productNameSnapshot || it.name || "Product",
+        price: it.unitPrice ?? it.price ?? 0,
+      })),
+    } as any;
   } catch (error) {
     if (useTransaction && session) {
       await session.abortTransaction();
@@ -326,9 +337,21 @@ const getAllSales = async (
   const sales = await saleQuery.modelQuery.lean();
   const meta = await saleQuery.countTotal();
 
+  const enrichedSales = sales.map((s: any) => ({
+    ...s,
+    total: s.grandTotal ?? s.total ?? 0,
+    totalAmount: s.grandTotal ?? s.total ?? 0,
+    tax: s.taxAmount ?? s.tax ?? 0,
+    items: (s.items || []).map((it: any) => ({
+      ...it,
+      name: it.productName || it.productNameSnapshot || it.name || "Product",
+      price: it.unitPrice ?? it.price ?? 0,
+    })),
+  }));
+
   return {
     meta,
-    data: sales,
+    data: enrichedSales,
   };
 };
 
@@ -336,11 +359,22 @@ const getSaleById = async (
   id: string,
   _scopedUserId?: string,
 ): Promise<ISale | null> => {
-  const sale = await Sale.findById(id).populate("cashier", "fullName email role");
+  const sale = await Sale.findById(id).populate("cashier", "fullName email role").lean();
   if (!sale) {
     throw new AppError(StatusCodes.NOT_FOUND, "Sale invoice not found");
   }
-  return sale;
+
+  return {
+    ...sale,
+    total: sale.grandTotal ?? (sale as any).total ?? 0,
+    totalAmount: sale.grandTotal ?? (sale as any).total ?? 0,
+    tax: sale.taxAmount ?? (sale as any).tax ?? 0,
+    items: (sale.items || []).map((it: any) => ({
+      ...it,
+      name: it.productName || it.productNameSnapshot || it.name || "Product",
+      price: it.unitPrice ?? it.price ?? 0,
+    })),
+  } as any;
 };
 
 const getRecentSales = async (limit = 5, scopedUserId?: string) => {
@@ -355,7 +389,17 @@ const getRecentSales = async (limit = 5, scopedUserId?: string) => {
     .populate("cashier", "fullName email")
     .lean();
 
-  return recent;
+  return recent.map((s: any) => ({
+    ...s,
+    total: s.grandTotal ?? s.total ?? 0,
+    totalAmount: s.grandTotal ?? s.total ?? 0,
+    tax: s.taxAmount ?? s.tax ?? 0,
+    items: (s.items || []).map((it: any) => ({
+      ...it,
+      name: it.productName || it.productNameSnapshot || it.name || "Product",
+      price: it.unitPrice ?? it.price ?? 0,
+    })),
+  }));
 };
 
 export const SaleService = {
