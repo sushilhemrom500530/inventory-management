@@ -85,25 +85,22 @@ export default function DashboardPage() {
           <div className="flex items-center p-1 bg-slate-100 rounded-xl border border-slate-200 text-xs font-semibold">
             <button
               onClick={() => setDays(7)}
-              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                days === 7 ? "bg-[#0F42C0] text-white shadow-sm" : "text-slate-600 hover:text-slate-900"
-              }`}
+              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${days === 7 ? "bg-[#0F42C0] text-white shadow-sm" : "text-slate-600 hover:text-slate-900"
+                }`}
             >
               7 Days
             </button>
             <button
               onClick={() => setDays(30)}
-              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                days === 30 ? "bg-[#0F42C0] text-white shadow-sm" : "text-slate-600 hover:text-slate-900"
-              }`}
+              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${days === 30 ? "bg-[#0F42C0] text-white shadow-sm" : "text-slate-600 hover:text-slate-900"
+                }`}
             >
               30 Days
             </button>
             <button
               onClick={() => setDays(90)}
-              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                days === 90 ? "bg-[#0F42C0] text-white shadow-sm" : "text-slate-600 hover:text-slate-900"
-              }`}
+              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${days === 90 ? "bg-[#0F42C0] text-white shadow-sm" : "text-slate-600 hover:text-slate-900"
+                }`}
             >
               90 Days
             </button>

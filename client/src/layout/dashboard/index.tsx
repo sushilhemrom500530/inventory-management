@@ -28,11 +28,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     }
 
     if (!token) {
-      if (typeof window !== "undefined") {
-        window.location.href = `/auth/login?callbackUrl=${encodeURIComponent(window.location.pathname)}`;
-      } else {
-        router.replace("/auth/login");
-      }
+      router.replace(`/auth/login?callbackUrl=${encodeURIComponent(window.location.pathname)}`);
     }
   }, [router]);
 

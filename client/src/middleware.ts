@@ -17,7 +17,18 @@ const protectedPrefixes = [
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const token = request.cookies.get("token")?.value;
+  const isLogoutIntent = request.nextUrl.searchParams.has("logout");
+  const token = isLogoutIntent ? undefined : request.cookies.get("token")?.value;
+
+  // If user explicitly navigated with ?logout, purge cookies immediately
+  if (isLogoutIntent) {
+    const response = NextResponse.next();
+    response.cookies.delete("token");
+    response.cookies.delete("refreshToken");
+    response.cookies.delete("user");
+    response.cookies.delete("role");
+    return response;
+  }
 
   // 1. If accessing a protected route without a valid token, redirect to login
   const isProtected = protectedPrefixes.some(

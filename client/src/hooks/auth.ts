@@ -103,24 +103,32 @@ export function useAuthService() {
     }
   };
 
-  const logoutUser = () => {
+  const logoutUser = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {}
+
+    try {
+      await apiClient("/auth/logout", { method: "POST" });
+    } catch {}
+
     Cookies.remove("token", { path: "/" });
     Cookies.remove("token", { path: "/auth" });
     Cookies.remove("token");
     Cookies.remove("refreshToken", { path: "/" });
     Cookies.remove("user", { path: "/" });
     Cookies.remove("role", { path: "/" });
+
     if (typeof window !== "undefined") {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       localStorage.removeItem("role");
+      sessionStorage.clear();
+      window.location.replace("/auth/login?logout=true");
+    } else {
+      router.replace("/auth/login?logout=true");
     }
     setCurrentUser(null);
-    if (typeof window !== "undefined") {
-      window.location.href = "/auth/login";
-    } else {
-      router.push("/auth/login");
-    }
   };
 
   return {

@@ -20,6 +20,11 @@ router.post(
   AuthController.loginUser,
 );
 
+router.post(
+  "/logout",
+  AuthController.logout,
+);
+
 router.get(
   "/me",
   auth("common"),

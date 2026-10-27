@@ -85,7 +85,9 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
 
   res.cookie("token", token, {
     secure: process.env.NODE_ENV === "production",
-    httpOnly: true,
+    httpOnly: false,
+    path: "/",
+    sameSite: "lax",
     maxAge: 24 * 60 * 60 * 1000,
   });
 
@@ -218,9 +220,27 @@ const getMe = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const logout = catchAsync(async (_req: Request, res: Response) => {
+  res.clearCookie("token", {
+    path: "/",
+    secure: process.env.NODE_ENV === "production",
+  });
+  res.clearCookie("refreshToken", {
+    path: "/",
+    secure: process.env.NODE_ENV === "production",
+    httpOnly: true,
+  });
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Logged out successfully.",
+  });
+});
+
 export const AuthController = {
   registerUser,
   loginUser,
+  logout,
   verifyOtp,
   resendOtp,
   forgotOtpverify,
