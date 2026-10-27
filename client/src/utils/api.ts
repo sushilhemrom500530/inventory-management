@@ -93,7 +93,7 @@ export async function apiClient<T = any>(
     console.error(`API Error [${endpoint}]:`, error);
     if (error?.message === "Failed to fetch") {
       throw new Error(
-        "Unable to connect to the backend API. Please make sure the server on port 8080 is running."
+        "Unable to connect to the backend API."
       );
     }
     throw error;

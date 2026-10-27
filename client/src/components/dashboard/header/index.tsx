@@ -96,7 +96,7 @@ export default function Header({ navOpened, setNavOpened }: HeaderProps) {
 
           {/* Notification Bell */}
           <Link
-            href="/alerts"
+            href="/notifications"
             className="relative p-2.5 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
             aria-label="Notifications"
           >
@@ -192,9 +192,8 @@ export default function Header({ navOpened, setNavOpened }: HeaderProps) {
               </div>
               <ChevronDown
                 size={14}
-                className={`hidden md:block text-slate-400 transition-transform duration-200 ${
-                  dropdownOpen ? "rotate-180 text-slate-700" : ""
-                }`}
+                className={`hidden md:block text-slate-400 transition-transform duration-200 ${dropdownOpen ? "rotate-180 text-slate-700" : ""
+                  }`}
               />
             </div>
           </Dropdown>
