@@ -44,15 +44,48 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, _next) => {
         },
       ],
     };
-  } else if (err instanceof Error) {
+  } else if (
+    err?.name === "MongooseServerSelectionError" ||
+    err?.name === "MongoServerSelectionError" ||
+    err?.name === "MongoNetworkError" ||
+    err?.name === "MongoTimeoutError" ||
+    err?.name === "MongoTopologyClosedError" ||
+    err?.name === "MongoNetworkTimeoutError" ||
+    /connection <monitor>|27017|buffering timed out|Server selection timed out|topology was destroyed|Topology is closed/i.test(
+      err?.message || "",
+    )
+  ) {
+    const friendlyMessage =
+      "Database connection is currently unavailable. Please check your internet connection or server status.";
     errorResponse = {
       success: false,
-      statusCode: 500,
-      message: err.message,
+      statusCode: 503,
+      message: friendlyMessage,
       errorMessages: [
         {
           path: "",
-          message: err.message,
+          message: friendlyMessage,
+        },
+      ],
+    };
+  } else if (err instanceof Error) {
+    const isSensitiveOrNetwork =
+      /connection <monitor>|27017|buffering timed out|Server selection timed out|ECONNREFUSED|ENOTFOUND|ETIMEDOUT/i.test(
+        err.message,
+      );
+
+    const safeMessage = isSensitiveOrNetwork
+      ? "Unable to connect to the database or external service. Please check your internet connection."
+      : err.message;
+
+    errorResponse = {
+      success: false,
+      statusCode: 500,
+      message: safeMessage,
+      errorMessages: [
+        {
+          path: "",
+          message: safeMessage,
         },
       ],
     };

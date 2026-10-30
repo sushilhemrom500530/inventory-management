@@ -63,10 +63,27 @@ export async function apiClient<T = any>(
       credentials: "include",
     });
 
-    const result = await res.json();
+    const result = await res.json().catch(() => ({}));
 
     if (!res.ok) {
-      throw new Error(result.message || `Request failed with status ${res.status}`);
+      let errorMsg = result?.message || `Request failed with status ${res.status}`;
+
+      const isConnectionOrDbError =
+        /connection <monitor>|27017|Mongo|Server selection timed out|buffering timed out|ECONNREFUSED|ENOTFOUND|ETIMEDOUT|topology/i.test(
+          errorMsg,
+        );
+
+      if (isConnectionOrDbError) {
+        errorMsg =
+          "Unable to connect to the database. Please check your internet connection or server status.";
+      } else if (res.status === 503 || res.status === 502 || res.status === 504) {
+        if (!result?.message || isConnectionOrDbError) {
+          errorMsg =
+            "Server service is temporarily unavailable. Please check your internet connection.";
+        }
+      }
+
+      throw new Error(errorMsg);
     }
 
     return result;
@@ -75,7 +92,9 @@ export async function apiClient<T = any>(
     if (
       typeof window !== "undefined" &&
       !endpoint.startsWith("http") &&
-      (error?.message === "Failed to fetch" || error?.name === "TypeError")
+      (error?.message === "Failed to fetch" ||
+        error?.name === "TypeError" ||
+        error?.message?.includes("fetch failed"))
     ) {
       try {
         const proxyUrl = `/api/v1${cleanEndpoint}`;
@@ -85,7 +104,7 @@ export async function apiClient<T = any>(
           body,
           credentials: "include",
         });
-        const fallbackResult = await fallbackRes.json();
+        const fallbackResult = await fallbackRes.json().catch(() => ({}));
         if (fallbackRes.ok) {
           return fallbackResult;
         }
@@ -94,12 +113,35 @@ export async function apiClient<T = any>(
       }
     }
 
-    console.error(`API Error [${endpoint}]:`, error);
-    if (error?.message === "Failed to fetch") {
-      throw new Error(
-        "Unable to connect to the backend API."
+    const isNetworkOrOfflineError =
+      error?.message === "Failed to fetch" ||
+      error?.message?.includes("fetch failed") ||
+      error?.message?.includes("NetworkError") ||
+      error?.message?.includes("Load failed") ||
+      error?.message?.includes("ECONNREFUSED") ||
+      error?.name === "TypeError" ||
+      (typeof navigator !== "undefined" && !navigator.onLine);
+
+    const isDbOrConnectionMessage =
+      /connection <monitor>|27017|Mongo|Server selection timed out|buffering timed out|ECONNREFUSED|ENOTFOUND|ETIMEDOUT/i.test(
+        error?.message || "",
       );
+
+    if (isNetworkOrOfflineError) {
+      const friendlyMessage =
+        "Unable to connect to the backend server. Please check your internet connection or make sure the server is running.";
+      console.warn(`[Network Offline / Server Down] ${endpoint}:`, friendlyMessage);
+      throw new Error(friendlyMessage);
     }
+
+    if (isDbOrConnectionMessage) {
+      const friendlyMessage =
+        "Unable to connect to the database. Please check your internet connection or server status.";
+      console.warn(`[Database Connection Notice] ${endpoint}:`, friendlyMessage);
+      throw new Error(friendlyMessage);
+    }
+
+    console.error(`API Error [${endpoint}]:`, error);
     throw error;
   }
 }

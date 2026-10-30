@@ -48,8 +48,8 @@ export default function DashboardPage() {
       if (salesRes?.success) {
         setRecentSales(salesRes.data || []);
       }
-    } catch (error) {
-      console.error("Dashboard fetch error:", error);
+    } catch (error: any) {
+      console.warn("Dashboard fetch notice:", error?.message || error);
     } finally {
       setLoading(false);
     }

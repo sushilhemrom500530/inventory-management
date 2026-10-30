@@ -121,11 +121,15 @@ export default function AddProductPage() {
 
   // Fetch categories on mount (no default category selected)
   useEffect(() => {
-    apiClient("/categories/get-all").then((res) => {
-      if (res?.success) {
-        setCategories(res.data || []);
-      }
-    });
+    apiClient("/categories/get-all")
+      .then((res) => {
+        if (res?.success) {
+          setCategories(res.data || []);
+        }
+      })
+      .catch((err) => {
+        console.warn("Categories fetch notice:", err?.message || err);
+      });
   }, []);
 
   // Manual Auto-generate SKU helper

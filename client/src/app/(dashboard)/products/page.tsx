@@ -50,9 +50,13 @@ export default function ProductsListPage() {
 
   // Fetch Categories for dropdown filter
   useEffect(() => {
-    apiClient("/categories/get-all").then((res) => {
-      if (res?.success) setCategories(res.data || []);
-    });
+    apiClient("/categories/get-all")
+      .then((res) => {
+        if (res?.success) setCategories(res.data || []);
+      })
+      .catch((err) => {
+        console.warn("Categories fetch notice:", err?.message || err);
+      });
   }, []);
 
   const fetchProducts = useCallback(async () => {
@@ -71,8 +75,9 @@ export default function ProductsListPage() {
         setProducts(res.data || []);
         if (res.meta) setMeta(res.meta);
       }
-    } catch (error) {
-      console.error("Products fetch error:", error);
+    } catch (error: any) {
+      console.warn("Products fetch notice:", error?.message || error);
+      message.error(error?.message || "Unable to fetch products. Please check your connection.");
     } finally {
       setLoading(false);
     }
@@ -326,17 +331,38 @@ export default function ProductsListPage() {
                   return (
                     <tr key={product._id} className="hover:bg-slate-50/80 transition-colors">
                       <td className="py-3.5 px-5">
-                        <Link
-                          href={`/products/${product._id}`}
-                          className="font-bold text-slate-900 hover:text-[#0F42C0] transition-colors cursor-pointer"
-                        >
-                          {product.name}
-                        </Link>
-                        {product.barcode && (
-                          <p className="text-[10px] text-slate-400 font-mono mt-0.5">
-                            UPC: {product.barcode}
-                          </p>
-                        )}
+                        <div className="flex items-center gap-3">
+                          <Link
+                            href={`/products/${product._id}`}
+                            className="relative w-10 h-10 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 flex-shrink-0 flex items-center justify-center group cursor-pointer hover:border-[#0F42C0] transition-colors"
+                          >
+                            <Package size={18} className="text-slate-400 group-hover:text-[#0F42C0] transition-colors" />
+                            {(product.thumbnail || product.images?.[0]) && (
+                              <img
+                                src={product.thumbnail || product.images?.[0]}
+                                alt={product.name}
+                                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                onError={(e) => {
+                                  (e.currentTarget as HTMLElement).style.display = "none";
+                                }}
+                              />
+                            )}
+                          </Link>
+
+                          <div className="min-w-0">
+                            <Link
+                              href={`/products/${product._id}`}
+                              className="font-bold text-slate-900 hover:text-[#0F42C0] transition-colors cursor-pointer block truncate"
+                            >
+                              {product.name}
+                            </Link>
+                            {product.barcode && (
+                              <p className="text-[10px] text-slate-400 font-mono mt-0.5">
+                                UPC: {product.barcode}
+                              </p>
+                            )}
+                          </div>
+                        </div>
                       </td>
 
                       <td className="py-3.5 px-5 font-mono text-slate-700 font-medium">
