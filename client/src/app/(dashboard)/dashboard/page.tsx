@@ -17,7 +17,6 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { apiClient } from "@/utils/api";
-import StockBadge from "@/components/reuseable/stock-badge";
 import { Modal } from "antd";
 import Cookies from "js-cookie";
 import { useAuthService } from "@/hooks/auth";
@@ -116,7 +115,7 @@ export default function DashboardPage() {
 
           <button
             onClick={() => fetchDashboardData()}
-            className="p-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:text-[#0F42C0] hover:bg-slate-50 transition-colors shadow-sm cursor-pointer"
+            className="p-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:text-[#0F42C0] hover:bg-slate-50 transition-colors cursor-pointer"
             title="Refresh Data"
           >
             <RefreshCw size={16} className={loading ? "animate-spin text-[#0F42C0]" : ""} />
@@ -127,7 +126,7 @@ export default function DashboardPage() {
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
         {/* Card 1: Total Revenue */}
-        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all hover:shadow-md">
+        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 transition-all hover:shadow-md">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
               Period Revenue
@@ -150,7 +149,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Card 2: Inventory Value */}
-        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all hover:shadow-md">
+        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 transition-all hover:shadow-md">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
               Inventory Cost Basis
@@ -173,7 +172,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Card 3: Healthy In-Stock */}
-        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all hover:shadow-md">
+        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 transition-all hover:shadow-md">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
               In-Stock SKUs
@@ -196,7 +195,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Card 4: Critical Attention Needed */}
-        <div className="relative overflow-hidden rounded-2xl border border-amber-200 bg-amber-50/40 p-5 shadow-sm transition-all hover:shadow-md">
+        <div className="relative overflow-hidden rounded-2xl border border-amber-200 bg-amber-50/40 p-5 transition-all hover:shadow-md">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-amber-800">
               Stock Warnings
@@ -225,7 +224,7 @@ export default function DashboardPage() {
       {/* Main Charts & Quick Action Center */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Sales Velocity Chart */}
-        <div className="lg:col-span-2 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="lg:col-span-2 rounded-2xl border border-slate-200 bg-white p-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-100">
             <div>
               <h3 className="text-base font-bold text-slate-900">
@@ -306,7 +305,7 @@ export default function DashboardPage() {
         <div className="space-y-6">
           {/* Feature Callout: Cashier POS for Employee, AI Advisor for Admin/Manager */}
           {isEmployee ? (
-            <div className="rounded-2xl border border-blue-200 bg-blue-50/50 p-6 shadow-sm">
+            <div className="rounded-2xl border border-blue-200 bg-blue-50/50 p-6">
               <div className="flex items-center gap-2.5">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#0F42C0] text-white">
                   <ShoppingCart size={16} />
@@ -335,7 +334,7 @@ export default function DashboardPage() {
               </div>
             </div>
           ) : (
-            <div className="rounded-2xl border border-blue-200 bg-blue-50/50 p-6 shadow-sm">
+            <div className="rounded-2xl border border-blue-200 bg-blue-50/50 p-6">
               <div className="flex items-center gap-2.5">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#0F42C0] text-white">
                   <Sparkles size={16} />
@@ -368,7 +367,7 @@ export default function DashboardPage() {
           )}
 
           {/* Quick Shortcuts */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-3">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">
               Quick Operations
             </h4>
@@ -413,7 +412,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Recent Sales Ledger Table */}
-      <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+      <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden">
         <div className="p-5 flex items-center justify-between border-b border-slate-100">
           <div>
             <h3 className="text-base font-bold text-slate-900">Recent Transactions</h3>

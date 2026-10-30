@@ -78,7 +78,7 @@ export default function Sidebar({ navOpened, setNavOpened, initialRole }: Sideba
 
       {/* Sidebar container */}
       <aside
-        className={`fixed top-0 left-0 z-30 h-screen w-[288px] overflow-y-auto transition-transform duration-300 border-r border-slate-200 bg-white shadow-sm ${
+        className={`fixed top-0 left-0 z-30 h-screen w-[288px] overflow-y-auto transition-transform duration-300 border-r border-slate-200 bg-white ${
           navOpened ? "translate-x-0" : "-translate-x-full"
         } lg:translate-x-0`}
       >

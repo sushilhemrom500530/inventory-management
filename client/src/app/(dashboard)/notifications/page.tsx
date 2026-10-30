@@ -173,7 +173,7 @@ export default function NotificationsPage() {
     <div className="min-h-screen bg-[#F8FAFC] pb-16">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-6">
         {/* Header Bar */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+        <div className="bg-white rounded-2xl border border-slate-200 p-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-blue-50 text-[#0F42C0] flex items-center justify-center border border-blue-100">
@@ -273,12 +273,12 @@ export default function NotificationsPage() {
         {/* Notifications List */}
         <div className="space-y-3">
           {loading && notifications.length === 0 ? (
-            <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center shadow-sm">
+            <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
               <RefreshCw size={28} className="animate-spin text-[#0F42C0] mx-auto mb-3" />
               <p className="text-sm font-semibold text-slate-700">Loading notifications...</p>
             </div>
           ) : filteredNotifications.length === 0 ? (
-            <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center shadow-sm">
+            <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
               <div className="w-14 h-14 rounded-2xl bg-slate-50 text-slate-400 flex items-center justify-center mx-auto mb-3 border border-slate-100">
                 <CheckCircle2 size={28} />
               </div>
@@ -293,7 +293,7 @@ export default function NotificationsPage() {
             filteredNotifications.map((item) => (
               <div
                 key={item._id}
-                className={`bg-white rounded-2xl border p-5 shadow-sm transition-all flex flex-col sm:flex-row items-start justify-between gap-4 ${
+                className={`bg-white rounded-2xl border p-5 transition-all flex flex-col sm:flex-row items-start justify-between gap-4 ${
                   !item.isRead
                     ? "border-blue-200 bg-blue-50/20"
                     : "border-slate-200 hover:border-slate-300"

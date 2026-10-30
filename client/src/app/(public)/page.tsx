@@ -44,7 +44,7 @@ export default function HomePage() {
           </Link>
           <Link
             href="/sales/checkout"
-            className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-7 py-3.5 text-sm font-bold text-slate-800 transition hover:bg-slate-50 shadow-sm cursor-pointer"
+            className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-7 py-3.5 text-sm font-bold text-slate-800 transition hover:bg-slate-50 cursor-pointer"
           >
             <ShoppingCart className="h-4 w-4 text-[#0F42C0]" /> Open POS Register
           </Link>
@@ -52,7 +52,7 @@ export default function HomePage() {
 
         {/* Feature Cards Grid */}
         <div className="mt-14 grid grid-cols-1 gap-4 sm:grid-cols-3 text-left">
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-[#0F42C0] mb-3">
               <Zap className="h-5 w-5" />
             </div>
@@ -62,7 +62,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-[#0F42C0] mb-3">
               <Sparkles className="h-5 w-5" />
             </div>
@@ -72,7 +72,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-[#0F42C0] mb-3">
               <ShieldCheck className="h-5 w-5" />
             </div>

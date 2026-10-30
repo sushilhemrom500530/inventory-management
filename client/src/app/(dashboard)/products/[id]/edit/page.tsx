@@ -186,7 +186,7 @@ export default function EditProductPage({
         <div className="flex items-center gap-3">
           <Link
             href={`/products/${productId}`}
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-slate-900 cursor-pointer"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 cursor-pointer"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
@@ -208,7 +208,7 @@ export default function EditProductPage({
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Section 1: Basic Information */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6">
           <div className="flex items-center gap-2 pb-4 border-b border-slate-100 text-slate-900 font-bold text-base">
             <Package className="h-5 w-5 text-[#0F42C0]" />
             <span>Basic Product Details</span>
@@ -303,7 +303,7 @@ export default function EditProductPage({
         </div>
 
         {/* Section 2: Pricing & Profit Margin Analysis */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6">
           <div className="flex items-center gap-2 pb-4 border-b border-slate-100 text-slate-900 font-bold text-base">
             <DollarSign className="h-5 w-5 text-[#0F42C0]" />
             <span>Pricing & Profit Margins</span>
@@ -367,7 +367,7 @@ export default function EditProductPage({
         </div>
 
         {/* Section 3: Inventory Levels & Adjustment */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6">
           <div className="flex items-center gap-2 pb-4 border-b border-slate-100 text-slate-900 font-bold text-base">
             <ShieldCheck className="h-5 w-5 text-[#0F42C0]" />
             <span>Inventory Quantity & Safety Controls</span>

@@ -147,7 +147,7 @@ export default function SalesHistoryPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={exportCSV}
-            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-slate-900 shadow-sm cursor-pointer"
+            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-slate-900 cursor-pointer"
           >
             <Download className="h-4 w-4" /> Export CSV
           </button>
@@ -162,7 +162,7 @@ export default function SalesHistoryPage() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4">
           <div className="flex items-center justify-between text-slate-500">
             <span className="text-xs font-medium">Total Revenue</span>
             <DollarSign className="h-4 w-4 text-emerald-600" />
@@ -171,7 +171,7 @@ export default function SalesHistoryPage() {
           <p className="mt-1 text-[11px] text-slate-400">Gross sales to date</p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4">
           <div className="flex items-center justify-between text-slate-500">
             <span className="text-xs font-medium">Transactions</span>
             <Receipt className="h-4 w-4 text-[#0F42C0]" />
@@ -180,7 +180,7 @@ export default function SalesHistoryPage() {
           <p className="mt-1 text-[11px] text-slate-400">Completed invoices</p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4">
           <div className="flex items-center justify-between text-slate-500">
             <span className="text-xs font-medium">Average Order</span>
             <TrendingUp className="h-4 w-4 text-blue-600" />
@@ -189,7 +189,7 @@ export default function SalesHistoryPage() {
           <p className="mt-1 text-[11px] text-slate-400">Per transaction</p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4">
           <div className="flex items-center justify-between text-slate-500">
             <span className="text-xs font-medium">Payment Ratio</span>
             <CreditCard className="h-4 w-4 text-sky-600" />
@@ -205,7 +205,7 @@ export default function SalesHistoryPage() {
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative flex-1">
           <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
@@ -232,7 +232,7 @@ export default function SalesHistoryPage() {
       </div>
 
       {/* Sales Transactions Table */}
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
         {loading ? (
           <div className="flex min-h-[30vh] items-center justify-center">
             <div className="flex flex-col items-center gap-3">

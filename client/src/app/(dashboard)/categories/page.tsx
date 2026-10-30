@@ -162,19 +162,19 @@ export default function CategoriesPage() {
 
       {/* KPI Overview & Search Filter */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4">
           <p className="text-xs font-medium text-slate-500">Total Categories</p>
           <p className="mt-1 text-2xl font-bold text-slate-900">{categories.length}</p>
           <p className="mt-1 text-[11px] text-slate-400">Active product classifications</p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4">
           <p className="text-xs font-medium text-slate-500">Cataloged Products</p>
           <p className="mt-1 text-2xl font-bold text-slate-900">{totalProducts}</p>
           <p className="mt-1 text-[11px] text-slate-400">Items assigned across groups</p>
         </div>
 
-        <div className="flex items-center rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="flex items-center rounded-2xl border border-slate-200 bg-white p-4">
           <div className="relative w-full">
             <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
@@ -197,7 +197,7 @@ export default function CategoriesPage() {
           </div>
         </div>
       ) : filteredCategories.length === 0 ? (
-        <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center">
           <FolderOpen className="mx-auto h-12 w-12 text-slate-300 mb-3" />
           <h2 className="text-lg font-bold text-slate-900">No Categories Found</h2>
           <p className="mt-1 text-xs text-slate-500">
@@ -217,7 +217,7 @@ export default function CategoriesPage() {
           {filteredCategories.map((cat) => (
             <div
               key={cat._id}
-              className="group flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-[#0F42C0]/50 hover:shadow-md shadow-sm"
+              className="group flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-[#0F42C0]/50 hover:shadow-md"
             >
               <div>
                 <div className="flex items-start justify-between gap-3">

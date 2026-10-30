@@ -190,7 +190,7 @@ export default function AiAdvisorPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={loadForecast}
-            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-slate-900 shadow-sm cursor-pointer"
+            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-slate-900 cursor-pointer"
           >
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin text-[#0F42C0]" : ""}`} /> Refresh Predictions
           </button>
@@ -199,7 +199,7 @@ export default function AiAdvisorPage() {
 
       {/* AI Key Metrics Bar */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4">
           <div className="flex items-center justify-between text-slate-500">
             <span className="text-xs font-medium">Projected 7-Day Stockouts</span>
             <AlertTriangle className="h-4 w-4 text-rose-600" />
@@ -210,7 +210,7 @@ export default function AiAdvisorPage() {
           <p className="mt-1 text-[11px] text-slate-400">Products at risk of lost revenue</p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4">
           <div className="flex items-center justify-between text-slate-500">
             <span className="text-xs font-medium">At-Risk Inventory Value</span>
             <DollarSign className="h-4 w-4 text-amber-500" />
@@ -221,7 +221,7 @@ export default function AiAdvisorPage() {
           <p className="mt-1 text-[11px] text-slate-400">Critical items current valuation</p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4">
           <div className="flex items-center justify-between text-slate-500">
             <span className="text-xs font-medium">Suggested Reorder Capital</span>
             <TrendingUp className="h-4 w-4 text-[#0F42C0]" />
@@ -232,7 +232,7 @@ export default function AiAdvisorPage() {
           <p className="mt-1 text-[11px] text-slate-400">To maintain 30-day buffer</p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4">
           <div className="flex items-center justify-between text-slate-500">
             <span className="text-xs font-medium">Monitored Catalog</span>
             <Package className="h-4 w-4 text-emerald-600" />
@@ -307,7 +307,7 @@ export default function AiAdvisorPage() {
           </div>
         </div>
       ) : filteredForecasts.length === 0 ? (
-        <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center">
           <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-600 mb-3" />
           <h3 className="text-base font-bold text-slate-900">No Items in this Category</h3>
           <p className="mt-1 text-xs text-slate-500">All monitored inventory is currently within target parameters.</p>
@@ -323,7 +323,7 @@ export default function AiAdvisorPage() {
             return (
               <div
                 key={item.productId}
-                className={`rounded-2xl border p-5 transition shadow-sm ${
+                className={`rounded-2xl border p-5 transition ${
                   isOutOfStock
                     ? "border-rose-200 bg-rose-50/20"
                     : isCritical
@@ -417,7 +417,7 @@ export default function AiAdvisorPage() {
                     )}
                     <Link
                       href={`/products/${item.productId}`}
-                      className="rounded-xl border border-slate-200 bg-white p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition shadow-sm cursor-pointer"
+                      className="rounded-xl border border-slate-200 bg-white p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition cursor-pointer"
                       title="Inspect Product"
                     >
                       <ArrowRight className="h-4 w-4" />

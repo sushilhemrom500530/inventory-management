@@ -95,7 +95,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Profile Overview Card */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="rounded-2xl border border-slate-200 bg-white p-6">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
             <UserAvatar name={name || "User"} size="lg" />
@@ -123,7 +123,7 @@ export default function ProfilePage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Personal Details Form */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6">
           <div className="flex items-center gap-2 pb-4 border-b border-slate-200 text-slate-900 font-semibold text-sm">
             <User className="h-4 w-4 text-[#0F42C0]" />
             <span>Personal Information</span>
@@ -181,7 +181,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Change Password Form */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6">
           <div className="flex items-center gap-2 pb-4 border-b border-slate-200 text-slate-900 font-semibold text-sm">
             <Lock className="h-4 w-4 text-[#0F42C0]" />
             <span>Security & Password</span>

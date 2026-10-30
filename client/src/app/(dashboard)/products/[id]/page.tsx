@@ -200,7 +200,7 @@ export default function ProductDetailPage({
 
   if (!product) {
     return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center shadow-sm">
+      <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center">
         <Package className="mx-auto h-12 w-12 text-slate-300 mb-3" />
         <h2 className="text-xl font-bold text-slate-900">Product Not Found</h2>
         <p className="mt-1 text-sm text-slate-500">The requested product could not be located or has been deleted.</p>
@@ -229,7 +229,7 @@ export default function ProductDetailPage({
         <div className="flex items-center gap-4">
           <Link
             href="/products"
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-slate-900 cursor-pointer"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 cursor-pointer"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
@@ -261,7 +261,7 @@ export default function ProductDetailPage({
         <div className="flex flex-wrap items-center gap-2.5">
           <button
             onClick={() => setAdjustModalOpen(true)}
-            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 cursor-pointer"
+            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 cursor-pointer"
           >
             <RefreshCw className="h-4 w-4 text-[#0F42C0]" /> Adjust Stock
           </button>
@@ -283,7 +283,7 @@ export default function ProductDetailPage({
 
       {/* KPI Highlights Bar */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4">
           <p className="text-xs font-medium text-slate-500">Current Stock</p>
           <p className="mt-1 text-2xl font-bold text-slate-900">
             {product.quantity}{" "}
@@ -292,25 +292,25 @@ export default function ProductDetailPage({
           <p className="mt-1 text-[11px] text-slate-400">Reorder threshold: {product.reorderLevel} units</p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4">
           <p className="text-xs font-medium text-slate-500">Unit Cost Price</p>
           <p className="mt-1 text-2xl font-bold text-slate-900">${product.costPrice.toFixed(2)}</p>
           <p className="mt-1 text-[11px] text-slate-400">Wholesale cost basis</p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4">
           <p className="text-xs font-medium text-slate-500">Unit Selling Price</p>
           <p className="mt-1 text-2xl font-bold text-slate-900">${product.sellingPrice.toFixed(2)}</p>
           <p className="mt-1 text-[11px] text-emerald-600 font-semibold">{profitMargin}% Margin</p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4">
           <p className="text-xs font-medium text-slate-500">Total Stock Value</p>
           <p className="mt-1 text-2xl font-bold text-slate-900">${totalStockValue}</p>
           <p className="mt-1 text-[11px] text-slate-400">Inventory cost valuation</p>
         </div>
 
-        <div className="col-span-2 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm lg:col-span-1">
+        <div className="col-span-2 rounded-2xl border border-slate-200 bg-white p-4 lg:col-span-1">
           <p className="text-xs font-medium text-slate-500">Potential Revenue</p>
           <p className="mt-1 text-2xl font-bold text-emerald-600">${potentialRevenue}</p>
           <p className="mt-1 text-[11px] text-slate-400">Upon full liquidation</p>
@@ -321,7 +321,7 @@ export default function ProductDetailPage({
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Left Column: AI Advisor & Demand Forecast Card */}
         <div className="space-y-6 lg:col-span-1">
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5">
             <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <div className="flex items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-[#0F42C0]">
@@ -418,7 +418,7 @@ export default function ProductDetailPage({
           </div>
 
           {/* Product Specifications Card */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5">
             <h3 className="text-sm font-bold text-slate-900 mb-4">Inventory Specifications</h3>
             <div className="space-y-3 text-xs">
               <div className="flex justify-between py-1.5 border-b border-slate-100">
@@ -453,7 +453,7 @@ export default function ProductDetailPage({
 
         {/* Right Column: Stock Movement Ledger (Audit Trail) */}
         <div className="space-y-6 lg:col-span-2">
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-slate-100">
               <div className="flex items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-[#0F42C0]">

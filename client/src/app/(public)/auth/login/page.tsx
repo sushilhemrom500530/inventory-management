@@ -76,7 +76,7 @@ export default function LoginPage() {
         </div>
 
         {/* Demo Credentials Quick Selector */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 text-xs shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 text-xs">
           <p className="font-semibold text-slate-700 mb-2 flex items-center gap-1.5">
             <ShieldCheck className="h-4 w-4 text-[#0F42C0]" /> Quick Demo Access (1-Click Fill):
           </p>
@@ -123,7 +123,7 @@ export default function LoginPage() {
         </div>
 
         {/* Login Form */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1.5">

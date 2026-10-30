@@ -114,7 +114,7 @@ export default function ReportsPage() {
           <select
             value={period}
             onChange={(e) => setPeriod(parseInt(e.target.value))}
-            className="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-800 focus:border-[#0F42C0] focus:outline-none shadow-sm transition cursor-pointer"
+            className="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-800 focus:border-[#0F42C0] focus:outline-none transition cursor-pointer"
           >
             <option value={7}>Last 7 Days</option>
             <option value={30}>Last 30 Days</option>
@@ -141,7 +141,7 @@ export default function ReportsPage() {
         <>
           {/* Key Financial KPIs */}
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5">
               <div className="flex items-center justify-between text-slate-500">
                 <span className="text-xs font-medium">Period Revenue</span>
                 <DollarSign className="h-5 w-5 text-emerald-600" />
@@ -152,7 +152,7 @@ export default function ReportsPage() {
               <p className="mt-1 text-xs text-slate-400">{kpis?.periodSalesCount ?? 0} transactions recorded</p>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5">
               <div className="flex items-center justify-between text-slate-500">
                 <span className="text-xs font-medium">Inventory Cost Basis</span>
                 <Package className="h-5 w-5 text-[#0F42C0]" />
@@ -163,7 +163,7 @@ export default function ReportsPage() {
               <p className="mt-1 text-xs text-slate-400">Across {kpis?.totalUnits ?? 0} total units in stock</p>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5">
               <div className="flex items-center justify-between text-slate-500">
                 <span className="text-xs font-medium">Retail Valuation</span>
                 <TrendingUp className="h-5 w-5 text-blue-600" />
@@ -174,7 +174,7 @@ export default function ReportsPage() {
               <p className="mt-1 text-xs text-emerald-600 font-semibold">{grossMargin}% projected margin</p>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5">
               <div className="flex items-center justify-between text-slate-500">
                 <span className="text-xs font-medium">Unrealized Gross Profit</span>
                 <ArrowUpRight className="h-5 w-5 text-purple-600" />
@@ -187,7 +187,7 @@ export default function ReportsPage() {
           </div>
 
           {/* Sales Revenue Trend Visualization */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="rounded-2xl border border-slate-200 bg-white p-6">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-slate-200">
               <div className="flex items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-[#0F42C0]">
@@ -241,7 +241,7 @@ export default function ReportsPage() {
 
           {/* Category Valuation & Stock Breakdown */}
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="rounded-2xl border border-slate-200 bg-white p-6">
               <div className="flex items-center gap-2 pb-4 border-b border-slate-200">
                 <Layers className="h-5 w-5 text-[#0F42C0]" />
                 <h3 className="text-sm font-semibold text-slate-900">Category Valuation Breakdown</h3>
@@ -277,7 +277,7 @@ export default function ReportsPage() {
             </div>
 
             {/* Inventory Health Ratio */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="rounded-2xl border border-slate-200 bg-white p-6">
               <div className="flex items-center gap-2 pb-4 border-b border-slate-200">
                 <PieChart className="h-5 w-5 text-[#0F42C0]" />
                 <h3 className="text-sm font-semibold text-slate-900">Catalog Stock Health Distribution</h3>

@@ -101,7 +101,7 @@ export default function SaleInvoiceDetailPage({
 
   if (!sale) {
     return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center shadow-sm">
+      <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center">
         <Receipt className="mx-auto h-12 w-12 text-slate-300 mb-3" />
         <h2 className="text-xl font-bold text-slate-900">Invoice Not Found</h2>
         <p className="mt-1 text-sm text-slate-500">The requested invoice could not be retrieved.</p>
@@ -122,7 +122,7 @@ export default function SaleInvoiceDetailPage({
         <div className="flex items-center gap-3">
           <Link
             href="/sales"
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 shadow-sm cursor-pointer"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 cursor-pointer"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
@@ -143,7 +143,7 @@ export default function SaleInvoiceDetailPage({
       </div>
 
       {/* Invoice Document Box */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-8 text-slate-900 shadow-sm print:border-none print:p-0">
+      <div className="rounded-2xl border border-slate-200 bg-white p-8 text-slate-900 print:border-none print:p-0">
         {/* Top Header */}
         <div className="flex flex-col justify-between gap-4 border-b border-slate-200 pb-6 sm:flex-row sm:items-start">
           <div>

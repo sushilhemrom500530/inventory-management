@@ -56,7 +56,7 @@ export default function SettingsPage() {
 
       <form onSubmit={handleSave} className="space-y-6">
         {/* Section 1: Store & Currency Settings */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6">
           <div className="flex items-center gap-2 pb-4 border-b border-slate-200 text-slate-900 font-semibold text-sm">
             <Store className="h-4 w-4 text-[#0F42C0]" />
             <span>Store & Regional Localization</span>
@@ -122,7 +122,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Section 2: AI & ML Engine Configuration */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6">
           <div className="flex items-center gap-2 pb-4 border-b border-slate-200 text-slate-900 font-semibold text-sm">
             <Cpu className="h-4 w-4 text-[#0F42C0]" />
             <span>AI / ML Microservice Integration</span>

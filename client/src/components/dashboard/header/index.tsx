@@ -57,7 +57,7 @@ export default function Header({ navOpened, setNavOpened, initialRole }: HeaderP
   };
 
   return (
-    <div className="sticky top-0 z-20 w-full border-b border-slate-200 h-20 bg-white/95 backdrop-blur-md shadow-sm">
+    <div className="sticky top-0 z-20 w-full border-b border-slate-200 h-20 bg-white/95 backdrop-blur-md">
       <header className="flex items-center justify-between h-full px-4 md:px-8">
         {/* Left Mobile Menu Toggle + Breadcrumb */}
         <div className="flex items-center gap-4">

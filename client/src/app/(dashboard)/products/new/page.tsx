@@ -129,7 +129,7 @@ export default function AddProductPage() {
         <div className="flex items-center gap-3">
           <Link
             href="/products"
-            className="p-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors shadow-sm cursor-pointer"
+            className="p-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors cursor-pointer"
           >
             <ArrowLeft size={16} />
           </Link>
@@ -148,7 +148,7 @@ export default function AddProductPage() {
         {/* Left 2 Cols: Main Info & Pricing */}
         <div className="lg:col-span-2 space-y-6">
           {/* Card: Basic Information */}
-          <div className="p-6 rounded-2xl bg-white border border-slate-200 space-y-4 shadow-sm">
+          <div className="p-6 rounded-2xl bg-white border border-slate-200 space-y-4">
             <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
               <Package size={18} className="text-[#0F42C0]" />
               <span>General Information</span>
@@ -241,7 +241,7 @@ export default function AddProductPage() {
           </div>
 
           {/* Card: Pricing & Margin Calculator */}
-          <div className="p-6 rounded-2xl bg-white border border-slate-200 space-y-4 shadow-sm">
+          <div className="p-6 rounded-2xl bg-white border border-slate-200 space-y-4">
             <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
               <Coins size={18} className="text-[#0F42C0]" />
               <span>Pricing & Financial Margins</span>
@@ -302,7 +302,7 @@ export default function AddProductPage() {
 
         {/* Right 1 Col: Inventory Stock & Thresholds */}
         <div className="space-y-6">
-          <div className="p-6 rounded-2xl bg-white border border-slate-200 space-y-4 shadow-sm">
+          <div className="p-6 rounded-2xl bg-white border border-slate-200 space-y-4">
             <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
               <Layers size={18} className="text-[#0F42C0]" />
               <span>Stock & Thresholds</span>
@@ -363,7 +363,7 @@ export default function AddProductPage() {
           </div>
 
           {/* Form Actions */}
-          <div className="p-5 rounded-2xl bg-white border border-slate-200 space-y-3 shadow-sm">
+          <div className="p-5 rounded-2xl bg-white border border-slate-200 space-y-3">
             <button
               type="submit"
               disabled={submitting}

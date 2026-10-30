@@ -302,13 +302,13 @@ export default function PosCheckoutPage() {
         <div className="flex items-center gap-3">
           <Link
             href="/sales"
-            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition shadow-sm cursor-pointer"
+            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition cursor-pointer"
           >
             <Receipt className="h-4 w-4" /> Sales History
           </Link>
           <button
             onClick={loadData}
-            className="rounded-xl border border-slate-200 bg-white p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition shadow-sm cursor-pointer"
+            className="rounded-xl border border-slate-200 bg-white p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition cursor-pointer"
             title="Refresh Inventory"
           >
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin text-[#0F42C0]" : ""}`} />
@@ -321,7 +321,7 @@ export default function PosCheckoutPage() {
         {/* Left Column: Product Selection */}
         <div className="space-y-4 lg:col-span-7 xl:col-span-8">
           {/* Search & Category Pills */}
-          <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4">
             <div className="relative">
               <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input
@@ -370,7 +370,7 @@ export default function PosCheckoutPage() {
               </div>
             </div>
           ) : filteredProducts.length === 0 ? (
-            <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center shadow-sm">
+            <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center">
               <Package className="mx-auto h-10 w-10 text-slate-400 mb-2" />
               <p className="text-sm font-semibold text-slate-900">No products match your filter</p>
               <p className="mt-1 text-xs text-slate-500">Check spelling or clear active category filter.</p>
@@ -445,7 +445,7 @@ export default function PosCheckoutPage() {
 
         {/* Right Column: Register & Cart */}
         <div className="space-y-4 lg:col-span-5 xl:col-span-4">
-          <div className="flex flex-col rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="flex flex-col rounded-2xl border border-slate-200 bg-white p-4">
             {/* Cart Header */}
             <div className="flex items-center justify-between border-b border-slate-200 pb-3">
               <div className="flex items-center gap-2">
@@ -489,7 +489,7 @@ export default function PosCheckoutPage() {
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <div className="flex items-center rounded-lg border border-slate-200 bg-white shadow-sm">
+                      <div className="flex items-center rounded-lg border border-slate-200 bg-white">
                         <button
                           onClick={() => updateQuantity(item.product._id, -1)}
                           className="px-2 py-1 text-slate-500 hover:text-slate-900 transition cursor-pointer"

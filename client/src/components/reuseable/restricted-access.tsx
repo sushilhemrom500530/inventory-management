@@ -21,8 +21,8 @@ export default function RestrictedAccess({
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-3xl border border-slate-200 p-8 shadow-sm text-center space-y-6">
-        <div className="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto border border-amber-200 shadow-sm">
+      <div className="max-w-md w-full bg-white rounded-3xl border border-slate-200 p-8 text-center space-y-6">
+        <div className="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto border border-amber-200">
           <ShieldAlert size={32} />
         </div>
 
