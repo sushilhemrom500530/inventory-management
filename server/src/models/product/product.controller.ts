@@ -121,25 +121,57 @@ const updateProduct = catchAsync(async (req: Request, res: Response) => {
     image?: string | string[];
   };
 
+  // 1. Resolve thumbnail
+  let thumbnail: string | undefined = undefined;
   if (files?.thumbnail) {
-    productData.thumbnail = Array.isArray(files.thumbnail) ? files.thumbnail[0] : files.thumbnail;
-  }
-  if (files?.featuredImages || files?.featureImages) {
-    const rawFeatured = files.featuredImages || files.featureImages;
-    const newFeatured = Array.isArray(rawFeatured) ? rawFeatured : [rawFeatured];
-    productData.featuredImages = [...(productData.featuredImages || []), ...newFeatured];
-  }
-  if (files?.images) {
-    const newImages = Array.isArray(files.images) ? files.images : [files.images];
-    productData.images = [...(productData.images || []), ...newImages];
+    thumbnail = Array.isArray(files.thumbnail) ? files.thumbnail[0] : files.thumbnail;
+  } else if (req.body.thumbnail !== undefined && typeof req.body.thumbnail === "string") {
+    thumbnail = req.body.thumbnail.trim();
   } else if (files?.image) {
-    productData.images = [...(productData.images || []), files.image];
+    thumbnail = Array.isArray(files.image) ? files.image[0] : files.image;
+  }
+  if (thumbnail !== undefined) {
+    productData.thumbnail = thumbnail;
+  }
+
+  // 2. Resolve featured images (Multiple)
+  const uploadedFeatured = files?.featuredImages || files?.featureImages;
+  const uploadedFilesFeatured: string[] = uploadedFeatured
+    ? (Array.isArray(uploadedFeatured) ? uploadedFeatured : [uploadedFeatured])
+    : [];
+
+  let bodyFeaturedUrls: string[] = [];
+  if (req.body.featuredImages !== undefined) {
+    if (Array.isArray(req.body.featuredImages)) {
+      bodyFeaturedUrls = req.body.featuredImages.filter((s: any) => typeof s === "string" && s.trim());
+    } else if (typeof req.body.featuredImages === "string" && req.body.featuredImages.trim()) {
+      try {
+        const parsed = JSON.parse(req.body.featuredImages);
+        bodyFeaturedUrls = (Array.isArray(parsed) ? parsed : [parsed]).filter((s: any) => typeof s === "string" && s.trim());
+      } catch {
+        bodyFeaturedUrls = [req.body.featuredImages.trim()];
+      }
+    }
+  }
+
+  if (uploadedFilesFeatured.length > 0 || req.body.featuredImages !== undefined) {
+    const combinedFeatured = Array.from(new Set([...bodyFeaturedUrls, ...uploadedFilesFeatured]));
+    productData.featuredImages = combinedFeatured;
+  }
+
+  // 3. Keep images synced
+  if (productData.thumbnail !== undefined || productData.featuredImages !== undefined) {
+    const thumb = productData.thumbnail || "";
+    const feat = productData.featuredImages || [];
+    productData.images = Array.from(new Set([...(thumb ? [thumb] : []), ...feat]));
   }
 
   if (productData.costPrice !== undefined) productData.costPrice = Number(productData.costPrice);
   if (productData.sellingPrice !== undefined) productData.sellingPrice = Number(productData.sellingPrice);
   if (productData.quantity !== undefined) productData.quantity = Number(productData.quantity);
   if (productData.lowStockThreshold !== undefined) productData.lowStockThreshold = Number(productData.lowStockThreshold);
+  if (productData.reorderLevel !== undefined && productData.lowStockThreshold === undefined) productData.lowStockThreshold = Number(productData.reorderLevel);
+  if (productData.price !== undefined && productData.sellingPrice === undefined) productData.sellingPrice = Number(productData.price);
 
   const result = await ProductService.updateProduct(id as string, productData, userId);
 

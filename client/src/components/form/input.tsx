@@ -44,11 +44,9 @@ const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
           id={id}
           type={type}
           disabled={disabled}
-          className={`w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#0F42C0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-            leftIcon ? "pl-9" : ""
-          } ${rightIcon ? "pr-9" : ""} ${
-            errorMessage ? "border-rose-300 focus:border-rose-500 bg-rose-50/20" : ""
-          } ${className}`}
+          className={`w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#0F42C0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${leftIcon ? "pl-9" : ""
+            } ${rightIcon ? "pr-9" : ""} ${errorMessage ? "border-rose-300 focus:border-rose-500 bg-rose-50/20" : ""
+            } ${className}`}
           {...rest}
         />
 

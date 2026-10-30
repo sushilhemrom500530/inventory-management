@@ -7,8 +7,10 @@ import { JwtUserPayload } from "../../middlewares/auth";
 
 const recordAdjustment = catchAsync(async (req: Request, res: Response) => {
   const { id: userId } = req.user as JwtUserPayload;
+  const targetProduct = req.body.product || req.body.productId;
   const result = await StockMovementService.recordAdjustment({
     ...req.body,
+    product: targetProduct,
     performedBy: userId,
   });
 

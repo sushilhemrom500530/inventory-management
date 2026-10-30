@@ -49,6 +49,8 @@ const updateProductZodSchema = z.object({
   quantity: z.coerce.number().int().min(0).optional(),
   lowStockThreshold: z.coerce.number().int().min(0).optional(),
   reorderLevel: z.coerce.number().int().min(0).optional(),
+  safetyStock: z.coerce.number().int().min(0).optional(),
+  adjustmentNote: z.string().optional(),
   unit: z.string().optional(),
   thumbnail: z.string().optional(),
   featuredImages: z.union([z.array(z.string()), z.string().transform((val) => [val])]).optional(),

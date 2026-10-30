@@ -164,7 +164,7 @@ const updateProduct = async (
       quantity: newQty - previousQuantity,
       previousStock: previousQuantity,
       newStock: newQty,
-      reason: "Manual adjustment via product edit form",
+      reason: payload.adjustmentNote || "Manual adjustment via product edit form",
       performedBy: updaterId ? new Types.ObjectId(updaterId) : undefined,
     });
   }
