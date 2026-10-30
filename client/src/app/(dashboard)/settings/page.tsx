@@ -76,13 +76,13 @@ export default function SettingsPage() {
             </div>
 
             <div>
-              <label className="block font-semibold uppercase tracking-wider text-slate-500 mb-1.5">
+              <label className="block font-semibold uppercase tracking-wider text-slate-500 mb-1.5 cursor-pointer">
                 Display Currency
               </label>
               <select
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 focus:bg-white focus:border-[#0F42C0] focus:outline-none transition"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 focus:bg-white focus:border-[#0F42C0] focus:outline-none transition cursor-pointer"
               >
                 <option value="USD ($)">USD — United States Dollar ($)</option>
                 <option value="BDT (৳)">BDT — Bangladeshi Taka (৳)</option>
@@ -155,7 +155,7 @@ export default function SettingsPage() {
                 type="checkbox"
                 checked={enableAiVelocityAlerts}
                 onChange={(e) => setEnableAiVelocityAlerts(e.target.checked)}
-                className="h-4 w-4 rounded border-slate-300 text-[#0F42C0] focus:ring-0"
+                className="h-4 w-4 rounded border-slate-300 text-[#0F42C0] focus:ring-0 cursor-pointer"
               />
             </div>
           </div>
@@ -166,7 +166,7 @@ export default function SettingsPage() {
           <button
             type="submit"
             disabled={saving}
-            className="flex items-center gap-2 rounded-xl bg-[#0F42C0] px-6 py-2.5 text-sm font-semibold text-white shadow-sm shadow-[#0F42C0]/20 transition hover:bg-[#0C369E]"
+            className="flex items-center gap-2 rounded-xl bg-[#0F42C0] px-6 py-2.5 text-sm font-semibold text-white shadow-sm shadow-[#0F42C0]/20 transition hover:bg-[#0C369E] cursor-pointer"
           >
             <Save className="h-4 w-4" />
             {saving ? "Saving Configurations..." : "Save Settings"}

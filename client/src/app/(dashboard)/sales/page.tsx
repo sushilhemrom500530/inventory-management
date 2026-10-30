@@ -147,13 +147,13 @@ export default function SalesHistoryPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={exportCSV}
-            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-slate-900 shadow-sm"
+            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-slate-900 shadow-sm cursor-pointer"
           >
             <Download className="h-4 w-4" /> Export CSV
           </button>
           <Link
             href="/sales/checkout"
-            className="flex items-center gap-2 rounded-xl bg-[#0F42C0] px-5 py-2.5 text-xs font-semibold text-white shadow-sm shadow-[#0F42C0]/20 transition hover:bg-[#0C369E]"
+            className="flex items-center gap-2 rounded-xl bg-[#0F42C0] px-5 py-2.5 text-xs font-semibold text-white shadow-sm shadow-[#0F42C0]/20 transition hover:bg-[#0C369E] cursor-pointer"
           >
             <ShoppingCart className="h-4 w-4" /> New Sale (POS)
           </Link>
@@ -221,7 +221,7 @@ export default function SalesHistoryPage() {
           <select
             value={methodFilter}
             onChange={(e) => setMethodFilter(e.target.value)}
-            className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-800 focus:bg-white focus:border-[#0F42C0] focus:outline-none transition"
+            className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-800 focus:bg-white focus:border-[#0F42C0] focus:outline-none transition cursor-pointer"
           >
             <option value="all">All Payment Methods</option>
             <option value="cash">Cash Only</option>
@@ -249,7 +249,7 @@ export default function SalesHistoryPage() {
             </p>
             <Link
               href="/sales/checkout"
-              className="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#0F42C0] px-4 py-2 text-xs font-semibold text-white hover:bg-[#0C369E] shadow-sm"
+              className="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#0F42C0] px-4 py-2 text-xs font-semibold text-white hover:bg-[#0C369E] shadow-sm cursor-pointer"
             >
               <ShoppingCart className="h-4 w-4" /> Open POS Terminal
             </Link>
@@ -328,14 +328,14 @@ export default function SalesHistoryPage() {
                             setSelectedSale(sale);
                             setReceiptOpen(true);
                           }}
-                          className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition"
+                          className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition cursor-pointer"
                           title="Print Receipt"
                         >
                           <Printer className="h-4 w-4" />
                         </button>
                         <Link
                           href={`/sales/${sale._id}`}
-                          className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-[#0F42C0] transition"
+                          className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-[#0F42C0] transition cursor-pointer"
                           title="View Invoice"
                         >
                           <Eye className="h-4 w-4" />
@@ -436,7 +436,7 @@ export default function SalesHistoryPage() {
             <div className="mt-4 flex items-center justify-end">
               <button
                 onClick={() => window.print()}
-                className="flex items-center gap-1.5 rounded-xl bg-[#0F42C0] px-4 py-2 text-xs font-semibold text-white hover:bg-[#0C369E]"
+                className="flex items-center gap-1.5 rounded-xl bg-[#0F42C0] px-4 py-2 text-xs font-semibold text-white hover:bg-[#0C369E] cursor-pointer"
               >
                 <Printer className="h-4 w-4" /> Print Document
               </button>

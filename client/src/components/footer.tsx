@@ -21,19 +21,19 @@ export default function Footer() {
                     </div>
 
                     <div className="flex items-center gap-6 text-xs font-semibold text-slate-500">
-                        <Link href="/dashboard" className="hover:text-[#0F42C0] transition">
+                        <Link href="/dashboard" className="hover:text-[#0F42C0] transition cursor-pointer">
                             Dashboard
                         </Link>
-                        <Link href="/products" className="hover:text-[#0F42C0] transition">
+                        <Link href="/products" className="hover:text-[#0F42C0] transition cursor-pointer">
                             Products
                         </Link>
-                        <Link href="/sales/checkout" className="hover:text-[#0F42C0] transition">
+                        <Link href="/sales/checkout" className="hover:text-[#0F42C0] transition cursor-pointer">
                             POS Terminal
                         </Link>
-                        <Link href="/ai-advisor" className="hover:text-[#0F42C0] transition">
+                        <Link href="/ai-advisor" className="hover:text-[#0F42C0] transition cursor-pointer">
                             AI Forecast
                         </Link>
-                        <Link href="/reports" className="hover:text-[#0F42C0] transition">
+                        <Link href="/reports" className="hover:text-[#0F42C0] transition cursor-pointer">
                             Analytics
                         </Link>
                     </div>

@@ -68,7 +68,7 @@ export default function NavItem({
         {!submenu ? (
           <Link
             href={href || "#"}
-            className="flex items-center gap-3 w-full text-sm px-4 py-2.5"
+            className="flex items-center gap-3 w-full text-sm px-4 py-2.5 cursor-pointer"
             onClick={() => setNavOpened?.(false)}
           >
             {Icon && <Icon size={18} className="shrink-0" />}
@@ -107,7 +107,7 @@ export default function NavItem({
                   key={index}
                   href={item.href || "#"}
                   onClick={() => setNavOpened?.(false)}
-                  className={`flex items-center gap-2.5 px-3 py-1.5 text-xs transition-colors rounded-lg ${
+                  className={`flex items-center gap-2.5 px-3 py-1.5 text-xs transition-colors rounded-lg cursor-pointer ${
                     isActive
                       ? "text-[#0F42C0] bg-blue-50 font-semibold"
                       : "text-slate-500 hover:text-slate-900 hover:bg-slate-100"

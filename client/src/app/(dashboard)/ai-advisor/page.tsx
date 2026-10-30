@@ -190,7 +190,7 @@ export default function AiAdvisorPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={loadForecast}
-            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-slate-900 shadow-sm"
+            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-slate-900 shadow-sm cursor-pointer"
           >
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin text-[#0F42C0]" : ""}`} /> Refresh Predictions
           </button>
@@ -249,7 +249,7 @@ export default function AiAdvisorPage() {
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
           <button
             onClick={() => setActiveTab("ALL")}
-            className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold whitespace-nowrap transition ${
+            className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
               activeTab === "ALL" ? "bg-[#0F42C0] text-white shadow-sm" : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
             }`}
           >
@@ -257,7 +257,7 @@ export default function AiAdvisorPage() {
           </button>
           <button
             onClick={() => setActiveTab("RISK")}
-            className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold whitespace-nowrap transition ${
+            className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
               activeTab === "RISK" ? "bg-rose-600 text-white shadow-sm" : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
             }`}
           >
@@ -265,7 +265,7 @@ export default function AiAdvisorPage() {
           </button>
           <button
             onClick={() => setActiveTab("LOW")}
-            className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold whitespace-nowrap transition ${
+            className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
               activeTab === "LOW" ? "bg-amber-500 text-white shadow-sm" : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
             }`}
           >
@@ -273,7 +273,7 @@ export default function AiAdvisorPage() {
           </button>
           <button
             onClick={() => setActiveTab("STAGNANT")}
-            className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold whitespace-nowrap transition ${
+            className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
               activeTab === "STAGNANT" ? "bg-purple-600 text-white shadow-sm" : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
             }`}
           >
@@ -281,7 +281,7 @@ export default function AiAdvisorPage() {
           </button>
           <button
             onClick={() => setActiveTab("HEALTHY")}
-            className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold whitespace-nowrap transition ${
+            className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
               activeTab === "HEALTHY" ? "bg-emerald-600 text-white shadow-sm" : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
             }`}
           >
@@ -337,7 +337,7 @@ export default function AiAdvisorPage() {
                     <div className="flex flex-wrap items-center gap-2">
                       <Link
                         href={`/products/${item.productId}`}
-                        className="text-base font-bold text-slate-900 hover:text-[#0F42C0] transition"
+                        className="text-base font-bold text-slate-900 hover:text-[#0F42C0] transition cursor-pointer"
                       >
                         {item.name}
                       </Link>
@@ -410,14 +410,14 @@ export default function AiAdvisorPage() {
                     {item.suggestedReorderQuantity > 0 && (
                       <button
                         onClick={() => openRestockModal(item)}
-                        className="flex items-center gap-1.5 rounded-xl bg-[#0F42C0] px-4 py-2 text-xs font-semibold text-white shadow-sm shadow-[#0F42C0]/20 transition hover:bg-[#0C369E]"
+                        className="flex items-center gap-1.5 rounded-xl bg-[#0F42C0] px-4 py-2 text-xs font-semibold text-white shadow-sm shadow-[#0F42C0]/20 transition hover:bg-[#0C369E] cursor-pointer"
                       >
                         <PlusCircle className="h-3.5 w-3.5" /> Reorder ({item.suggestedReorderQuantity})
                       </button>
                     )}
                     <Link
                       href={`/products/${item.productId}`}
-                      className="rounded-xl border border-slate-200 bg-white p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition shadow-sm"
+                      className="rounded-xl border border-slate-200 bg-white p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition shadow-sm cursor-pointer"
                       title="Inspect Product"
                     >
                       <ArrowRight className="h-4 w-4" />

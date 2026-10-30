@@ -128,9 +128,9 @@ export default function Header({ navOpened, setNavOpened, initialRole }: HeaderP
                 <div className="px-3 py-2.5 border-b border-slate-100">
                   <p className="text-sm font-bold text-slate-900 truncate">{displayName}</p>
                   <p className="text-xs text-slate-500 truncate mt-0.5">{displayEmail}</p>
-                  <span className="inline-block mt-1.5 px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-[#0F42C0] border border-blue-200">
+                  {/* <span className="inline-block mt-1.5 px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-[#0F42C0] border border-blue-200">
                     {displayRole}
-                  </span>
+                  </span> */}
                 </div>
 
                 {/* Navigation links */}
@@ -138,29 +138,29 @@ export default function Header({ navOpened, setNavOpened, initialRole }: HeaderP
                   <Link
                     href="/products"
                     onClick={() => setDropdownOpen(false)}
-                    className="flex items-center gap-3 px-3 py-2 text-xs text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors"
+                    className="flex items-center gap-3 px-3 py-2 text-xs !text-slate-700 hover:!text-slate-950 hover:bg-slate-100 rounded-lg transition-colors font-medium group cursor-pointer"
                   >
-                    <Package size={15} />
-                    <span>Product Catalog</span>
+                    <Package size={15} className="!text-slate-500 group-hover:!text-slate-900 transition-colors" />
+                    <span className="!text-slate-700 group-hover:!text-slate-950">Product Catalog</span>
                   </Link>
 
                   <Link
                     href="/profile"
                     onClick={() => setDropdownOpen(false)}
-                    className="flex items-center gap-3 px-3 py-2 text-xs text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors"
+                    className="flex items-center gap-3 px-3 py-2 text-xs !text-slate-700 hover:!text-slate-950 hover:bg-slate-100 rounded-lg transition-colors font-medium group cursor-pointer"
                   >
-                    <UserIcon size={15} />
-                    <span>My Profile</span>
+                    <UserIcon size={15} className="!text-slate-500 group-hover:!text-slate-900 transition-colors" />
+                    <span className="!text-slate-700 group-hover:!text-slate-950">My Profile</span>
                   </Link>
 
                   {!isEmployee && (
                     <Link
                       href="/settings"
                       onClick={() => setDropdownOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2 text-xs text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors"
+                      className="flex items-center gap-3 px-3 py-2 text-xs !text-slate-700 hover:!text-slate-950 hover:bg-slate-100 rounded-lg transition-colors font-medium group cursor-pointer"
                     >
-                      <Settings size={15} />
-                      <span>Store Settings</span>
+                      <Settings size={15} className="!text-slate-500 group-hover:!text-slate-900 transition-colors" />
+                      <span className="!text-slate-700 group-hover:!text-slate-950">Store Settings</span>
                     </Link>
                   )}
                 </div>

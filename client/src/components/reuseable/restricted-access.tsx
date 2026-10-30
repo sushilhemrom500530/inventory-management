@@ -39,7 +39,7 @@ export default function RestrictedAccess({
         <div className="pt-2 space-y-2">
           <Link
             href="/sales/checkout"
-            className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#0F42C0] text-white text-xs font-semibold hover:bg-[#0C369E] shadow-sm transition-all"
+            className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#0F42C0] text-white text-xs font-semibold hover:bg-[#0C369E] shadow-sm transition-all cursor-pointer"
           >
             <ShoppingCart size={15} />
             <span>Open POS Terminal</span>
@@ -48,7 +48,7 @@ export default function RestrictedAccess({
           <div className="grid grid-cols-2 gap-2 pt-1">
             <Link
               href="/dashboard"
-              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
             >
               <LayoutDashboard size={14} />
               <span>Dashboard</span>
@@ -56,7 +56,7 @@ export default function RestrictedAccess({
 
             <Link
               href="/products"
-              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
             >
               <Package size={14} />
               <span>Products</span>

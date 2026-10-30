@@ -302,13 +302,13 @@ export default function PosCheckoutPage() {
         <div className="flex items-center gap-3">
           <Link
             href="/sales"
-            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition shadow-sm"
+            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition shadow-sm cursor-pointer"
           >
             <Receipt className="h-4 w-4" /> Sales History
           </Link>
           <button
             onClick={loadData}
-            className="rounded-xl border border-slate-200 bg-white p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition shadow-sm"
+            className="rounded-xl border border-slate-200 bg-white p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition shadow-sm cursor-pointer"
             title="Refresh Inventory"
           >
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin text-[#0F42C0]" : ""}`} />
@@ -337,7 +337,7 @@ export default function PosCheckoutPage() {
             <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
               <button
                 onClick={() => setSelectedCategory("all")}
-                className={`whitespace-nowrap rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
+                className={`whitespace-nowrap rounded-xl px-3 py-1.5 text-xs font-semibold transition cursor-pointer ${
                   selectedCategory === "all"
                     ? "bg-[#0F42C0] text-white shadow-sm"
                     : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
@@ -349,7 +349,7 @@ export default function PosCheckoutPage() {
                 <button
                   key={c._id}
                   onClick={() => setSelectedCategory(c._id)}
-                  className={`whitespace-nowrap rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
+                  className={`whitespace-nowrap rounded-xl px-3 py-1.5 text-xs font-semibold transition cursor-pointer ${
                     selectedCategory === c._id
                       ? "bg-[#0F42C0] text-white shadow-sm"
                       : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
@@ -430,7 +430,7 @@ export default function PosCheckoutPage() {
                       ) : (
                         <button
                           disabled={isOutOfStock}
-                          className="flex h-6 w-6 items-center justify-center rounded-lg bg-slate-100 text-slate-600 hover:bg-[#0F42C0] hover:text-white transition"
+                          className="flex h-6 w-6 items-center justify-center rounded-lg bg-slate-100 text-slate-600 hover:bg-[#0F42C0] hover:text-white transition cursor-pointer disabled:cursor-not-allowed"
                         >
                           <Plus className="h-3.5 w-3.5" />
                         </button>
@@ -458,7 +458,7 @@ export default function PosCheckoutPage() {
               {cart.length > 0 && (
                 <button
                   onClick={clearCart}
-                  className="text-xs font-medium text-rose-600 hover:text-rose-700 transition"
+                  className="text-xs font-medium text-rose-600 hover:text-rose-700 transition cursor-pointer"
                 >
                   Clear
                 </button>
@@ -492,14 +492,14 @@ export default function PosCheckoutPage() {
                       <div className="flex items-center rounded-lg border border-slate-200 bg-white shadow-sm">
                         <button
                           onClick={() => updateQuantity(item.product._id, -1)}
-                          className="px-2 py-1 text-slate-500 hover:text-slate-900 transition"
+                          className="px-2 py-1 text-slate-500 hover:text-slate-900 transition cursor-pointer"
                         >
                           <Minus className="h-3 w-3" />
                         </button>
                         <span className="px-2 text-xs font-bold text-slate-900">{item.quantity}</span>
                         <button
                           onClick={() => updateQuantity(item.product._id, 1)}
-                          className="px-2 py-1 text-slate-500 hover:text-slate-900 transition"
+                          className="px-2 py-1 text-slate-500 hover:text-slate-900 transition cursor-pointer"
                         >
                           <Plus className="h-3 w-3" />
                         </button>
@@ -511,7 +511,7 @@ export default function PosCheckoutPage() {
 
                       <button
                         onClick={() => removeFromCart(item.product._id)}
-                        className="text-slate-400 hover:text-rose-600 transition"
+                        className="text-slate-400 hover:text-rose-600 transition cursor-pointer"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
@@ -560,7 +560,7 @@ export default function PosCheckoutPage() {
                 <button
                   type="button"
                   onClick={() => setPaymentMethod("cash")}
-                  className={`flex items-center justify-center gap-1.5 rounded-xl border p-2 text-xs font-semibold transition ${
+                  className={`flex items-center justify-center gap-1.5 rounded-xl border p-2 text-xs font-semibold transition cursor-pointer ${
                     paymentMethod === "cash"
                       ? "border-[#0F42C0] bg-blue-50 text-[#0F42C0] font-bold shadow-sm"
                       : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
@@ -571,7 +571,7 @@ export default function PosCheckoutPage() {
                 <button
                   type="button"
                   onClick={() => setPaymentMethod("card")}
-                  className={`flex items-center justify-center gap-1.5 rounded-xl border p-2 text-xs font-semibold transition ${
+                  className={`flex items-center justify-center gap-1.5 rounded-xl border p-2 text-xs font-semibold transition cursor-pointer ${
                     paymentMethod === "card"
                       ? "border-[#0F42C0] bg-blue-50 text-[#0F42C0] font-bold shadow-sm"
                       : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
@@ -582,7 +582,7 @@ export default function PosCheckoutPage() {
                 <button
                   type="button"
                   onClick={() => setPaymentMethod("bank_transfer")}
-                  className={`flex items-center justify-center gap-1.5 rounded-xl border p-2 text-xs font-semibold transition ${
+                  className={`flex items-center justify-center gap-1.5 rounded-xl border p-2 text-xs font-semibold transition cursor-pointer ${
                     paymentMethod === "bank_transfer"
                       ? "border-[#0F42C0] bg-blue-50 text-[#0F42C0] font-bold shadow-sm"
                       : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
@@ -654,7 +654,7 @@ export default function PosCheckoutPage() {
             <button
               onClick={handleCheckout}
               disabled={submitting || cart.length === 0}
-              className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[#0F42C0] py-3 text-sm font-bold text-white shadow-sm shadow-[#0F42C0]/20 transition hover:bg-[#0C369E] disabled:opacity-50"
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[#0F42C0] py-3 text-sm font-bold text-white shadow-sm shadow-[#0F42C0]/20 transition hover:bg-[#0C369E] disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
             >
               <CheckCircle2 className="h-4 w-4" />
               {submitting ? "Processing Transaction..." : `Charge $${grandTotal.toFixed(2)}`}
@@ -763,13 +763,13 @@ export default function PosCheckoutPage() {
             <div className="mt-5 flex items-center gap-2">
               <button
                 onClick={() => window.print()}
-                className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-slate-300 bg-white py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition"
+                className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-slate-300 bg-white py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer"
               >
                 <Printer className="h-4 w-4" /> Print Receipt
               </button>
               <button
                 onClick={startNewSale}
-                className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-[#0F42C0] py-2 text-xs font-semibold text-white hover:bg-[#0C369E] transition"
+                className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-[#0F42C0] py-2 text-xs font-semibold text-white hover:bg-[#0C369E] transition cursor-pointer"
               >
                 New Sale <ArrowRight className="h-4 w-4" />
               </button>

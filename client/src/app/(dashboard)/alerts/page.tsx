@@ -147,13 +147,13 @@ export default function StockAlertsPage() {
         <div className="flex items-center gap-3">
           <Link
             href="/ai-advisor"
-            className="flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2.5 text-xs font-semibold text-[#0F42C0] transition hover:bg-blue-100 shadow-sm"
+            className="flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2.5 text-xs font-semibold text-[#0F42C0] transition hover:bg-blue-100 shadow-sm cursor-pointer"
           >
             <Sparkles className="h-4 w-4" /> View AI Reorder Advisor
           </Link>
           <button
             onClick={loadAlerts}
-            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-slate-900 shadow-sm"
+            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-slate-900 shadow-sm cursor-pointer"
           >
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin text-[#0F42C0]" : ""}`} /> Refresh
           </button>
@@ -200,7 +200,7 @@ export default function StockAlertsPage() {
       <div className="flex items-center gap-2 border-b border-slate-200 pb-3">
         <button
           onClick={() => setFilterTab("ALL")}
-          className={`rounded-xl px-4 py-2 text-xs font-semibold transition ${
+          className={`rounded-xl px-4 py-2 text-xs font-semibold transition cursor-pointer ${
             filterTab === "ALL"
               ? "bg-[#0F42C0] text-white shadow-sm"
               : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
@@ -210,7 +210,7 @@ export default function StockAlertsPage() {
         </button>
         <button
           onClick={() => setFilterTab("CRITICAL")}
-          className={`rounded-xl px-4 py-2 text-xs font-semibold transition ${
+          className={`rounded-xl px-4 py-2 text-xs font-semibold transition cursor-pointer ${
             filterTab === "CRITICAL"
               ? "bg-rose-600 text-white shadow-sm"
               : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
@@ -220,7 +220,7 @@ export default function StockAlertsPage() {
         </button>
         <button
           onClick={() => setFilterTab("LOW")}
-          className={`rounded-xl px-4 py-2 text-xs font-semibold transition ${
+          className={`rounded-xl px-4 py-2 text-xs font-semibold transition cursor-pointer ${
             filterTab === "LOW"
               ? "bg-amber-500 text-white shadow-sm"
               : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
@@ -271,7 +271,7 @@ export default function StockAlertsPage() {
                       <td className="py-3.5 pl-6">
                         <Link
                           href={`/products/${p._id}`}
-                          className="font-bold text-slate-900 hover:text-[#0F42C0] transition"
+                          className="font-bold text-slate-900 hover:text-[#0F42C0] transition cursor-pointer"
                         >
                           {p.name}
                         </Link>
@@ -324,14 +324,14 @@ export default function StockAlertsPage() {
                         {isEmployee ? (
                           <Link
                             href={`/products/${p._id}`}
-                            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:text-[#0F42C0] hover:border-[#0F42C0] transition shadow-sm"
+                            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:text-[#0F42C0] hover:border-[#0F42C0] transition shadow-sm cursor-pointer"
                           >
                             <Eye className="h-3.5 w-3.5" /> View SKU
                           </Link>
                         ) : (
                           <button
                             onClick={() => openRestockModal(p)}
-                            className="inline-flex items-center gap-1.5 rounded-xl bg-[#0F42C0] px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm shadow-[#0F42C0]/20 hover:bg-[#0C369E] transition"
+                            className="inline-flex items-center gap-1.5 rounded-xl bg-[#0F42C0] px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm shadow-[#0F42C0]/20 hover:bg-[#0C369E] transition cursor-pointer"
                           >
                             <PlusCircle className="h-3.5 w-3.5" /> Restock
                           </button>

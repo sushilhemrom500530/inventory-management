@@ -38,13 +38,13 @@ export default function HomePage() {
         <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
           <Link
             href="/dashboard"
-            className="flex items-center gap-2 rounded-2xl bg-[#0F42C0] px-7 py-3.5 text-sm font-bold text-white shadow-sm shadow-[#0F42C0]/25 transition hover:bg-[#0C369E]"
+            className="flex items-center gap-2 rounded-2xl bg-[#0F42C0] px-7 py-3.5 text-sm font-bold text-white shadow-sm shadow-[#0F42C0]/25 transition hover:bg-[#0C369E] cursor-pointer"
           >
             Launch Dashboard <ArrowRight className="h-4 w-4" />
           </Link>
           <Link
             href="/sales/checkout"
-            className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-7 py-3.5 text-sm font-bold text-slate-800 transition hover:bg-slate-50 shadow-sm"
+            className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-7 py-3.5 text-sm font-bold text-slate-800 transition hover:bg-slate-50 shadow-sm cursor-pointer"
           >
             <ShoppingCart className="h-4 w-4 text-[#0F42C0]" /> Open POS Register
           </Link>

@@ -325,7 +325,7 @@ export default function ProductsListPage() {
                       <td className="py-3.5 px-5">
                         <Link
                           href={`/products/${product._id}`}
-                          className="font-bold text-slate-900 hover:text-[#0F42C0] transition-colors"
+                          className="font-bold text-slate-900 hover:text-[#0F42C0] transition-colors cursor-pointer"
                         >
                           {product.name}
                         </Link>
@@ -481,7 +481,7 @@ export default function ProductsListPage() {
               <select
                 value={adjustType}
                 onChange={(e: any) => setAdjustType(e.target.value)}
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#0F42C0]"
+                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#0F42C0] cursor-pointer"
               >
                 <option value="IN">Stock In (Shipment Received / Restock +)</option>
                 <option value="OUT">Stock Out (Damaged / Return -)</option>

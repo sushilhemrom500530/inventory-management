@@ -33,6 +33,52 @@ body {
   overflow-x: hidden;
 }
 
+/* Universal Interactive Elements Cursor Pointer */
+button,
+[type='button'],
+[type='reset'],
+[type='submit'],
+[role='button'],
+a,
+select,
+summary,
+label,
+.ant-btn,
+.ant-dropdown-trigger,
+.ant-dropdown-menu-item,
+.ant-select,
+.ant-select-selector,
+.ant-select-item,
+.ant-pagination-item,
+.ant-pagination-prev,
+.ant-pagination-next,
+.ant-checkbox-wrapper,
+.ant-checkbox,
+.ant-radio-wrapper,
+.ant-radio,
+.ant-switch,
+.ant-modal-close,
+.cursor-pointer {
+  cursor: pointer !important;
+}
+
+button:disabled,
+button[disabled],
+[type='button']:disabled,
+[type='reset']:disabled,
+[type='submit']:disabled,
+[role='button'][aria-disabled='true'],
+.ant-btn:disabled,
+.ant-btn[disabled],
+.ant-pagination-disabled,
+.ant-pagination-disabled .ant-pagination-item-link,
+.ant-select-disabled,
+.ant-select-disabled .ant-select-selector,
+.disabled,
+[disabled] {
+  cursor: not-allowed !important;
+}
+
 .custom-container {
   max-width: 1440px;
   margin-left: auto;
@@ -44,6 +90,7 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -52,13 +99,16 @@ body {
   width: 6px;
   height: 6px;
 }
+
 *::-webkit-scrollbar-track {
   background: #F1F5F9;
 }
+
 *::-webkit-scrollbar-thumb {
   background-color: #CBD5E1;
   border-radius: 4px;
 }
+
 *::-webkit-scrollbar-thumb:hover {
   background-color: #94A3B8;
 }
@@ -89,6 +139,7 @@ body {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 14px 0 rgba(15, 66, 192, 0.25);
 }
+
 .button-primary:hover {
   background-color: #0C369E;
   box-shadow: 0 6px 20px 0 rgba(15, 66, 192, 0.4);
@@ -174,18 +225,22 @@ body {
   color: #0F172A !important;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
 }
+
 .ant-modal-header {
   background-color: transparent !important;
   border-bottom: 1px solid #F1F5F9 !important;
   padding-bottom: 12px !important;
 }
+
 .ant-modal-title {
   color: #0F172A !important;
   font-weight: 700 !important;
 }
+
 .ant-modal-close {
   color: #64748B !important;
 }
+
 .ant-modal-close:hover {
   color: #0F172A !important;
 }
@@ -197,20 +252,25 @@ body {
   box-shadow: 0 2px 8px rgba(15, 66, 192, 0.25) !important;
   color: #FFFFFF !important;
 }
-.ant-btn-primary:hover, .ant-btn-primary:focus {
+
+.ant-btn-primary:hover,
+.ant-btn-primary:focus {
   background-color: #0C369E !important;
   border-color: #0C369E !important;
 }
 
-.ant-input, .ant-input-number {
+.ant-input,
+.ant-input-number {
   background-color: #FFFFFF !important;
   border-color: #CBD5E1 !important;
   color: #0F172A !important;
   border-radius: 8px !important;
 }
 
-.ant-input:focus, .ant-input-focused,
-.ant-input-number:focus, .ant-input-number-focused {
+.ant-input:focus,
+.ant-input-focused,
+.ant-input-number:focus,
+.ant-input-number-focused {
   border-color: #0F42C0 !important;
   box-shadow: 0 0 0 2px rgba(15, 66, 192, 0.15) !important;
 }
@@ -227,6 +287,20 @@ body {
 .ant-radio-checked .ant-radio-inner {
   border-color: #0F42C0 !important;
 }
+
 .ant-radio-checked .ant-radio-inner::after {
   background-color: #0F42C0 !important;
+}
+
+/* Ant Design Dropdown custom overrides to prevent default blue links */
+.ant-dropdown a,
+.ant-dropdown-menu a,
+.ant-dropdown a:visited {
+  color: #334155 !important;
+  text-decoration: none !important;
+}
+
+.ant-dropdown a:hover,
+.ant-dropdown-menu a:hover {
+  color: #0F172A !important;
 }

@@ -107,7 +107,7 @@ export default function SaleInvoiceDetailPage({
         <p className="mt-1 text-sm text-slate-500">The requested invoice could not be retrieved.</p>
         <Link
           href="/sales"
-          className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#0F42C0] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#0C369E] shadow-sm"
+          className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#0F42C0] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#0C369E] shadow-sm cursor-pointer"
         >
           <ArrowLeft className="h-4 w-4" /> Back to Sales
         </Link>
@@ -122,7 +122,7 @@ export default function SaleInvoiceDetailPage({
         <div className="flex items-center gap-3">
           <Link
             href="/sales"
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 shadow-sm"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 shadow-sm cursor-pointer"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
@@ -136,7 +136,7 @@ export default function SaleInvoiceDetailPage({
 
         <button
           onClick={() => window.print()}
-          className="flex items-center gap-2 rounded-xl bg-[#0F42C0] px-5 py-2.5 text-sm font-semibold text-white shadow-sm shadow-[#0F42C0]/20 transition hover:bg-[#0C369E]"
+          className="flex items-center gap-2 rounded-xl bg-[#0F42C0] px-5 py-2.5 text-sm font-semibold text-white shadow-sm shadow-[#0F42C0]/20 transition hover:bg-[#0C369E] cursor-pointer"
         >
           <Printer className="h-4 w-4" /> Print Invoice
         </button>

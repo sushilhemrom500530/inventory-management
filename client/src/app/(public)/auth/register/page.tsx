@@ -134,7 +134,7 @@ export default function RegisterPage() {
                 <select
                   value={role}
                   onChange={(e) => setRole(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-xs text-slate-900 focus:bg-white focus:border-[#0F42C0] focus:outline-none transition"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-xs text-slate-900 focus:bg-white focus:border-[#0F42C0] focus:outline-none transition cursor-pointer"
                 >
                   <option value="manager">Store Manager (Inventory & Sales)</option>
                   <option value="admin">Administrator (Full System Control)</option>
@@ -146,7 +146,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#0F42C0] py-3 text-xs font-bold text-white shadow-sm shadow-[#0F42C0]/20 transition hover:bg-[#0C369E] disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#0F42C0] py-3 text-xs font-bold text-white shadow-sm shadow-[#0F42C0]/20 transition hover:bg-[#0C369E] disabled:opacity-50 cursor-pointer"
             >
               {loading ? "Creating Account..." : "Create Account"}
               {!loading && <ArrowRight className="h-4 w-4" />}
@@ -155,7 +155,7 @@ export default function RegisterPage() {
 
           <div className="mt-5 text-center text-xs text-slate-500">
             <span>Already have an account? </span>
-            <Link href="/auth/login" className="font-semibold text-[#0F42C0] hover:underline">
+            <Link href="/auth/login" className="font-semibold text-[#0F42C0] hover:underline cursor-pointer">
               Sign in here
             </Link>
           </div>

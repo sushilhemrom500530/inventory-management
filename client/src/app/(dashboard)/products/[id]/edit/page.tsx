@@ -186,7 +186,7 @@ export default function EditProductPage({
         <div className="flex items-center gap-3">
           <Link
             href={`/products/${productId}`}
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-slate-900"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-slate-900 cursor-pointer"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
@@ -199,7 +199,7 @@ export default function EditProductPage({
         <button
           onClick={handleSubmit}
           disabled={saving}
-          className="flex items-center gap-2 rounded-xl bg-[#0F42C0] px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-[#0F42C0]/20 transition hover:bg-[#0C369E] disabled:opacity-50"
+          className="flex items-center gap-2 rounded-xl bg-[#0F42C0] px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-[#0F42C0]/20 transition hover:bg-[#0C369E] disabled:opacity-50 cursor-pointer"
         >
           <Save className="h-4 w-4" />
           {saving ? "Saving Changes..." : "Save Changes"}
@@ -254,13 +254,13 @@ export default function EditProductPage({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5 cursor-pointer">
                 Category
               </label>
               <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 focus:bg-white focus:border-[#0F42C0] focus:outline-none"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 focus:bg-white focus:border-[#0F42C0] focus:outline-none cursor-pointer"
               >
                 <option value="">Select Category</option>
                 {categories.map((c) => (
@@ -272,13 +272,13 @@ export default function EditProductPage({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5 cursor-pointer">
                 Unit of Measure
               </label>
               <select
                 value={unit}
                 onChange={(e) => setUnit(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 focus:bg-white focus:border-[#0F42C0] focus:outline-none"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 focus:bg-white focus:border-[#0F42C0] focus:outline-none cursor-pointer"
               >
                 <option value="piece">Piece (pcs)</option>
                 <option value="box">Box</option>
@@ -442,14 +442,14 @@ export default function EditProductPage({
         <div className="flex items-center justify-end gap-3 pt-2">
           <Link
             href={`/products/${productId}`}
-            className="rounded-xl border border-slate-200 bg-slate-100 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"
+            className="rounded-xl border border-slate-200 bg-slate-100 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-200 cursor-pointer"
           >
             Cancel
           </Link>
           <button
             type="submit"
             disabled={saving}
-            className="flex items-center gap-2 rounded-xl bg-[#0F42C0] px-6 py-2.5 text-sm font-semibold text-white shadow-md shadow-[#0F42C0]/20 transition hover:bg-[#0C369E] disabled:opacity-50"
+            className="flex items-center gap-2 rounded-xl bg-[#0F42C0] px-6 py-2.5 text-sm font-semibold text-white shadow-md shadow-[#0F42C0]/20 transition hover:bg-[#0C369E] disabled:opacity-50 cursor-pointer"
           >
             <Save className="h-4 w-4" />
             {saving ? "Saving Changes..." : "Save Product"}

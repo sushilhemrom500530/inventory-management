@@ -206,7 +206,7 @@ export default function ProductDetailPage({
         <p className="mt-1 text-sm text-slate-500">The requested product could not be located or has been deleted.</p>
         <Link
           href="/products"
-          className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#0F42C0] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#0C369E]"
+          className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#0F42C0] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#0C369E] cursor-pointer"
         >
           <ArrowLeft className="h-4 w-4" /> Back to Products
         </Link>
@@ -229,7 +229,7 @@ export default function ProductDetailPage({
         <div className="flex items-center gap-4">
           <Link
             href="/products"
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-slate-900"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-slate-900 cursor-pointer"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
@@ -261,19 +261,19 @@ export default function ProductDetailPage({
         <div className="flex flex-wrap items-center gap-2.5">
           <button
             onClick={() => setAdjustModalOpen(true)}
-            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 cursor-pointer"
           >
             <RefreshCw className="h-4 w-4 text-[#0F42C0]" /> Adjust Stock
           </button>
           <Link
             href={`/products/${productId}/edit`}
-            className="flex items-center gap-2 rounded-xl bg-[#0F42C0] px-4 py-2 text-xs font-semibold text-white shadow-md shadow-[#0F42C0]/20 transition hover:bg-[#0C369E]"
+            className="flex items-center gap-2 rounded-xl bg-[#0F42C0] px-4 py-2 text-xs font-semibold text-white shadow-md shadow-[#0F42C0]/20 transition hover:bg-[#0C369E] cursor-pointer"
           >
             <Edit3 className="h-4 w-4" /> Edit Product
           </Link>
           <button
             onClick={handleDelete}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-rose-200 bg-rose-50 text-rose-600 transition hover:bg-rose-100"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-rose-200 bg-rose-50 text-rose-600 transition hover:bg-rose-100 cursor-pointer"
             title="Delete Product"
           >
             <Trash2 className="h-4 w-4" />
@@ -335,7 +335,7 @@ export default function ProductDetailPage({
               <button
                 onClick={loadAiAdvice}
                 disabled={loadingAi}
-                className="text-slate-400 hover:text-slate-700 transition"
+                className="text-slate-400 hover:text-slate-700 transition cursor-pointer"
                 title="Refresh Forecast"
               >
                 <RefreshCw className={`h-4 w-4 ${loadingAi ? "animate-spin text-[#0F42C0]" : ""}`} />
@@ -466,7 +466,7 @@ export default function ProductDetailPage({
               </div>
               <button
                 onClick={() => setAdjustModalOpen(true)}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0F42C0] hover:underline"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0F42C0] hover:underline cursor-pointer"
               >
                 + Record Adjustment
               </button>

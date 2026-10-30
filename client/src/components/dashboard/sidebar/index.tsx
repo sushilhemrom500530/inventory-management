@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import Cookies from "js-cookie";
 import { adminMenuData } from "@/data";
 import NavItem from "../nav-menu";
@@ -69,7 +70,7 @@ export default function Sidebar({ navOpened, setNavOpened, initialRole }: Sideba
     <>
       {/* Mobile backdrop */}
       <div
-        className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-20 lg:hidden transition-opacity ${
+        className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-20 lg:hidden transition-opacity cursor-pointer ${
           navOpened ? "opacity-100 block" : "opacity-0 hidden"
         }`}
         onClick={() => setNavOpened && setNavOpened(false)}
@@ -84,7 +85,10 @@ export default function Sidebar({ navOpened, setNavOpened, initialRole }: Sideba
         <div className="flex flex-col h-full justify-between">
           <div>
             {/* Logo Area */}
-            <div className="p-6 pb-4 flex items-center justify-center border-b border-slate-100">
+            <Link
+              href="/dashboard"
+              className="p-6 pb-4 flex items-center justify-center border-b border-slate-100 cursor-pointer block"
+            >
               <Image
                 src={logo}
                 alt="StockWise Logo"
@@ -93,7 +97,7 @@ export default function Sidebar({ navOpened, setNavOpened, initialRole }: Sideba
                 priority
                 className="w-auto h-9 object-contain"
               />
-            </div>
+            </Link>
 
             {/* Navigation links */}
             <nav className="p-3 space-y-4">

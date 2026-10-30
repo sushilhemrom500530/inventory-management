@@ -153,7 +153,7 @@ export default function CategoriesPage() {
         {!isEmployee && (
           <button
             onClick={openCreateModal}
-            className="flex items-center gap-2 rounded-xl bg-[#0F42C0] px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-[#0F42C0]/20 transition hover:bg-[#0C369E]"
+            className="flex items-center gap-2 rounded-xl bg-[#0F42C0] px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-[#0F42C0]/20 transition hover:bg-[#0C369E] cursor-pointer"
           >
             <Plus className="h-4 w-4" /> Add Category
           </button>
@@ -206,7 +206,7 @@ export default function CategoriesPage() {
           {!searchQuery && !isEmployee && (
             <button
               onClick={openCreateModal}
-              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#0F42C0] px-4 py-2 text-xs font-semibold text-white hover:bg-[#0C369E]"
+              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#0F42C0] px-4 py-2 text-xs font-semibold text-white hover:bg-[#0C369E] cursor-pointer"
             >
               <Plus className="h-4 w-4" /> Create Category
             </button>
@@ -239,14 +239,14 @@ export default function CategoriesPage() {
                     <div className="flex items-center gap-1">
                       <button
                         onClick={() => openEditModal(cat)}
-                        className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition"
+                        className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition cursor-pointer"
                         title="Edit Category"
                       >
                         <Edit2 className="h-3.5 w-3.5" />
                       </button>
                       <button
                         onClick={() => handleDelete(cat)}
-                        className="rounded-lg p-1.5 text-rose-500 hover:bg-rose-50 transition"
+                        className="rounded-lg p-1.5 text-rose-500 hover:bg-rose-50 transition cursor-pointer"
                         title="Delete Category"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -268,7 +268,7 @@ export default function CategoriesPage() {
 
                 <Link
                   href={`/products?category=${cat._id}`}
-                  className="flex items-center gap-1 text-[11px] font-semibold text-[#0F42C0] hover:underline"
+                  className="flex items-center gap-1 text-[11px] font-semibold text-[#0F42C0] hover:underline cursor-pointer"
                 >
                   View Items <ArrowRight className="h-3 w-3" />
                 </Link>

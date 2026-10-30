@@ -171,7 +171,7 @@ export default function ProfilePage() {
               <button
                 type="submit"
                 disabled={savingProfile}
-                className="flex items-center gap-1.5 rounded-xl bg-[#0F42C0] px-4 py-2 text-xs font-semibold text-white shadow-sm shadow-[#0F42C0]/20 transition hover:bg-[#0C369E]"
+                className="flex items-center gap-1.5 rounded-xl bg-[#0F42C0] px-4 py-2 text-xs font-semibold text-white shadow-sm shadow-[#0F42C0]/20 transition hover:bg-[#0C369E] cursor-pointer"
               >
                 <Save className="h-3.5 w-3.5" />
                 {savingProfile ? "Saving..." : "Save Profile Details"}
@@ -231,7 +231,7 @@ export default function ProfilePage() {
               <button
                 type="submit"
                 disabled={savingPassword}
-                className="flex items-center gap-1.5 rounded-xl bg-[#0F42C0] px-4 py-2 text-xs font-semibold text-white shadow-sm shadow-[#0F42C0]/20 transition hover:bg-[#0C369E]"
+                className="flex items-center gap-1.5 rounded-xl bg-[#0F42C0] px-4 py-2 text-xs font-semibold text-white shadow-sm shadow-[#0F42C0]/20 transition hover:bg-[#0C369E] cursor-pointer"
               >
                 <Key className="h-3.5 w-3.5" />
                 {savingPassword ? "Updating Password..." : "Update Password"}

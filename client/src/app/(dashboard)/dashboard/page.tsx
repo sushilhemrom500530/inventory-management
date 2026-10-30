@@ -581,7 +581,7 @@ export default function DashboardPage() {
             <div className="mt-5 flex justify-end">
               <button
                 onClick={() => window.print()}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0F42C0] text-white text-xs font-semibold hover:bg-[#0C369E] transition-colors"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0F42C0] text-white text-xs font-semibold hover:bg-[#0C369E] transition-colors cursor-pointer"
               >
                 <Printer size={14} />
                 <span>Print Document</span>

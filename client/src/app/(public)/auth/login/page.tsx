@@ -84,7 +84,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => setDemoRole("admin@stockwise.com", "admin123")}
-              className={`rounded-xl border p-2 text-center transition ${
+              className={`rounded-xl border p-2 text-center transition cursor-pointer ${
                 email === "admin@stockwise.com"
                   ? "border-[#0F42C0] bg-blue-50 text-[#0F42C0] font-bold shadow-sm"
                   : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
@@ -97,7 +97,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => setDemoRole("manager@stockwise.com", "manager123")}
-              className={`rounded-xl border p-2 text-center transition ${
+              className={`rounded-xl border p-2 text-center transition cursor-pointer ${
                 email === "manager@stockwise.com"
                   ? "border-[#0F42C0] bg-blue-50 text-[#0F42C0] font-bold shadow-sm"
                   : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
@@ -110,7 +110,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => setDemoRole("employee@stockwise.com", "employee123")}
-              className={`rounded-xl border p-2 text-center transition ${
+              className={`rounded-xl border p-2 text-center transition cursor-pointer ${
                 email === "employee@stockwise.com"
                   ? "border-[#0F42C0] bg-blue-50 text-[#0F42C0] font-bold shadow-sm"
                   : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
@@ -161,7 +161,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition cursor-pointer"
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -171,7 +171,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#0F42C0] py-3 text-xs font-bold text-white shadow-sm shadow-[#0F42C0]/20 transition hover:bg-[#0C369E] disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#0F42C0] py-3 text-xs font-bold text-white shadow-sm shadow-[#0F42C0]/20 transition hover:bg-[#0C369E] disabled:opacity-50 cursor-pointer"
             >
               {loading ? "Authenticating..." : "Sign In to Dashboard"}
               {!loading && <ArrowRight className="h-4 w-4" />}
@@ -180,7 +180,7 @@ export default function LoginPage() {
 
           <div className="mt-5 text-center text-xs text-slate-500">
             <span>Don&apos;t have an account? </span>
-            <Link href="/auth/register" className="font-semibold text-[#0F42C0] hover:underline">
+            <Link href="/auth/register" className="font-semibold text-[#0F42C0] hover:underline cursor-pointer">
               Register new account
             </Link>
           </div>
