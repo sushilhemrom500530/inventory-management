@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import {
   ShoppingCart,
@@ -73,8 +73,20 @@ export default function PosCheckoutPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState<number>(1);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const [totalProducts, setTotalProducts] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+
+  const observerRef = useRef<HTMLDivElement | null>(null);
+  const isFetchingRef = useRef<boolean>(false);
+  const pageRef = useRef<number>(1);
+  const hasMoreRef = useRef<boolean>(true);
+  const loadingRef = useRef<boolean>(true);
+  const loadingMoreRef = useRef<boolean>(false);
+  const hasUserScrolledRef = useRef<boolean>(false);
 
   // Cart State
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -103,52 +115,213 @@ export default function PosCheckoutPage() {
     );
   };
 
+  // Fetch paginated products (page 1 initially, then page 2, 3 on scroll)
+  const fetchProductsPage = useCallback(
+    async (pageNum: number, isInitial: boolean = false) => {
+      if (isFetchingRef.current && !isInitial) return;
+      isFetchingRef.current = true;
+
+      try {
+        if (isInitial) {
+          setLoading(true);
+          loadingRef.current = true;
+          hasUserScrolledRef.current = false;
+        } else {
+          setLoadingMore(true);
+          loadingMoreRef.current = true;
+        }
+
+        const params = new URLSearchParams();
+        params.append("page", String(pageNum));
+        params.append("limit", "10");
+        if (searchQuery.trim()) {
+          params.append("searchTerm", searchQuery.trim());
+        }
+        if (selectedCategory && selectedCategory !== "all") {
+          params.append("category", selectedCategory);
+        }
+
+        const res = await fetchApi<any>(`/products?${params.toString()}`);
+
+        const rawProds = Array.isArray(res?.data)
+          ? res.data
+          : Array.isArray(res?.data?.data)
+            ? res.data.data
+            : [];
+
+        const safeProds: Product[] = rawProds.map((p: any) => ({
+          ...p,
+          sellingPrice: Number(p.sellingPrice ?? p.price ?? 0),
+          costPrice: Number(p.costPrice ?? 0),
+          quantity: Number(p.quantity ?? 0),
+          status: p.status || (p.quantity <= 0 ? "out_of_stock" : "in_stock"),
+          thumbnail:
+            p.thumbnail ||
+            (Array.isArray(p.images) && p.images.length > 0 ? p.images[0] : undefined) ||
+            (Array.isArray(p.featuredImages) && p.featuredImages.length > 0
+              ? p.featuredImages[0]
+              : undefined),
+        }));
+
+        const meta = res?.meta || res?.data?.meta;
+        const total = Number(meta?.totalResult ?? meta?.total ?? meta?.totalCount ?? 0);
+        const totalPage = Number(
+          meta?.totalPage ?? meta?.totalPages ?? (total > 0 ? Math.ceil(total / 10) : 1)
+        );
+
+        if (total > 0) {
+          setTotalProducts(total);
+        }
+
+        if (isInitial) {
+          setProducts(safeProds);
+        } else {
+          setProducts((prev) => {
+            const existingIds = new Set(prev.map((i) => i._id));
+            const fresh = safeProds.filter((i) => !existingIds.has(i._id));
+            return [...prev, ...fresh];
+          });
+        }
+
+        setPage(pageNum);
+        pageRef.current = pageNum;
+
+        // Has more items if current page is less than totalPage and we retrieved items
+        const hasNext = pageNum < totalPage && safeProds.length >= 10;
+        setHasMore(hasNext);
+        hasMoreRef.current = hasNext;
+      } catch (err: any) {
+        console.warn("Failed to load products page:", err);
+        if (isInitial) {
+          message.error(err?.message || "Failed to load products for POS");
+        }
+      } finally {
+        setLoading(false);
+        loadingRef.current = false;
+        setLoadingMore(false);
+        loadingMoreRef.current = false;
+        isFetchingRef.current = false;
+      }
+    },
+    [searchQuery, selectedCategory]
+  );
+
+  // Trigger loading next page
+  const triggerLoadMore = useCallback(() => {
+    if (
+      !hasMoreRef.current ||
+      loadingRef.current ||
+      loadingMoreRef.current ||
+      isFetchingRef.current
+    ) {
+      return;
+    }
+    const nextPage = pageRef.current + 1;
+    fetchProductsPage(nextPage, false);
+  }, [fetchProductsPage]);
+
+  // Load Categories on mount
+  useEffect(() => {
+    fetchApi<any>("/categories")
+      .then((catRes) => {
+        const rawCats = Array.isArray(catRes?.data)
+          ? catRes.data
+          : Array.isArray(catRes?.data?.data)
+            ? catRes.data.data
+            : [];
+        setCategories(rawCats);
+      })
+      .catch((err) => {
+        console.warn("Categories fetch error:", err);
+      });
+  }, []);
+
+  // Fetch page 1 when search or category filter changes (debounced)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      pageRef.current = 1;
+      hasMoreRef.current = true;
+      hasUserScrolledRef.current = false;
+      setPage(1);
+      setHasMore(true);
+      fetchProductsPage(1, true);
+    }, 250);
+
+    return () => clearTimeout(timer);
+  }, [fetchProductsPage]);
+
+  // User Scroll detection & Infinite Scroll Trigger
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
+      if (scrollTop > 20) {
+        hasUserScrolledRef.current = true;
+      }
+
+      if (
+        !hasUserScrolledRef.current ||
+        !hasMoreRef.current ||
+        loadingRef.current ||
+        loadingMoreRef.current ||
+        isFetchingRef.current
+      ) {
+        return;
+      }
+
+      const scrollHeight = document.documentElement.scrollHeight || 0;
+      const clientHeight = window.innerHeight || 0;
+
+      // When within 250px of bottom and user has scrolled down
+      if (scrollTop + clientHeight >= scrollHeight - 250) {
+        triggerLoadMore();
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [triggerLoadMore]);
+
+  // IntersectionObserver for sentinel when user scrolls near the bottom
+  useEffect(() => {
+    const sentinel = observerRef.current;
+    if (!sentinel || !hasMore) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (
+          entries[0]?.isIntersecting &&
+          hasUserScrolledRef.current &&
+          (window.scrollY > 20 || document.documentElement.scrollTop > 20) &&
+          hasMoreRef.current &&
+          !loadingRef.current &&
+          !loadingMoreRef.current &&
+          !isFetchingRef.current
+        ) {
+          triggerLoadMore();
+        }
+      },
+      { threshold: 0.1, rootMargin: "100px" }
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasMore, triggerLoadMore]);
+
+  // Manual Reload
   const loadData = async () => {
     try {
-      setLoading(true);
-      const [prodRes, catRes] = await Promise.all([
-        fetchApi<any>("/products"),
-        fetchApi<any>("/categories"),
-      ]);
-
-      const rawProds = Array.isArray(prodRes?.data)
-        ? prodRes.data
-        : Array.isArray(prodRes?.data?.data)
-          ? prodRes.data.data
-          : [];
-
+      const catRes = await fetchApi<any>("/categories");
       const rawCats = Array.isArray(catRes?.data)
         ? catRes.data
         : Array.isArray(catRes?.data?.data)
           ? catRes.data.data
           : [];
-
-      const safeProds: Product[] = rawProds.map((p: any) => ({
-        ...p,
-        sellingPrice: Number(p.sellingPrice ?? p.price ?? 0),
-        costPrice: Number(p.costPrice ?? 0),
-        quantity: Number(p.quantity ?? 0),
-        status: p.status || (p.quantity <= 0 ? "out_of_stock" : "in_stock"),
-        thumbnail:
-          p.thumbnail ||
-          (Array.isArray(p.images) && p.images.length > 0 ? p.images[0] : undefined) ||
-          (Array.isArray(p.featuredImages) && p.featuredImages.length > 0
-            ? p.featuredImages[0]
-            : undefined),
-      }));
-
-      setProducts(safeProds);
       setCategories(rawCats);
-    } catch (err: any) {
-      message.error(err?.message || "Failed to load inventory for POS");
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      console.warn("Categories fetch error:", err);
     }
+    await fetchProductsPage(1, true);
   };
-
-  useEffect(() => {
-    loadData();
-  }, []);
 
   // Add product to cart
   const addToCart = (product: Product) => {
@@ -375,7 +548,7 @@ export default function PosCheckoutPage() {
       </div>
 
       {/* POS Grid: Catalog (Left 65%) vs Cart / Register (Right 35%) */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-start relative">
         {/* Left Column: Product Selection */}
         <div
           className={`space-y-4 lg:col-span-7 xl:col-span-8 ${mobileTab === "cart" ? "hidden lg:block" : "block"
@@ -403,7 +576,7 @@ export default function PosCheckoutPage() {
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
                   }`}
               >
-                All Products ({products.length})
+                All Products ({totalProducts > 0 ? totalProducts : products.length})
               </button>
               {categories.map((c) => (
                 <button
@@ -577,14 +750,32 @@ export default function PosCheckoutPage() {
               })}
             </div>
           )}
+
+          {/* Infinite Scroll Sentinel & Loading Indicator */}
+          {products.length > 0 && (
+            <div className="w-full">
+              {/* Invisible sentinel for scroll detection when more data exists */}
+              {hasMore && <div ref={observerRef} className="h-4 w-full pointer-events-none" />}
+
+              {/* Show loading spinner while fetching next page on scroll */}
+              {loadingMore && (
+                <div className="py-4 flex flex-col items-center justify-center">
+                  <div className="flex items-center gap-2 rounded-xl bg-white border border-slate-200 px-4 py-2 text-xs font-semibold text-[#0F42C0] shadow-2xs">
+                    <RefreshCw className="h-4 w-4 animate-spin text-[#0F42C0]" />
+                    <span>Loading more products...</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* Right Column: Register & Cart */}
+        {/* Right Column: Register & Cart (Sticky on Scroll) */}
         <div
-          className={`space-y-4 lg:col-span-5 xl:col-span-4 ${mobileTab === "catalog" ? "hidden lg:block" : "block"
+          className={`space-y-4 lg:col-span-5 xl:col-span-4 lg:sticky lg:top-24 lg:self-start z-10 ${mobileTab === "catalog" ? "hidden lg:block" : "block"
             }`}
         >
-          <div className="flex flex-col rounded-2xl border border-slate-200 bg-white p-3.5 sm:p-4 shadow-2xs">
+          <div className="flex flex-col rounded-2xl border border-slate-200 bg-white p-3.5 sm:p-4 shadow-2xs lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
             {/* Cart Header */}
             <div className="flex items-center justify-between border-b border-slate-200 pb-3">
               <div className="flex items-center gap-2">

@@ -30,7 +30,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* Universal Interactive Elements Cursor Pointer */

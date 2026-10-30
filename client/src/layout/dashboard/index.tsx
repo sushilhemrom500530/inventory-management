@@ -60,7 +60,7 @@ export default function DashboardLayout({ children, initialRole = "" }: Dashboar
           />
 
           {/* Content Area */}
-          <main className="overflow-y-auto overflow-x-hidden w-full min-h-[calc(100vh-80px)] bg-[#F8FAFC] p-4 md:p-6 lg:p-8">
+          <main className="overflow-x-clip w-full min-h-[calc(100vh-80px)] bg-[#F8FAFC] p-4 md:p-6 lg:p-8">
             {children}
           </main>
         </div>
