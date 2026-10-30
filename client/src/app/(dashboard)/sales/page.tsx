@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import {
   Receipt,
@@ -20,6 +20,7 @@ import {
 import { fetchApi } from "@/utils/api";
 import { message, Modal } from "antd";
 import CustomSelect from "@/components/reuseable/custom-select";
+import Pagination from "@/components/reuseable/pagination";
 
 interface SaleRecord {
   _id: string;
@@ -46,15 +47,25 @@ export default function SalesHistoryPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [methodFilter, setMethodFilter] = useState("all");
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [meta, setMeta] = useState<any>({ totalResult: 0, totalPage: 1 });
 
   // Receipt Modal State
   const [selectedSale, setSelectedSale] = useState<SaleRecord | null>(null);
   const [receiptOpen, setReceiptOpen] = useState(false);
 
-  const loadSales = async () => {
+  const loadSales = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetchApi<any>("/sales");
+      const params = new URLSearchParams();
+      params.append("page", String(page));
+      params.append("limit", String(limit));
+      if (methodFilter && methodFilter !== "all") {
+        params.append("paymentMethod", methodFilter);
+      }
+
+      const res = await fetchApi<any>(`/sales?${params.toString()}`);
       if (res?.data) {
         const rawSales = Array.isArray(res.data)
           ? res.data
@@ -76,16 +87,19 @@ export default function SalesHistoryPage() {
         }));
         setSales(safeSales);
       }
+      if (res?.meta) {
+        setMeta(res.meta);
+      }
     } catch (err: any) {
       message.error(err?.message || "Failed to load sales history");
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, limit, methodFilter]);
 
   useEffect(() => {
     loadSales();
-  }, []);
+  }, [loadSales]);
 
   // Filter sales
   const filteredSales = sales.filter((s) => {
@@ -98,6 +112,9 @@ export default function SalesHistoryPage() {
 
     return matchesSearch && matchesMethod;
   });
+
+  const totalSalesCount = meta.totalResult || sales.length;
+  const totalPagesCount = meta.totalPage || Math.ceil(totalSalesCount / limit);
 
   // KPI Calculations
   const totalRevenue = sales.reduce((acc, s) => acc + s.total, 0);
@@ -213,7 +230,10 @@ export default function SalesHistoryPage() {
             type="text"
             placeholder="Search by invoice number (#INV-...) or customer name..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setPage(1);
+            }}
             className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-10 pr-4 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:border-[#0F42C0] focus:outline-none transition"
           />
         </div>
@@ -221,7 +241,10 @@ export default function SalesHistoryPage() {
         <div className="flex items-center gap-2">
           <CustomSelect
             value={methodFilter}
-            onChange={(e) => setMethodFilter(e.target.value)}
+            onChange={(e) => {
+              setMethodFilter(e.target.value);
+              setPage(1);
+            }}
             className="min-w-[175px] rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-800 focus:bg-white focus:border-[#0F42C0] focus:outline-none transition cursor-pointer"
           >
             <option value="all">All Payment Methods</option>
@@ -348,6 +371,25 @@ export default function SalesHistoryPage() {
               </tbody>
             </table>
           </div>
+        )}
+
+        {/* Pagination Bar */}
+        {(totalSalesCount > 10 || totalPagesCount > 1) && (
+          <Pagination
+            currentPage={page}
+            totalPages={totalPagesCount || 1}
+            totalResults={totalSalesCount}
+            pageSize={limit}
+            onPageChange={(newPage) => {
+              setPage(newPage);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            onPageSizeChange={(newLimit) => {
+              setLimit(newLimit);
+              setPage(1);
+            }}
+            itemName="transactions"
+          />
         )}
       </div>
 

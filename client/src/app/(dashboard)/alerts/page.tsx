@@ -21,6 +21,7 @@ import { message, Modal, InputNumber, Input } from "antd";
 import Cookies from "js-cookie";
 import { useAuthService } from "@/hooks/auth";
 import { useUserRole } from "@/context/role-context";
+import Pagination from "@/components/reuseable/pagination";
 
 interface AlertProduct {
   _id: string;
@@ -57,6 +58,8 @@ export default function StockAlertsPage() {
   const [alertsData, setAlertsData] = useState<AlertsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [filterTab, setFilterTab] = useState<"ALL" | "CRITICAL" | "LOW">("ALL");
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
 
   // Restock Modal State
   const [restockModalOpen, setRestockModalOpen] = useState(false);
@@ -125,6 +128,10 @@ export default function StockAlertsPage() {
     if (filterTab === "LOW") return item.urgency === "LOW_STOCK_WARNING";
     return true;
   });
+
+  const totalAlertsCount = filteredProducts.length;
+  const totalPagesCount = Math.ceil(totalAlertsCount / limit);
+  const paginatedProducts = filteredProducts.slice((page - 1) * limit, page * limit);
 
   return (
     <div className="space-y-6">
@@ -199,7 +206,10 @@ export default function StockAlertsPage() {
       {/* Filter Tabs */}
       <div className="flex items-center gap-2 border-b border-slate-200 pb-3">
         <button
-          onClick={() => setFilterTab("ALL")}
+          onClick={() => {
+            setFilterTab("ALL");
+            setPage(1);
+          }}
           className={`rounded-xl px-4 py-2 text-xs font-semibold transition cursor-pointer ${
             filterTab === "ALL"
               ? "bg-[#0F42C0] text-white shadow-sm"
@@ -209,7 +219,10 @@ export default function StockAlertsPage() {
           All Alerts ({alertsData?.totalAlerts ?? 0})
         </button>
         <button
-          onClick={() => setFilterTab("CRITICAL")}
+          onClick={() => {
+            setFilterTab("CRITICAL");
+            setPage(1);
+          }}
           className={`rounded-xl px-4 py-2 text-xs font-semibold transition cursor-pointer ${
             filterTab === "CRITICAL"
               ? "bg-rose-600 text-white shadow-sm"
@@ -219,7 +232,10 @@ export default function StockAlertsPage() {
           Critical Stockouts ({alertsData?.criticalCount ?? 0})
         </button>
         <button
-          onClick={() => setFilterTab("LOW")}
+          onClick={() => {
+            setFilterTab("LOW");
+            setPage(1);
+          }}
           className={`rounded-xl px-4 py-2 text-xs font-semibold transition cursor-pointer ${
             filterTab === "LOW"
               ? "bg-amber-500 text-white shadow-sm"
@@ -263,7 +279,7 @@ export default function StockAlertsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {filteredProducts.map((p) => {
+                {paginatedProducts.map((p) => {
                   const isCritical = p.quantity === 0;
                   const threshold = p.lowStockThreshold || p.reorderLevel || 10;
                   return (
@@ -343,6 +359,25 @@ export default function StockAlertsPage() {
               </tbody>
             </table>
           </div>
+        )}
+
+        {/* Pagination Bar */}
+        {(totalAlertsCount > 10 || totalPagesCount > 1) && (
+          <Pagination
+            currentPage={page}
+            totalPages={totalPagesCount || 1}
+            totalResults={totalAlertsCount}
+            pageSize={limit}
+            onPageChange={(newPage) => {
+              setPage(newPage);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            onPageSizeChange={(newLimit) => {
+              setLimit(newLimit);
+              setPage(1);
+            }}
+            itemName="alerts"
+          />
         )}
       </div>
 
