@@ -16,10 +16,11 @@ import {
   RefreshCw,
   Trash2,
   ShieldAlert,
+  Images,
 } from "lucide-react";
 import StockBadge from "@/components/reuseable/stock-badge";
 import { fetchApi } from "@/utils/api";
-import { message, Modal, Input, InputNumber } from "antd";
+import { message, Modal, Input, InputNumber, Image as AntImage } from "antd";
 import CustomSelect from "@/components/reuseable/custom-select";
 
 interface ProductDetail {
@@ -39,6 +40,9 @@ interface ProductDetail {
   status: "in_stock" | "low_stock" | "out_of_stock";
   description?: string;
   unit?: string;
+  thumbnail?: string;
+  featuredImages?: string[];
+  images?: string[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -80,6 +84,7 @@ export default function ProductDetailPage({
   const router = useRouter();
 
   const [product, setProduct] = useState<ProductDetail | null>(null);
+  const [activeImage, setActiveImage] = useState<string | null>(null);
   const [movements, setMovements] = useState<StockMovement[]>([]);
   const [aiAdvice, setAiAdvice] = useState<AIAdvice | null>(null);
   const [loading, setLoading] = useState(true);
@@ -98,6 +103,12 @@ export default function ProductDetailPage({
       const prodRes = await fetchApi<ProductDetail>(`/products/${productId}`);
       if (prodRes?.data) {
         setProduct(prodRes.data);
+        const mainThumb =
+          prodRes.data.thumbnail ||
+          (Array.isArray(prodRes.data.images) && prodRes.data.images.length > 0
+            ? prodRes.data.images[0]
+            : null);
+        setActiveImage(mainThumb);
       }
 
       try {
@@ -223,6 +234,30 @@ export default function ProductDetailPage({
   const totalStockValue = (product.quantity * product.costPrice).toFixed(2);
   const potentialRevenue = (product.quantity * product.sellingPrice).toFixed(2);
 
+  const thumbnail =
+    product.thumbnail ||
+    (Array.isArray(product.images) && product.images.length > 0 ? product.images[0] : null);
+
+  const rawFeatured: string[] =
+    Array.isArray(product.featuredImages) && product.featuredImages.length > 0
+      ? product.featuredImages
+      : Array.isArray(product.images) && product.images.length > 1
+        ? product.images.filter((img) => img !== thumbnail)
+        : [];
+
+  const featuredImages = rawFeatured.filter((img) => Boolean(img) && img !== thumbnail);
+
+  const allGalleryImages: { url: string; isThumbnail: boolean; label: string }[] = [
+    ...(thumbnail ? [{ url: thumbnail, isThumbnail: true, label: "Main Thumbnail" }] : []),
+    ...featuredImages.map((url, idx) => ({
+      url,
+      isThumbnail: false,
+      label: `Feature Image ${idx + 1}`,
+    })),
+  ];
+
+  const currentPreview = activeImage || thumbnail || (allGalleryImages[0]?.url ?? null);
+
   return (
     <div className="space-y-6">
       {/* Top Navigation & Action Bar */}
@@ -234,6 +269,22 @@ export default function ProductDetailPage({
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
+
+          {/* Product Thumbnail in Header */}
+          {thumbnail ? (
+            <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-xs">
+              <img
+                src={thumbnail}
+                alt={product.name}
+                className="h-full w-full object-cover"
+              />
+            </div>
+          ) : (
+            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-400">
+              <Package className="h-6 w-6" />
+            </div>
+          )}
+
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-bold tracking-tight text-slate-900">{product.name}</h1>
@@ -320,8 +371,151 @@ export default function ProductDetailPage({
 
       {/* Main Grid: AI Advisor on Left, Details & Stock Ledger on Right */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Left Column: AI Advisor & Demand Forecast Card */}
+        {/* Left Column: Product Media, AI Advisor & Demand Forecast Card */}
         <div className="space-y-6 lg:col-span-1">
+          {/* Card: Product Media & Visuals Gallery */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-[#0F42C0]">
+                  <Images className="h-4 w-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900">Product Media</h3>
+                  <p className="text-[11px] text-slate-500">
+                    {allGalleryImages.length > 0
+                      ? `${thumbnail ? "1 Thumbnail" : "0 Thumbnails"} • ${featuredImages.length} Feature Image${featuredImages.length === 1 ? "" : "s"
+                      }`
+                      : "No media attached"}
+                  </p>
+                </div>
+              </div>
+              {allGalleryImages.length > 0 && (
+                <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold text-slate-600">
+                  {allGalleryImages.length} {allGalleryImages.length === 1 ? "Image" : "Images"}
+                </span>
+              )}
+            </div>
+
+            {allGalleryImages.length > 0 ? (
+              <div className="mt-4 space-y-4">
+                {/* Active Main Display with Lightbox Zoom */}
+                <div className="relative group overflow-hidden rounded-xl border border-slate-200 bg-slate-50 aspect-video flex items-center justify-center">
+                  <AntImage.PreviewGroup>
+                    <AntImage
+                      src={currentPreview || allGalleryImages[0].url}
+                      alt={product.name}
+                      className="max-h-56 w-auto object-contain rounded-lg"
+                    />
+                  </AntImage.PreviewGroup>
+                  <div className="absolute top-2.5 left-2.5 pointer-events-none">
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-bold shadow-xs backdrop-blur-md ${currentPreview === thumbnail
+                        ? "bg-[#0F42C0]/90 text-white"
+                        : "bg-slate-900/80 text-white"
+                        }`}
+                    >
+                      {currentPreview === thumbnail ? "Main Thumbnail" : "Feature Image"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Media Strip */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                      Gallery ({allGalleryImages.length})
+                    </span>
+                    <span className="text-[11px] text-slate-400">Click to switch</span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-2">
+                    {allGalleryImages.map((img, idx) => {
+                      const isSelected = currentPreview === img.url;
+                      return (
+                        <button
+                          type="button"
+                          key={idx}
+                          onClick={() => setActiveImage(img.url)}
+                          className={`group relative aspect-square overflow-hidden rounded-xl border-2 transition cursor-pointer bg-slate-50 ${isSelected
+                            ? "border-[#0F42C0] ring-2 ring-[#0F42C0]/20 shadow-xs"
+                            : "border-slate-200 hover:border-slate-300"
+                            }`}
+                          title={img.label}
+                        >
+                          <img
+                            src={img.url}
+                            alt={img.label}
+                            className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+                          />
+                          {img.isThumbnail && (
+                            <span className="absolute bottom-1 right-1 rounded bg-[#0F42C0] px-1 py-0.5 text-[8px] font-bold text-white shadow-xs">
+                              Thumb
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Features Image Showcase Section */}
+                {featuredImages.length > 0 && (
+                  <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-bold text-slate-800">
+                        Feature Images ({featuredImages.length})
+                      </span>
+                      <span className="text-[10px] text-slate-400">Marketing & Details</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      {featuredImages.map((url, index) => (
+                        <div
+                          key={index}
+                          className="group relative overflow-hidden rounded-xl border border-slate-200 bg-white p-1.5 transition hover:shadow-xs"
+                        >
+                          <div className="aspect-video w-full overflow-hidden rounded-lg bg-slate-100">
+                            <img
+                              src={url}
+                              alt={`Feature Image ${index + 1}`}
+                              className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105 cursor-pointer"
+                              onClick={() => setActiveImage(url)}
+                            />
+                          </div>
+                          <div className="mt-1 flex items-center justify-between px-0.5 text-[10px]">
+                            <span className="font-medium text-slate-700 truncate max-w-[80px]">
+                              Feature #{index + 1}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => setActiveImage(url)}
+                              className="text-[#0F42C0] hover:underline font-semibold cursor-pointer"
+                            >
+                              Select
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="py-8 text-center">
+                <Package className="mx-auto h-10 w-10 text-slate-300 mb-2" />
+                <p className="text-xs font-semibold text-slate-700">No product images attached</p>
+                <p className="mt-0.5 text-[11px] text-slate-400">
+                  Add a thumbnail and feature images by editing this product.
+                </p>
+                <Link
+                  href={`/products/${productId}/edit`}
+                  className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-[#0F42C0] hover:underline cursor-pointer"
+                >
+                  <Edit3 className="h-3.5 w-3.5" /> Upload Images Now
+                </Link>
+              </div>
+            )}
+          </div>
+
           <div className="rounded-2xl border border-slate-200 bg-white p-5">
             <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <div className="flex items-center gap-2">

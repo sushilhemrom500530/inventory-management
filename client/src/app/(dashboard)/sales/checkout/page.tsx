@@ -18,6 +18,7 @@ import {
   Receipt,
   User,
   ArrowRight,
+  ArrowLeft,
   RefreshCw,
   AlertCircle,
 } from "lucide-react";
@@ -34,6 +35,9 @@ interface Product {
   costPrice: number;
   quantity: number;
   status: "in_stock" | "low_stock" | "out_of_stock";
+  thumbnail?: string;
+  featuredImages?: string[];
+  images?: string[];
   category?: {
     _id: string;
     name: string;
@@ -81,10 +85,23 @@ export default function PosCheckoutPage() {
   const [discount, setDiscount] = useState<number>(0);
   const [cashTendered, setCashTendered] = useState<number>(0);
 
+  // Mobile layout state
+  const [mobileTab, setMobileTab] = useState<"catalog" | "cart">("catalog");
+
   // Checkout modal
   const [submitting, setSubmitting] = useState(false);
   const [completedSale, setCompletedSale] = useState<CompletedSale | null>(null);
   const [receiptModalOpen, setReceiptModalOpen] = useState(false);
+
+  const getProductThumbnail = (p: Product) => {
+    return (
+      p.thumbnail ||
+      (Array.isArray(p.images) && p.images.length > 0 ? p.images[0] : null) ||
+      (Array.isArray((p as any).featuredImages) && (p as any).featuredImages.length > 0
+        ? (p as any).featuredImages[0]
+        : null)
+    );
+  };
 
   const loadData = async () => {
     try {
@@ -97,14 +114,14 @@ export default function PosCheckoutPage() {
       const rawProds = Array.isArray(prodRes?.data)
         ? prodRes.data
         : Array.isArray(prodRes?.data?.data)
-        ? prodRes.data.data
-        : [];
+          ? prodRes.data.data
+          : [];
 
       const rawCats = Array.isArray(catRes?.data)
         ? catRes.data
         : Array.isArray(catRes?.data?.data)
-        ? catRes.data.data
-        : [];
+          ? catRes.data.data
+          : [];
 
       const safeProds: Product[] = rawProds.map((p: any) => ({
         ...p,
@@ -112,6 +129,12 @@ export default function PosCheckoutPage() {
         costPrice: Number(p.costPrice ?? 0),
         quantity: Number(p.quantity ?? 0),
         status: p.status || (p.quantity <= 0 ? "out_of_stock" : "in_stock"),
+        thumbnail:
+          p.thumbnail ||
+          (Array.isArray(p.images) && p.images.length > 0 ? p.images[0] : undefined) ||
+          (Array.isArray(p.featuredImages) && p.featuredImages.length > 0
+            ? p.featuredImages[0]
+            : undefined),
       }));
 
       setProducts(safeProds);
@@ -267,6 +290,7 @@ export default function PosCheckoutPage() {
         loadData();
         clearCart();
         setCashTendered(0);
+        setMobileTab("catalog");
       }
     } catch (err: any) {
       message.error(err?.message || "Checkout failed");
@@ -283,7 +307,10 @@ export default function PosCheckoutPage() {
     setCashTendered(0);
     setCompletedSale(null);
     setReceiptModalOpen(false);
+    setMobileTab("catalog");
   };
+
+  const totalCartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
     <div className="space-y-4">
@@ -316,12 +343,46 @@ export default function PosCheckoutPage() {
         </div>
       </div>
 
+      {/* Mobile View Toggle: Catalog vs Cart */}
+      <div className="flex lg:hidden items-center rounded-xl bg-slate-100 p-1">
+        <button
+          type="button"
+          onClick={() => setMobileTab("catalog")}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg transition cursor-pointer ${mobileTab === "catalog"
+            ? "bg-white text-slate-900 shadow-xs"
+            : "text-slate-600 hover:text-slate-900"
+            }`}
+        >
+          <Package className="h-3.5 w-3.5" />
+          <span>Catalog ({filteredProducts.length})</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobileTab("cart")}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg transition cursor-pointer relative ${mobileTab === "cart"
+            ? "bg-white text-[#0F42C0] shadow-xs"
+            : "text-slate-600 hover:text-slate-900"
+            }`}
+        >
+          <ShoppingCart className="h-3.5 w-3.5" />
+          <span>Order ({totalCartCount})</span>
+          {totalCartCount > 0 && (
+            <span className="ml-1 px-1.5 py-0.2 rounded-full bg-[#0F42C0] text-white text-[10px] font-bold">
+              ${grandTotal.toFixed(2)}
+            </span>
+          )}
+        </button>
+      </div>
+
       {/* POS Grid: Catalog (Left 65%) vs Cart / Register (Right 35%) */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
         {/* Left Column: Product Selection */}
-        <div className="space-y-4 lg:col-span-7 xl:col-span-8">
+        <div
+          className={`space-y-4 lg:col-span-7 xl:col-span-8 ${mobileTab === "cart" ? "hidden lg:block" : "block"
+            }`}
+        >
           {/* Search & Category Pills */}
-          <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4">
+          <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-3.5 sm:p-4 shadow-2xs">
             <div className="relative">
               <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input
@@ -337,11 +398,10 @@ export default function PosCheckoutPage() {
             <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
               <button
                 onClick={() => setSelectedCategory("all")}
-                className={`whitespace-nowrap rounded-xl px-3 py-1.5 text-xs font-semibold transition cursor-pointer ${
-                  selectedCategory === "all"
-                    ? "bg-[#0F42C0] text-white shadow-sm"
-                    : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
-                }`}
+                className={`whitespace-nowrap rounded-xl px-3 py-1.5 text-xs font-semibold transition cursor-pointer shrink-0 ${selectedCategory === "all"
+                  ? "bg-[#0F42C0] text-white shadow-xs"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
+                  }`}
               >
                 All Products ({products.length})
               </button>
@@ -349,11 +409,10 @@ export default function PosCheckoutPage() {
                 <button
                   key={c._id}
                   onClick={() => setSelectedCategory(c._id)}
-                  className={`whitespace-nowrap rounded-xl px-3 py-1.5 text-xs font-semibold transition cursor-pointer ${
-                    selectedCategory === c._id
-                      ? "bg-[#0F42C0] text-white shadow-sm"
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
-                  }`}
+                  className={`whitespace-nowrap rounded-xl px-3 py-1.5 text-xs font-semibold transition cursor-pointer shrink-0 ${selectedCategory === c._id
+                    ? "bg-[#0F42C0] text-white shadow-xs"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
+                    }`}
                 >
                   {c.name}
                 </button>
@@ -376,65 +435,142 @@ export default function PosCheckoutPage() {
               <p className="mt-1 text-xs text-slate-500">Check spelling or clear active category filter.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
+            <div className="grid grid-cols-2 gap-2.5 sm:gap-3.5 sm:grid-cols-3 xl:grid-cols-4">
               {filteredProducts.map((p) => {
                 const cartEntry = cart.find((i) => i.product._id === p._id);
                 const inCartQty = cartEntry?.quantity || 0;
                 const isOutOfStock = p.quantity <= 0;
                 const isMaxInCart = inCartQty >= p.quantity;
+                const thumbUrl = getProductThumbnail(p);
 
                 return (
                   <div
                     key={p._id}
                     onClick={() => !isOutOfStock && !isMaxInCart && addToCart(p)}
-                    className={`relative flex flex-col justify-between rounded-xl border p-3.5 transition select-none ${
-                      isOutOfStock
-                        ? "border-slate-200 bg-slate-100 opacity-60 cursor-not-allowed"
-                        : isMaxInCart
-                        ? "border-blue-400 bg-blue-50/50 cursor-default"
-                        : "border-slate-200 bg-white hover:border-[#0F42C0] hover:shadow-md cursor-pointer"
-                    }`}
+                    className={`group relative flex flex-col justify-between rounded-xl sm:rounded-2xl border transition-all duration-200 select-none overflow-hidden ${isOutOfStock
+                      ? "border-slate-200 bg-slate-50/70 opacity-60 cursor-not-allowed"
+                      : isMaxInCart
+                        ? "border-blue-300 bg-blue-50/40 shadow-2xs cursor-default ring-1 ring-[#0F42C0]/20"
+                        : inCartQty > 0
+                          ? "border-blue-200 bg-white shadow-2xs ring-1 ring-blue-100 hover:border-[#0F42C0] hover:shadow-md cursor-pointer"
+                          : "border-slate-200 bg-white hover:border-[#0F42C0] hover:shadow-md cursor-pointer"
+                      }`}
                   >
-                    <div>
-                      <div className="flex items-start justify-between gap-1">
-                        <span className="font-mono text-[10px] text-slate-500 truncate max-w-[90px]">
+                    {/* Thumbnail Image Container */}
+                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100/90 border-b border-slate-100 flex items-center justify-center">
+                      {thumbUrl ? (
+                        <img
+                          src={thumbUrl}
+                          alt={p.name}
+                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          onError={(e) => {
+                            (e.currentTarget as HTMLElement).style.display = "none";
+                            const fallback = (e.currentTarget.parentElement?.querySelector(".img-fallback")) as HTMLElement;
+                            if (fallback) fallback.style.display = "flex";
+                          }}
+                        />
+                      ) : null}
+
+                      {/* Fallback Icon */}
+                      <div
+                        className={`img-fallback flex flex-col items-center justify-center text-slate-300 ${thumbUrl ? "hidden" : "flex"
+                          }`}
+                      >
+                        <Package className="h-7 w-7 sm:h-9 sm:w-9 stroke-[1.5]" />
+                      </div>
+
+                      {/* Floating Badges */}
+                      {/* Top-Left: SKU */}
+                      <div className="absolute top-2 left-2 z-10">
+                        <span className="font-mono text-[9px] sm:text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-white/90 backdrop-blur-xs text-slate-600 border border-slate-200/80 shadow-2xs truncate max-w-[75px] sm:max-w-[100px] inline-block">
                           {p.sku}
                         </span>
+                      </div>
+
+                      {/* Top-Right: Stock badge */}
+                      <div className="absolute top-2 right-2 z-10">
                         <span
-                          className={`text-[10px] font-semibold px-1.5 py-0.5 rounded border ${
-                            p.quantity > 5
-                              ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                              : p.quantity > 0
-                              ? "bg-amber-50 text-amber-700 border-amber-200"
-                              : "bg-rose-50 text-rose-700 border-rose-200"
-                          }`}
+                          className={`text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-md border shadow-2xs backdrop-blur-xs ${p.quantity > 5
+                            ? "bg-emerald-50/95 text-emerald-700 border-emerald-200"
+                            : p.quantity > 0
+                              ? "bg-amber-50/95 text-amber-700 border-amber-200"
+                              : "bg-rose-50/95 text-rose-700 border-rose-200"
+                            }`}
                         >
                           {p.quantity} left
                         </span>
                       </div>
 
-                      <h4 className="mt-1.5 text-xs font-semibold text-slate-900 line-clamp-2 leading-snug">
-                        {p.name}
-                      </h4>
+                      {/* In-Cart Overlay Badge */}
+                      {inCartQty > 0 && (
+                        <div className="absolute bottom-2 left-2 z-10">
+                          <span className="flex items-center gap-1 rounded-md bg-[#0F42C0] px-1.5 sm:px-2 py-0.5 text-[9px] sm:text-[10px] font-bold text-white shadow-xs">
+                            <span>In Cart: {inCartQty}</span>
+                          </span>
+                        </div>
+                      )}
                     </div>
 
-                    <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-2">
-                      <span className="text-sm font-bold text-slate-900">
-                        ${Number(p.sellingPrice ?? (p as any).price ?? 0).toFixed(2)}
-                      </span>
+                    {/* Card Body */}
+                    <div className="p-2.5 sm:p-3 flex flex-col justify-between flex-1">
+                      <div>
+                        <h4 className="text-[11px] sm:text-xs font-semibold text-slate-900 line-clamp-2 leading-snug group-hover:text-[#0F42C0] transition-colors min-h-[1.75rem] sm:min-h-[2rem]">
+                          {p.name}
+                        </h4>
+                      </div>
 
-                      {inCartQty > 0 ? (
-                        <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-[#0F42C0] text-xs font-bold text-white shadow-sm">
-                          {inCartQty}
-                        </span>
-                      ) : (
-                        <button
-                          disabled={isOutOfStock}
-                          className="flex h-6 w-6 items-center justify-center rounded-lg bg-slate-100 text-slate-600 hover:bg-[#0F42C0] hover:text-white transition cursor-pointer disabled:cursor-not-allowed"
-                        >
-                          <Plus className="h-3.5 w-3.5" />
-                        </button>
-                      )}
+                      <div className="mt-2.5 flex items-center justify-between border-t border-slate-100 pt-2">
+                        <div className="flex flex-col">
+                          <span className="text-[9px] sm:text-[10px] text-slate-400 font-medium leading-none mb-0.5">Price</span>
+                          <span className="text-xs sm:text-sm font-bold text-slate-900 font-mono">
+                            ${Number(p.sellingPrice ?? (p as any).price ?? 0).toFixed(2)}
+                          </span>
+                        </div>
+
+                        {inCartQty > 0 ? (
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                updateQuantity(p._id, -1);
+                              }}
+                              className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer"
+                              title="Decrease quantity"
+                            >
+                              <Minus className="h-3 w-3" />
+                            </button>
+                            <span className="flex h-6 min-w-[20px] sm:h-7 sm:min-w-[24px] px-1 items-center justify-center rounded-md bg-[#0F42C0] text-[11px] sm:text-xs font-bold text-white shadow-2xs">
+                              {inCartQty}
+                            </span>
+                            <button
+                              type="button"
+                              disabled={isMaxInCart}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                addToCart(p);
+                              }}
+                              className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-lg bg-slate-100 hover:bg-[#0F42C0] hover:text-white text-slate-700 transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                              title="Increase quantity"
+                            >
+                              <Plus className="h-3 w-3" />
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            disabled={isOutOfStock}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              addToCart(p);
+                            }}
+                            className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-700 hover:bg-[#0F42C0] hover:text-white hover:shadow-xs transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                            title="Add to Cart"
+                          >
+                            <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 );
@@ -444,86 +580,143 @@ export default function PosCheckoutPage() {
         </div>
 
         {/* Right Column: Register & Cart */}
-        <div className="space-y-4 lg:col-span-5 xl:col-span-4">
-          <div className="flex flex-col rounded-2xl border border-slate-200 bg-white p-4">
+        <div
+          className={`space-y-4 lg:col-span-5 xl:col-span-4 ${mobileTab === "catalog" ? "hidden lg:block" : "block"
+            }`}
+        >
+          <div className="flex flex-col rounded-2xl border border-slate-200 bg-white p-3.5 sm:p-4 shadow-2xs">
             {/* Cart Header */}
             <div className="flex items-center justify-between border-b border-slate-200 pb-3">
               <div className="flex items-center gap-2">
                 <ShoppingCart className="h-4 w-4 text-[#0F42C0]" />
                 <h3 className="text-sm font-bold text-slate-900">Active Order</h3>
                 <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-[#0F42C0] border border-blue-100">
-                  {cart.reduce((a, b) => a + b.quantity, 0)} items
+                  {totalCartCount} items
                 </span>
               </div>
-              {cart.length > 0 && (
+              <div className="flex items-center gap-3">
                 <button
-                  onClick={clearCart}
-                  className="text-xs font-medium text-rose-600 hover:text-rose-700 transition cursor-pointer"
+                  type="button"
+                  onClick={() => setMobileTab("catalog")}
+                  className="lg:hidden flex items-center gap-1 text-xs font-semibold text-[#0F42C0] hover:underline cursor-pointer"
                 >
-                  Clear
+                  <ArrowLeft className="h-3.5 w-3.5" />
+                  <span>+ Add items</span>
                 </button>
-              )}
+                {cart.length > 0 && (
+                  <button
+                    onClick={clearCart}
+                    className="text-xs font-medium text-rose-600 hover:text-rose-700 transition cursor-pointer"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Cart Items List */}
-            <div className="my-3 max-h-[300px] space-y-2 overflow-y-auto pr-1">
+            <div className="my-3 max-h-[320px] space-y-2 overflow-y-auto pr-1">
               {cart.length === 0 ? (
                 <div className="py-12 text-center">
                   <ShoppingCart className="mx-auto h-8 w-8 text-slate-300 mb-2" />
                   <p className="text-xs font-semibold text-slate-600">Cart is empty</p>
                   <p className="mt-0.5 text-[11px] text-slate-400">
-                    Click items on the left catalog to add to sale.
+                    Click items in the catalog to add them to this sale.
                   </p>
+                  <button
+                    type="button"
+                    onClick={() => setMobileTab("catalog")}
+                    className="lg:hidden mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0F42C0] text-white text-xs font-semibold"
+                  >
+                    <Package className="h-3.5 w-3.5" />
+                    Browse Products
+                  </button>
                 </div>
               ) : (
-                cart.map((item) => (
-                  <div
-                    key={item.product._id}
-                    className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-2.5"
-                  >
-                    <div className="max-w-[150px]">
-                      <p className="text-xs font-semibold text-slate-900 truncate">{item.product.name}</p>
-                      <p className="font-mono text-[10px] text-slate-500">
-                        ${Number(item.product.sellingPrice ?? (item.product as any).price ?? 0).toFixed(2)} / unit
-                      </p>
-                    </div>
+                cart.map((item) => {
+                  const itemThumb = getProductThumbnail(item.product);
+                  return (
+                    <div
+                      key={item.product._id}
+                      className="flex items-center justify-between gap-2 rounded-xl border border-slate-200 bg-slate-50/80 p-2 sm:p-2.5 transition hover:bg-slate-50"
+                    >
+                      {/* Left: Product Thumbnail and Name */}
+                      <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                        <div className="relative h-10 w-10 sm:h-11 sm:w-11 flex-shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-white flex items-center justify-center">
+                          {itemThumb ? (
+                            <img
+                              src={itemThumb}
+                              alt={item.product.name}
+                              className="h-full w-full object-cover"
+                              onError={(e) => {
+                                (e.currentTarget as HTMLElement).style.display = "none";
+                                const fallback = (e.currentTarget.parentElement?.querySelector(".cart-img-fallback")) as HTMLElement;
+                                if (fallback) fallback.style.display = "flex";
+                              }}
+                            />
+                          ) : null}
+                          <div
+                            className={`cart-img-fallback flex items-center justify-center text-slate-300 ${itemThumb ? "hidden" : "flex"
+                              }`}
+                          >
+                            <Package className="h-5 w-5" />
+                          </div>
+                        </div>
 
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center rounded-lg border border-slate-200 bg-white">
-                        <button
-                          onClick={() => updateQuantity(item.product._id, -1)}
-                          className="px-2 py-1 text-slate-500 hover:text-slate-900 transition cursor-pointer"
-                        >
-                          <Minus className="h-3 w-3" />
-                        </button>
-                        <span className="px-2 text-xs font-bold text-slate-900">{item.quantity}</span>
-                        <button
-                          onClick={() => updateQuantity(item.product._id, 1)}
-                          className="px-2 py-1 text-slate-500 hover:text-slate-900 transition cursor-pointer"
-                        >
-                          <Plus className="h-3 w-3" />
-                        </button>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs font-semibold text-slate-900 truncate">{item.product.name}</p>
+                          <p className="font-mono text-[10px] text-slate-500">
+                            ${Number(item.product.sellingPrice ?? (item.product as any).price ?? 0).toFixed(2)} / unit
+                          </p>
+                        </div>
                       </div>
 
-                      <span className="w-14 text-right font-mono text-xs font-bold text-slate-900">
-                        ${(Number(item.product.sellingPrice ?? (item.product as any).price ?? 0) * item.quantity).toFixed(2)}
-                      </span>
+                      {/* Right: Quantity Adjuster, Total & Delete */}
+                      <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                        <div className="flex items-center rounded-lg border border-slate-200 bg-white shadow-2xs">
+                          <button
+                            type="button"
+                            onClick={() => updateQuantity(item.product._id, -1)}
+                            className="flex h-7 w-7 items-center justify-center text-slate-500 hover:text-slate-900 transition cursor-pointer"
+                            title="Decrease quantity"
+                          >
+                            <Minus className="h-3 w-3" />
+                          </button>
+                          <span className="min-w-[20px] px-1 text-center text-xs font-bold text-slate-900">
+                            {item.quantity}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => updateQuantity(item.product._id, 1)}
+                            className="flex h-7 w-7 items-center justify-center text-slate-500 hover:text-slate-900 transition cursor-pointer"
+                            title="Increase quantity"
+                          >
+                            <Plus className="h-3 w-3" />
+                          </button>
+                        </div>
 
-                      <button
-                        onClick={() => removeFromCart(item.product._id)}
-                        className="text-slate-400 hover:text-rose-600 transition cursor-pointer"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
+                        <span className="w-14 text-right font-mono text-xs font-bold text-slate-900">
+                          ${(Number(item.product.sellingPrice ?? (item.product as any).price ?? 0) * item.quantity).toFixed(2)}
+                        </span>
+
+                        <button
+                          type="button"
+                          onClick={() => removeFromCart(item.product._id)}
+                          className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
+                          title="Remove item"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
 
             {/* Customer Details */}
             <div className="border-t border-slate-200 pt-3 space-y-2">
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
                   <label className="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">
                     Customer Name
@@ -556,39 +749,39 @@ export default function PosCheckoutPage() {
               <label className="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1.5">
                 Payment Method
               </label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
                 <button
                   type="button"
                   onClick={() => setPaymentMethod("cash")}
-                  className={`flex items-center justify-center gap-1.5 rounded-xl border p-2 text-xs font-semibold transition cursor-pointer ${
-                    paymentMethod === "cash"
-                      ? "border-[#0F42C0] bg-blue-50 text-[#0F42C0] font-bold shadow-sm"
-                      : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
-                  }`}
+                  className={`flex items-center justify-center gap-1.5 rounded-xl border p-2 text-xs font-semibold transition cursor-pointer ${paymentMethod === "cash"
+                    ? "border-[#0F42C0] bg-blue-50 text-[#0F42C0] font-bold shadow-2xs"
+                    : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
+                    }`}
                 >
-                  <Banknote className="h-3.5 w-3.5 text-emerald-600" /> Cash
+                  <Banknote className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                  <span className="truncate">Cash</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setPaymentMethod("card")}
-                  className={`flex items-center justify-center gap-1.5 rounded-xl border p-2 text-xs font-semibold transition cursor-pointer ${
-                    paymentMethod === "card"
-                      ? "border-[#0F42C0] bg-blue-50 text-[#0F42C0] font-bold shadow-sm"
-                      : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
-                  }`}
+                  className={`flex items-center justify-center gap-1.5 rounded-xl border p-2 text-xs font-semibold transition cursor-pointer ${paymentMethod === "card"
+                    ? "border-[#0F42C0] bg-blue-50 text-[#0F42C0] font-bold shadow-2xs"
+                    : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
+                    }`}
                 >
-                  <CreditCard className="h-3.5 w-3.5 text-blue-600" /> Card
+                  <CreditCard className="h-3.5 w-3.5 text-blue-600 shrink-0" />
+                  <span className="truncate">Card</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setPaymentMethod("bank_transfer")}
-                  className={`flex items-center justify-center gap-1.5 rounded-xl border p-2 text-xs font-semibold transition cursor-pointer ${
-                    paymentMethod === "bank_transfer"
-                      ? "border-[#0F42C0] bg-blue-50 text-[#0F42C0] font-bold shadow-sm"
-                      : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
-                  }`}
+                  className={`flex items-center justify-center gap-1.5 rounded-xl border p-2 text-xs font-semibold transition cursor-pointer ${paymentMethod === "bank_transfer"
+                    ? "border-[#0F42C0] bg-blue-50 text-[#0F42C0] font-bold shadow-2xs"
+                    : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
+                    }`}
                 >
-                  <Building className="h-3.5 w-3.5 text-purple-600" /> Bank / Pay
+                  <Building className="h-3.5 w-3.5 text-purple-600 shrink-0" />
+                  <span className="truncate">Bank / Pay</span>
                 </button>
               </div>
 
@@ -661,16 +854,52 @@ export default function PosCheckoutPage() {
             </button>
           </div>
         </div>
-      </div>
+      </div >
+
+      {/* Sticky Mobile Floating Cart Bar (when items are in cart and viewing catalog on mobile) */}
+      {
+        cart.length > 0 && mobileTab === "catalog" && (
+          <div className="fixed bottom-3 left-3 right-3 z-30 lg:hidden animate-in fade-in slide-in-from-bottom-2 duration-200">
+            <div className="flex items-center justify-between gap-3 rounded-2xl bg-slate-900/95 backdrop-blur-md p-3 text-white shadow-2xl border border-slate-800">
+              <div className="flex items-center gap-2.5">
+                <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-[#0F42C0] text-white shadow-sm">
+                  <ShoppingCart className="h-5 w-5" />
+                  <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white border-2 border-slate-900">
+                    {totalCartCount}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-[11px] text-slate-300">
+                    {totalCartCount} {totalCartCount === 1 ? "item" : "items"} in order
+                  </p>
+                  <p className="font-mono text-sm font-bold text-white">
+                    ${grandTotal.toFixed(2)}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setMobileTab("cart")}
+                className="flex items-center gap-1.5 rounded-xl bg-[#0F42C0] hover:bg-[#0C369E] px-4 py-2.5 text-xs font-bold text-white shadow-sm transition cursor-pointer"
+              >
+                <span>View Order & Pay</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
+        )
+      }
 
       {/* Printable Receipt Modal */}
-      <Modal
+      < Modal
         title={null}
         open={receiptModalOpen}
         onCancel={() => setReceiptModalOpen(false)}
         footer={null}
         width={420}
         centered
+        className="max-w-[95vw] sm:max-w-[420px]"
       >
         {completedSale && (
           <div className="p-2 text-slate-800">
@@ -777,6 +1006,6 @@ export default function PosCheckoutPage() {
           </div>
         )}
       </Modal>
-    </div>
+    </div >
   );
 }
