@@ -32,7 +32,11 @@ export async function apiClient<T = any>(
     ...(options.headers as Record<string, string>),
   };
 
-  if (!(options.body instanceof FormData)) {
+  const isFormData =
+    (typeof FormData !== "undefined" && options.body instanceof FormData) ||
+    (typeof FormData !== "undefined" && options.data instanceof FormData);
+
+  if (!isFormData) {
     headers["Content-Type"] = "application/json";
   }
 

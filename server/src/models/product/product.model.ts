@@ -59,6 +59,15 @@ const productSchema = new Schema<IProduct>(
       default: "pcs",
       trim: true,
     },
+    thumbnail: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    featuredImages: {
+      type: [String],
+      default: [],
+    },
     images: {
       type: [String],
       default: [],
@@ -99,6 +108,14 @@ productSchema.pre("save", function () {
     this.status = "low_stock";
   } else {
     this.status = "in_stock";
+  }
+
+  // Keep images in sync with thumbnail and featuredImages for backwards compatibility
+  if ((!this.images || this.images.length === 0) && (this.thumbnail || (this.featuredImages && this.featuredImages.length > 0))) {
+    this.images = [
+      ...(this.thumbnail ? [this.thumbnail] : []),
+      ...(this.featuredImages || []),
+    ];
   }
 });
 

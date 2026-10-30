@@ -11,14 +11,63 @@ const createProduct = catchAsync(async (req: Request, res: Response) => {
 
   // Handle uploaded images if provided by upload middleware
   const files = (req.body as any).files as {
+    thumbnail?: string | string[];
+    featuredImages?: string | string[];
+    featureImages?: string | string[];
     images?: string | string[];
-    image?: string;
+    image?: string | string[];
   };
 
-  if (files?.images) {
-    productData.images = Array.isArray(files.images) ? files.images : [files.images];
+  // 1. Resolve thumbnail
+  let thumbnail = "";
+  if (files?.thumbnail) {
+    thumbnail = Array.isArray(files.thumbnail) ? files.thumbnail[0] : files.thumbnail;
+  } else if (req.body.thumbnail && typeof req.body.thumbnail === "string" && req.body.thumbnail.trim()) {
+    thumbnail = req.body.thumbnail.trim();
   } else if (files?.image) {
-    productData.images = [files.image];
+    thumbnail = Array.isArray(files.image) ? files.image[0] : files.image;
+  }
+  productData.thumbnail = thumbnail;
+
+  // 2. Resolve featured images (Multiple)
+  const uploadedFeatured = files?.featuredImages || files?.featureImages;
+  const uploadedFilesFeatured: string[] = uploadedFeatured
+    ? (Array.isArray(uploadedFeatured) ? uploadedFeatured : [uploadedFeatured])
+    : [];
+
+  let bodyFeaturedUrls: string[] = [];
+  if (req.body.featuredImages) {
+    if (Array.isArray(req.body.featuredImages)) {
+      bodyFeaturedUrls = req.body.featuredImages.filter((s: any) => typeof s === "string" && s.trim());
+    } else if (typeof req.body.featuredImages === "string" && req.body.featuredImages.trim()) {
+      try {
+        const parsed = JSON.parse(req.body.featuredImages);
+        bodyFeaturedUrls = (Array.isArray(parsed) ? parsed : [parsed]).filter((s: any) => typeof s === "string" && s.trim());
+      } catch {
+        bodyFeaturedUrls = [req.body.featuredImages.trim()];
+      }
+    }
+  }
+
+  // Deduplicate and combine uploaded files with body URLs
+  const allFeatured = Array.from(new Set([...uploadedFilesFeatured, ...bodyFeaturedUrls]));
+  if (allFeatured.length === 0 && files?.images) {
+    const rawImgs = Array.isArray(files.images) ? files.images : [files.images];
+    allFeatured.push(...rawImgs);
+  }
+  productData.featuredImages = allFeatured;
+
+  // 3. Sync images array for backwards compatibility
+  if (!productData.images || productData.images.length === 0) {
+    const combined = Array.from(
+      new Set([
+        ...(productData.thumbnail ? [productData.thumbnail] : []),
+        ...(productData.featuredImages || []),
+      ])
+    );
+    if (combined.length > 0) {
+      productData.images = combined;
+    }
   }
 
   // Ensure numeric fields
@@ -65,10 +114,21 @@ const updateProduct = catchAsync(async (req: Request, res: Response) => {
   const productData = { ...req.body };
 
   const files = (req.body as any).files as {
+    thumbnail?: string | string[];
+    featuredImages?: string | string[];
+    featureImages?: string | string[];
     images?: string | string[];
-    image?: string;
+    image?: string | string[];
   };
 
+  if (files?.thumbnail) {
+    productData.thumbnail = Array.isArray(files.thumbnail) ? files.thumbnail[0] : files.thumbnail;
+  }
+  if (files?.featuredImages || files?.featureImages) {
+    const rawFeatured = files.featuredImages || files.featureImages;
+    const newFeatured = Array.isArray(rawFeatured) ? rawFeatured : [rawFeatured];
+    productData.featuredImages = [...(productData.featuredImages || []), ...newFeatured];
+  }
   if (files?.images) {
     const newImages = Array.isArray(files.images) ? files.images : [files.images];
     productData.images = [...(productData.images || []), ...newImages];

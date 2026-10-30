@@ -224,7 +224,7 @@ export default function ProductDetailPage({
   const potentialRevenue = (product.quantity * product.sellingPrice).toFixed(2);
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-6">
       {/* Top Navigation & Action Bar */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-slate-200">
         <div className="flex items-center gap-4">
@@ -354,15 +354,14 @@ export default function ProductDetailPage({
                 <div className="flex items-center justify-between rounded-xl bg-slate-50 p-3 border border-slate-100">
                   <span className="text-xs font-medium text-slate-600">Stockout Risk</span>
                   <span
-                    className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold ${
-                      aiAdvice.risk_level === "CRITICAL"
-                        ? "bg-rose-50 text-rose-700 border border-rose-200"
-                        : aiAdvice.risk_level === "HIGH"
+                    className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold ${aiAdvice.risk_level === "CRITICAL"
+                      ? "bg-rose-50 text-rose-700 border border-rose-200"
+                      : aiAdvice.risk_level === "HIGH"
                         ? "bg-amber-50 text-amber-700 border border-amber-200"
                         : aiAdvice.risk_level === "MEDIUM"
-                        ? "bg-blue-50 text-[#0F42C0] border border-blue-200"
-                        : "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                    }`}
+                          ? "bg-blue-50 text-[#0F42C0] border border-blue-200"
+                          : "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                      }`}
                   >
                     {aiAdvice.risk_level === "CRITICAL" && <ShieldAlert className="h-3 w-3" />}
                     {aiAdvice.risk_level}
@@ -500,13 +499,12 @@ export default function ProductDetailPage({
                         <tr key={mov._id} className="hover:bg-slate-50/80 transition">
                           <td className="py-3 px-3">
                             <span
-                              className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 font-bold text-[11px] ${
-                                mov.type === "IN"
-                                  ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                                  : mov.type === "OUT" || mov.type === "SALE"
+                              className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 font-bold text-[11px] ${mov.type === "IN"
+                                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                : mov.type === "OUT" || mov.type === "SALE"
                                   ? "bg-rose-50 text-rose-700 border border-rose-200"
                                   : "bg-blue-50 text-[#0F42C0] border border-blue-200"
-                              }`}
+                                }`}
                             >
                               {isPositive ? (
                                 <ArrowUpRight className="h-3 w-3" />

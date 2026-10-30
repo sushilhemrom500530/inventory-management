@@ -18,6 +18,8 @@ export interface IProduct extends Document {
   lowStockThreshold: number;
   reorderLevel?: number;
   unit: string;
+  thumbnail?: string;
+  featuredImages: string[];
   images: string[];
   status: ProductStockStatus;
   isDeleted: boolean;

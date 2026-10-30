@@ -16,7 +16,13 @@ router.post(
   "/",
   auth("admin", "manager"),
   clearCacheMiddleware("products"),
-  multiUploadHandler([{ name: "images", maxCount: 5 }, { name: "image", maxCount: 1 }]),
+  multiUploadHandler([
+    { name: "thumbnail", maxCount: 1 },
+    { name: "featuredImages", maxCount: 10 },
+    { name: "featureImages", maxCount: 10 },
+    { name: "images", maxCount: 10 },
+    { name: "image", maxCount: 1 },
+  ]),
   validateRequest(ProductValidation.createProductZodSchema),
   ProductController.createProduct,
 );
@@ -25,7 +31,13 @@ router.post(
   "/create",
   auth("admin", "manager"),
   clearCacheMiddleware("products"),
-  multiUploadHandler([{ name: "images", maxCount: 5 }, { name: "image", maxCount: 1 }]),
+  multiUploadHandler([
+    { name: "thumbnail", maxCount: 1 },
+    { name: "featuredImages", maxCount: 10 },
+    { name: "featureImages", maxCount: 10 },
+    { name: "images", maxCount: 10 },
+    { name: "image", maxCount: 1 },
+  ]),
   validateRequest(ProductValidation.createProductZodSchema),
   ProductController.createProduct,
 );
@@ -63,7 +75,13 @@ router.patch(
   "/update/:id",
   auth("admin", "manager"),
   clearCacheMiddleware("products"),
-  multiUploadHandler([{ name: "images", maxCount: 5 }, { name: "image", maxCount: 1 }]),
+  multiUploadHandler([
+    { name: "thumbnail", maxCount: 1 },
+    { name: "featuredImages", maxCount: 10 },
+    { name: "featureImages", maxCount: 10 },
+    { name: "images", maxCount: 10 },
+    { name: "image", maxCount: 1 },
+  ]),
   validateRequest(ProductValidation.updateProductZodSchema),
   ProductController.updateProduct,
 );
@@ -72,7 +90,13 @@ router.patch(
   "/:id",
   auth("admin", "manager"),
   clearCacheMiddleware("products"),
-  multiUploadHandler([{ name: "images", maxCount: 5 }, { name: "image", maxCount: 1 }]),
+  multiUploadHandler([
+    { name: "thumbnail", maxCount: 1 },
+    { name: "featuredImages", maxCount: 10 },
+    { name: "featureImages", maxCount: 10 },
+    { name: "images", maxCount: 10 },
+    { name: "image", maxCount: 1 },
+  ]),
   validateRequest(ProductValidation.updateProductZodSchema),
   ProductController.updateProduct,
 );
