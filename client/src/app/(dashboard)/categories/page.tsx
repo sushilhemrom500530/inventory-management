@@ -16,6 +16,7 @@ import { fetchApi } from "@/utils/api";
 import { message, Modal, Input } from "antd";
 import Cookies from "js-cookie";
 import { useAuthService } from "@/hooks/auth";
+import { useUserRole } from "@/context/role-context";
 
 interface Category {
   _id: string;
@@ -28,8 +29,9 @@ interface Category {
 
 export default function CategoriesPage() {
   const { user: currentUser } = useAuthService();
-  const userRole = (currentUser?.role || Cookies.get("role") || "").toLowerCase();
-  const isEmployee = userRole === "employee";
+  const roleContext = useUserRole();
+  const userRole = (roleContext?.role || currentUser?.role || (typeof window !== "undefined" ? Cookies.get("role") : "") || "").toLowerCase();
+  const isEmployee = roleContext?.isEmployee ?? (userRole === "employee");
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);

@@ -9,21 +9,24 @@ import logo from "@/assets/logo.svg";
 import { LogOut } from "lucide-react";
 import { useAuthService } from "@/hooks/auth";
 import UserAvatar from "@/components/reuseable/user-avatar";
+import { useUserRole } from "@/context/role-context";
 
 interface SidebarProps {
   navOpened?: boolean;
   setNavOpened?: (opened: boolean) => void;
+  initialRole?: string;
 }
 
-export default function Sidebar({ navOpened, setNavOpened }: SidebarProps) {
+export default function Sidebar({ navOpened, setNavOpened, initialRole }: SidebarProps) {
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
   const { logoutUser, user: currentUser } = useAuthService();
+  const roleContext = useUserRole();
 
   const menuSections = adminMenuData?.linkData || [];
   const displayName = currentUser?.fullName || currentUser?.name || "Inventory Manager";
-  const userRole = (currentUser?.role || Cookies.get("role") || "").toLowerCase();
-  const displayRole = (currentUser?.role || Cookies.get("role") || "Manager").toUpperCase();
-  const isEmployee = userRole === "employee";
+  const userRole = (roleContext?.role || initialRole || currentUser?.role || (typeof window !== "undefined" ? Cookies.get("role") : "") || "").toLowerCase();
+  const displayRole = (userRole || "Manager").toUpperCase();
+  const isEmployee = roleContext?.isEmployee ?? (userRole === "employee");
 
   // Filter navigation items: restricted strictly for EMPLOYEE, untouched for admin/manager
   const visibleMenuSections = menuSections

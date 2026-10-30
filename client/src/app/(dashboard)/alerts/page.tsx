@@ -20,6 +20,7 @@ import { StockBadge } from "@/components/reuseable/stock-badge";
 import { message, Modal, InputNumber, Input } from "antd";
 import Cookies from "js-cookie";
 import { useAuthService } from "@/hooks/auth";
+import { useUserRole } from "@/context/role-context";
 
 interface AlertProduct {
   _id: string;
@@ -49,8 +50,9 @@ interface AlertsResponse {
 
 export default function StockAlertsPage() {
   const { user: currentUser } = useAuthService();
-  const userRole = (currentUser?.role || Cookies.get("role") || "").toLowerCase();
-  const isEmployee = userRole === "employee";
+  const roleContext = useUserRole();
+  const userRole = (roleContext?.role || currentUser?.role || (typeof window !== "undefined" ? Cookies.get("role") : "") || "").toLowerCase();
+  const isEmployee = roleContext?.isEmployee ?? (userRole === "employee");
 
   const [alertsData, setAlertsData] = useState<AlertsResponse | null>(null);
   const [loading, setLoading] = useState(true);

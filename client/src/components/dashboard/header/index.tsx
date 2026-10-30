@@ -18,22 +18,26 @@ import { Dropdown } from "antd";
 import { useAuthService } from "@/hooks/auth";
 import { useNotifications } from "@/hooks/use-notifications";
 import UserAvatar from "@/components/reuseable/user-avatar";
+import { useUserRole } from "@/context/role-context";
 
 interface HeaderProps {
   navOpened?: boolean;
   setNavOpened?: (opened: boolean) => void;
+  initialRole?: string;
 }
 
-export default function Header({ navOpened, setNavOpened }: HeaderProps) {
+export default function Header({ navOpened, setNavOpened, initialRole }: HeaderProps) {
   const pathname = usePathname();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const { logoutUser, user: currentUser } = useAuthService();
   const { unreadCount } = useNotifications({ autoFetch: true });
+  const roleContext = useUserRole();
 
+  const userRole = (roleContext?.role || initialRole || currentUser?.role || "").toLowerCase();
   const displayName = currentUser?.fullName || currentUser?.name || "Inventory Manager";
   const displayEmail = currentUser?.email || "manager@stockwise.com";
-  const displayRole = (currentUser?.role || "Manager").toUpperCase();
-  const isEmployee = (currentUser?.role || "").toLowerCase() === "employee";
+  const displayRole = (userRole || currentUser?.role || "Manager").toUpperCase();
+  const isEmployee = roleContext?.isEmployee ?? (userRole === "employee");
 
   // Generate page title from pathname
   const getPageTitle = () => {

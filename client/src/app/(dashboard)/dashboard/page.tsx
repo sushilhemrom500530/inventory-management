@@ -21,11 +21,13 @@ import StockBadge from "@/components/reuseable/stock-badge";
 import { Modal } from "antd";
 import Cookies from "js-cookie";
 import { useAuthService } from "@/hooks/auth";
+import { useUserRole } from "@/context/role-context";
 
 export default function DashboardPage() {
   const { user: currentUser } = useAuthService();
-  const userRole = (currentUser?.role || Cookies.get("role") || "").toLowerCase();
-  const isEmployee = userRole === "employee";
+  const roleContext = useUserRole();
+  const userRole = (roleContext?.role || currentUser?.role || (typeof window !== "undefined" ? Cookies.get("role") : "") || "").toLowerCase();
+  const isEmployee = roleContext?.isEmployee ?? (userRole === "employee");
 
   const [days, setDays] = useState<number>(30);
   const [loading, setLoading] = useState<boolean>(true);

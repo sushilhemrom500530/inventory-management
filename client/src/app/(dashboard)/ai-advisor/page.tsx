@@ -23,6 +23,7 @@ import { fetchApi } from "@/utils/api";
 import { message, Modal, InputNumber, Input } from "antd";
 import { useAuthService } from "@/hooks/auth";
 import RestrictedAccess from "@/components/reuseable/restricted-access";
+import { useUserRole } from "@/context/role-context";
 
 interface ProductForecast {
   productId: string;
@@ -61,7 +62,9 @@ interface ForecastResponse {
 
 export default function AiAdvisorPage() {
   const { user: currentUser, loading: authLoading } = useAuthService();
-  const isEmployee = (currentUser?.role || "").toLowerCase() === "employee";
+  const roleContext = useUserRole();
+  const userRole = (roleContext?.role || currentUser?.role || "").toLowerCase();
+  const isEmployee = roleContext?.isEmployee ?? (userRole === "employee");
 
   const [data, setData] = useState<ForecastResponse | null>(null);
   const [loading, setLoading] = useState(true);

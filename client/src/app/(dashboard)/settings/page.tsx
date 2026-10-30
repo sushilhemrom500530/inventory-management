@@ -15,11 +15,13 @@ import { message } from "antd";
 import Cookies from "js-cookie";
 import { useAuthService } from "@/hooks/auth";
 import RestrictedAccess from "@/components/reuseable/restricted-access";
+import { useUserRole } from "@/context/role-context";
 
 export default function SettingsPage() {
   const { user: currentUser } = useAuthService();
-  const userRole = (currentUser?.role || Cookies.get("role") || "").toLowerCase();
-  const isEmployee = userRole === "employee";
+  const roleContext = useUserRole();
+  const userRole = (roleContext?.role || currentUser?.role || "").toLowerCase();
+  const isEmployee = roleContext?.isEmployee ?? (userRole === "employee");
 
   if (isEmployee) {
     return <RestrictedAccess featureName="Store & System Settings" />;

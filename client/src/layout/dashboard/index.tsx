@@ -7,15 +7,17 @@ import { Layers } from "lucide-react";
 import Header from "@/components/dashboard/header";
 import Sidebar from "@/components/dashboard/sidebar";
 import { useAuthService } from "@/hooks/auth";
+import { RoleProvider } from "@/context/role-context";
 
 interface DashboardLayoutProps {
   children: ReactNode;
+  initialRole?: string;
 }
 
-export default function DashboardLayout({ children }: DashboardLayoutProps) {
+export default function DashboardLayout({ children, initialRole = "" }: DashboardLayoutProps) {
   const router = useRouter();
   const [navOpened, setNavOpened] = useState<boolean>(false);
-  const { logoutUser } = useAuthService();
+  const { logoutUser, user: currentUser } = useAuthService();
 
   useEffect(() => {
     let token = Cookies.get("token");
@@ -32,26 +34,37 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     }
   }, [router]);
 
-  return (
-    <div className="flex min-h-screen h-full bg-[#F8FAFC] text-slate-900">
-      {/* Sidebar Component */}
-      <Sidebar
-        navOpened={navOpened}
-        setNavOpened={setNavOpened}
-      />
+  const activeRole = (
+    currentUser?.role ||
+    initialRole ||
+    (typeof window !== "undefined" ? Cookies.get("role") : "") ||
+    ""
+  ).toLowerCase();
 
-      {/* Main App Container */}
-      <div className="flex flex-col flex-1 min-w-0 lg:ml-[288px] transition-all duration-300">
-        <Header
+  return (
+    <RoleProvider role={activeRole}>
+      <div className="flex min-h-screen h-full bg-[#F8FAFC] text-slate-900">
+        {/* Sidebar Component */}
+        <Sidebar
           navOpened={navOpened}
           setNavOpened={setNavOpened}
+          initialRole={activeRole}
         />
 
-        {/* Content Area */}
-        <main className="overflow-y-auto overflow-x-hidden w-full min-h-[calc(100vh-80px)] bg-[#F8FAFC] p-4 md:p-6 lg:p-8">
-          {children}
-        </main>
+        {/* Main App Container */}
+        <div className="flex flex-col flex-1 min-w-0 lg:ml-[288px] transition-all duration-300">
+          <Header
+            navOpened={navOpened}
+            setNavOpened={setNavOpened}
+            initialRole={activeRole}
+          />
+
+          {/* Content Area */}
+          <main className="overflow-y-auto overflow-x-hidden w-full min-h-[calc(100vh-80px)] bg-[#F8FAFC] p-4 md:p-6 lg:p-8">
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
+    </RoleProvider>
   );
 }
