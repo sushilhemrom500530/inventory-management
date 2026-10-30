@@ -20,6 +20,7 @@ import { message } from "antd";
 import { useAuthService } from "@/hooks/auth";
 import RestrictedAccess from "@/components/reuseable/restricted-access";
 import { useUserRole } from "@/context/role-context";
+import CustomSelect from "@/components/reuseable/custom-select";
 
 interface AnalyticsOverview {
   kpis: {
@@ -111,15 +112,15 @@ export default function ReportsPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <select
+          <CustomSelect
             value={period}
             onChange={(e) => setPeriod(parseInt(e.target.value))}
-            className="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-800 focus:border-[#0F42C0] focus:outline-none transition cursor-pointer"
+            className="min-w-[140px] rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-800 focus:border-[#0F42C0] focus:outline-none transition cursor-pointer"
           >
             <option value={7}>Last 7 Days</option>
             <option value={30}>Last 30 Days</option>
             <option value={90}>Last 90 Days</option>
-          </select>
+          </CustomSelect>
 
           <button
             onClick={() => window.print()}

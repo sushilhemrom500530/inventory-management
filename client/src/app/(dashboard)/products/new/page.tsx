@@ -17,6 +17,7 @@ import Cookies from "js-cookie";
 import { useAuthService } from "@/hooks/auth";
 import RestrictedAccess from "@/components/reuseable/restricted-access";
 import { useUserRole } from "@/context/role-context";
+import CustomSelect from "@/components/reuseable/custom-select";
 
 export default function AddProductPage() {
   const router = useRouter();
@@ -212,7 +213,7 @@ export default function AddProductPage() {
                 <label className="block text-slate-700 font-semibold mb-1.5">
                   Category <span className="text-rose-500">*</span>
                 </label>
-                <select
+                <CustomSelect
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:bg-white focus:border-[#0F42C0] cursor-pointer"
@@ -222,7 +223,7 @@ export default function AddProductPage() {
                       {c.name}
                     </option>
                   ))}
-                </select>
+                </CustomSelect>
               </div>
 
               <div>
@@ -347,7 +348,7 @@ export default function AddProductPage() {
                 <label className="block text-slate-700 font-semibold mb-1.5">
                   Unit of Measurement
                 </label>
-                <select
+                <CustomSelect
                   value={unit}
                   onChange={(e) => setUnit(e.target.value)}
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:bg-white focus:border-[#0F42C0] cursor-pointer"
@@ -357,7 +358,7 @@ export default function AddProductPage() {
                   <option value="kg">Kilograms (kg)</option>
                   <option value="meter">Meters (m)</option>
                   <option value="liter">Liters (L)</option>
-                </select>
+                </CustomSelect>
               </div>
             </div>
           </div>

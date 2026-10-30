@@ -16,6 +16,7 @@ import Cookies from "js-cookie";
 import { useAuthService } from "@/hooks/auth";
 import RestrictedAccess from "@/components/reuseable/restricted-access";
 import { useUserRole } from "@/context/role-context";
+import CustomSelect from "@/components/reuseable/custom-select";
 
 export default function SettingsPage() {
   const { user: currentUser } = useAuthService();
@@ -79,7 +80,7 @@ export default function SettingsPage() {
               <label className="block font-semibold uppercase tracking-wider text-slate-500 mb-1.5 cursor-pointer">
                 Display Currency
               </label>
-              <select
+              <CustomSelect
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
                 className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 focus:bg-white focus:border-[#0F42C0] focus:outline-none transition cursor-pointer"
@@ -88,7 +89,7 @@ export default function SettingsPage() {
                 <option value="BDT (৳)">BDT — Bangladeshi Taka (৳)</option>
                 <option value="EUR (€)">EUR — Euro (€)</option>
                 <option value="GBP (£)">GBP — British Pound (£)</option>
-              </select>
+              </CustomSelect>
             </div>
 
             <div>

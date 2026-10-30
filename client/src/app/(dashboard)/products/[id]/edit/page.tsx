@@ -17,6 +17,7 @@ import { message } from "antd";
 import { useAuthService } from "@/hooks/auth";
 import RestrictedAccess from "@/components/reuseable/restricted-access";
 import { useUserRole } from "@/context/role-context";
+import CustomSelect from "@/components/reuseable/custom-select";
 
 interface Category {
   _id: string;
@@ -257,7 +258,7 @@ export default function EditProductPage({
               <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5 cursor-pointer">
                 Category
               </label>
-              <select
+              <CustomSelect
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
                 className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 focus:bg-white focus:border-[#0F42C0] focus:outline-none cursor-pointer"
@@ -268,14 +269,14 @@ export default function EditProductPage({
                     {c.name}
                   </option>
                 ))}
-              </select>
+              </CustomSelect>
             </div>
 
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5 cursor-pointer">
                 Unit of Measure
               </label>
-              <select
+              <CustomSelect
                 value={unit}
                 onChange={(e) => setUnit(e.target.value)}
                 className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 focus:bg-white focus:border-[#0F42C0] focus:outline-none cursor-pointer"
@@ -285,7 +286,7 @@ export default function EditProductPage({
                 <option value="kg">Kilogram (kg)</option>
                 <option value="meter">Meter (m)</option>
                 <option value="pack">Pack</option>
-              </select>
+              </CustomSelect>
             </div>
 
             <div className="sm:col-span-2">

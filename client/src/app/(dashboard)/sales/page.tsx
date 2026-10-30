@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { fetchApi } from "@/utils/api";
 import { message, Modal } from "antd";
+import CustomSelect from "@/components/reuseable/custom-select";
 
 interface SaleRecord {
   _id: string;
@@ -218,16 +219,16 @@ export default function SalesHistoryPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <select
+          <CustomSelect
             value={methodFilter}
             onChange={(e) => setMethodFilter(e.target.value)}
-            className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-800 focus:bg-white focus:border-[#0F42C0] focus:outline-none transition cursor-pointer"
+            className="min-w-[175px] rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-800 focus:bg-white focus:border-[#0F42C0] focus:outline-none transition cursor-pointer"
           >
             <option value="all">All Payment Methods</option>
             <option value="cash">Cash Only</option>
             <option value="card">Credit / Debit Card</option>
             <option value="bank_transfer">Bank Transfer</option>
-          </select>
+          </CustomSelect>
         </div>
       </div>
 

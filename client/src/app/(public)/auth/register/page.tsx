@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useAuthService } from "@/hooks/auth";
 import { message } from "antd";
+import CustomSelect from "@/components/reuseable/custom-select";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -130,8 +131,8 @@ export default function RegisterPage() {
                 Initial Account Role
               </label>
               <div className="relative">
-                <Shield className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <select
+                <Shield className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 z-10 pointer-events-none" />
+                <CustomSelect
                   value={role}
                   onChange={(e) => setRole(e.target.value)}
                   className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-xs text-slate-900 focus:bg-white focus:border-[#0F42C0] focus:outline-none transition cursor-pointer"
@@ -139,7 +140,7 @@ export default function RegisterPage() {
                   <option value="manager">Store Manager (Inventory & Sales)</option>
                   <option value="admin">Administrator (Full System Control)</option>
                   <option value="employee">Cashier Employee (POS Terminal Only)</option>
-                </select>
+                </CustomSelect>
               </div>
             </div>
 

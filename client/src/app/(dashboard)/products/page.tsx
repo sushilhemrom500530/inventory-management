@@ -20,6 +20,7 @@ import { Modal, message } from "antd";
 import Cookies from "js-cookie";
 import { useAuthService } from "@/hooks/auth";
 import { useUserRole } from "@/context/role-context";
+import CustomSelect from "@/components/reuseable/custom-select";
 
 export default function ProductsListPage() {
   const { user: currentUser } = useAuthService();
@@ -231,7 +232,7 @@ export default function ProductsListPage() {
 
         {/* Category Filter */}
         <div className="relative">
-          <select
+          <CustomSelect
             value={selectedCategory}
             onChange={(e) => {
               setSelectedCategory(e.target.value);
@@ -245,12 +246,12 @@ export default function ProductsListPage() {
                 {c.name}
               </option>
             ))}
-          </select>
+          </CustomSelect>
         </div>
 
         {/* Status Filter */}
         <div className="relative">
-          <select
+          <CustomSelect
             value={selectedStatus}
             onChange={(e) => {
               setSelectedStatus(e.target.value);
@@ -262,12 +263,12 @@ export default function ProductsListPage() {
             <option value="in_stock">In Stock</option>
             <option value="low_stock">Low Stock</option>
             <option value="out_of_stock">Out of Stock</option>
-          </select>
+          </CustomSelect>
         </div>
 
         {/* Sort */}
         <div className="relative">
-          <select
+          <CustomSelect
             value={sortBy}
             onChange={(e) => {
               setSortBy(e.target.value);
@@ -280,7 +281,7 @@ export default function ProductsListPage() {
             <option value="-quantity">Stock: High to Low</option>
             <option value="sellingPrice">Price: Low to High</option>
             <option value="-sellingPrice">Price: High to Low</option>
-          </select>
+          </CustomSelect>
         </div>
       </div>
 
@@ -478,7 +479,7 @@ export default function ProductsListPage() {
               <label className="block font-semibold uppercase tracking-wider text-slate-600 mb-1">
                 Adjustment Type
               </label>
-              <select
+              <CustomSelect
                 value={adjustType}
                 onChange={(e: any) => setAdjustType(e.target.value)}
                 className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#0F42C0] cursor-pointer"
@@ -486,7 +487,7 @@ export default function ProductsListPage() {
                 <option value="IN">Stock In (Shipment Received / Restock +)</option>
                 <option value="OUT">Stock Out (Damaged / Return -)</option>
                 <option value="ADJUSTMENT">Count Adjustment (Reconciliation)</option>
-              </select>
+              </CustomSelect>
             </div>
 
             <div>

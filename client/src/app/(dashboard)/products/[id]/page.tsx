@@ -19,7 +19,8 @@ import {
 } from "lucide-react";
 import StockBadge from "@/components/reuseable/stock-badge";
 import { fetchApi } from "@/utils/api";
-import { message, Modal, Input, Select, InputNumber } from "antd";
+import { message, Modal, Input, InputNumber } from "antd";
+import CustomSelect from "@/components/reuseable/custom-select";
 
 interface ProductDetail {
   _id: string;
@@ -560,10 +561,11 @@ export default function ProductDetailPage({
         <div className="space-y-4 pt-4 text-xs text-slate-700">
           <div>
             <label className="block font-semibold uppercase tracking-wider text-slate-600 mb-1">Adjustment Type</label>
-            <Select
+            <CustomSelect
               value={adjustType}
-              onChange={(val) => setAdjustType(val)}
-              className="w-full"
+              onChange={(e) => setAdjustType(e.target.value)}
+              onValueChange={(val) => setAdjustType(val)}
+              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-[#0F42C0] cursor-pointer"
               options={[
                 { value: "IN", label: "Stock In / Restock (+)" },
                 { value: "OUT", label: "Stock Out / Scrap (-)" },
