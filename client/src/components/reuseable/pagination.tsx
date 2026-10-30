@@ -80,7 +80,8 @@ export default function Pagination({
     return getPaginationRange(currentPage, totalPages);
   }, [currentPage, totalPages]);
 
-  if (totalResults === 0) return null;
+  // Only show pagination when there are more than 10 records or more than 1 page
+  if (totalResults <= 10 && totalPages <= 1) return null;
 
   return (
     <div

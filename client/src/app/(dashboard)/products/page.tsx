@@ -421,7 +421,7 @@ export default function ProductsListPage() {
         )}
 
         {/* Professional Pagination Bar */}
-        {(meta.totalResult > 0 || meta.totalPage > 1) && (
+        {(meta.totalResult > 10 || meta.totalPage > 1) && (
           <Pagination
             currentPage={page}
             totalPages={meta.totalPage || 1}

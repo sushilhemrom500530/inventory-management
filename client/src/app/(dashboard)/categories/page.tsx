@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import {
   Layers,
@@ -17,6 +17,7 @@ import { message, Modal, Input } from "antd";
 import Cookies from "js-cookie";
 import { useAuthService } from "@/hooks/auth";
 import { useUserRole } from "@/context/role-context";
+import Pagination from "@/components/reuseable/pagination";
 
 interface Category {
   _id: string;
@@ -36,6 +37,9 @@ export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [meta, setMeta] = useState<any>({ totalResult: 0, totalPage: 1 });
 
   // Modal State
   const [modalOpen, setModalOpen] = useState(false);
@@ -44,23 +48,33 @@ export default function CategoriesPage() {
   const [catDesc, setCatDesc] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const loadCategories = async () => {
+  const loadCategories = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetchApi<Category[]>("/categories");
+      const params = new URLSearchParams();
+      if (searchQuery.trim()) {
+        params.append("searchTerm", searchQuery.trim());
+      }
+      params.append("page", String(page));
+      params.append("limit", String(limit));
+
+      const res = await fetchApi<Category[]>(`/categories?${params.toString()}`);
       if (res?.data) {
         setCategories(res.data);
+      }
+      if (res?.meta) {
+        setMeta(res.meta);
       }
     } catch (err: any) {
       message.error(err?.message || "Failed to load categories");
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, limit, searchQuery]);
 
   useEffect(() => {
     loadCategories();
-  }, []);
+  }, [loadCategories]);
 
   const openCreateModal = () => {
     setEditingCategory(null);
@@ -164,7 +178,7 @@ export default function CategoriesPage() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="rounded-2xl border border-slate-200 bg-white p-4">
           <p className="text-xs font-medium text-slate-500">Total Categories</p>
-          <p className="mt-1 text-2xl font-bold text-slate-900">{categories.length}</p>
+          <p className="mt-1 text-2xl font-bold text-slate-900">{meta.totalResult || categories.length}</p>
           <p className="mt-1 text-[11px] text-slate-400">Active product classifications</p>
         </div>
 
@@ -181,7 +195,10 @@ export default function CategoriesPage() {
               type="text"
               placeholder="Search category name..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setPage(1);
+              }}
               className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2 pl-10 pr-4 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:border-[#0F42C0] focus:outline-none"
             />
           </div>
@@ -213,68 +230,91 @@ export default function CategoriesPage() {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredCategories.map((cat) => (
-            <div
-              key={cat._id}
-              className="group flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-[#0F42C0]/50 hover:shadow-md"
-            >
-              <div>
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-[#0F42C0]">
-                      <Layers className="h-5 w-5" />
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {filteredCategories.map((cat) => (
+              <div
+                key={cat._id}
+                className="group flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-[#0F42C0]/50 hover:shadow-md"
+              >
+                <div>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-[#0F42C0]">
+                        <Layers className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-slate-900 group-hover:text-[#0F42C0] transition">
+                          {cat.name}
+                        </h3>
+                        <p className="font-mono text-[11px] text-slate-400">
+                          {cat.slug || cat.name.toLowerCase().replace(/\s+/g, "-")}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-bold text-slate-900 group-hover:text-[#0F42C0] transition">
-                        {cat.name}
-                      </h3>
-                      <p className="font-mono text-[11px] text-slate-400">
-                        {cat.slug || cat.name.toLowerCase().replace(/\s+/g, "-")}
-                      </p>
-                    </div>
+
+                    {!isEmployee && (
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => openEditModal(cat)}
+                          className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition cursor-pointer"
+                          title="Edit Category"
+                        >
+                          <Edit2 className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(cat)}
+                          className="rounded-lg p-1.5 text-rose-500 hover:bg-rose-50 transition cursor-pointer"
+                          title="Delete Category"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    )}
                   </div>
 
-                  {!isEmployee && (
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => openEditModal(cat)}
-                        className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition cursor-pointer"
-                        title="Edit Category"
-                      >
-                        <Edit2 className="h-3.5 w-3.5" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(cat)}
-                        className="rounded-lg p-1.5 text-rose-500 hover:bg-rose-50 transition cursor-pointer"
-                        title="Delete Category"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  )}
+                  <p className="mt-3 text-xs leading-relaxed text-slate-600 line-clamp-2">
+                    {cat.description || "No description provided for this inventory classification."}
+                  </p>
                 </div>
 
-                <p className="mt-3 text-xs leading-relaxed text-slate-600 line-clamp-2">
-                  {cat.description || "No description provided for this inventory classification."}
-                </p>
-              </div>
+                <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-3 text-xs">
+                  <span className="flex items-center gap-1.5 font-semibold text-slate-700">
+                    <Package className="h-3.5 w-3.5 text-[#0F42C0]" />
+                    {cat.productCount ?? 0} {cat.productCount === 1 ? "Product" : "Products"}
+                  </span>
 
-              <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-3 text-xs">
-                <span className="flex items-center gap-1.5 font-semibold text-slate-700">
-                  <Package className="h-3.5 w-3.5 text-[#0F42C0]" />
-                  {cat.productCount ?? 0} {cat.productCount === 1 ? "Product" : "Products"}
-                </span>
-
-                <Link
-                  href={`/products?category=${cat._id}`}
-                  className="flex items-center gap-1 text-[11px] font-semibold text-[#0F42C0] hover:underline cursor-pointer"
-                >
-                  View Items <ArrowRight className="h-3 w-3" />
-                </Link>
+                  <Link
+                    href={`/products?category=${cat._id}`}
+                    className="flex items-center gap-1 text-[11px] font-semibold text-[#0F42C0] hover:underline cursor-pointer"
+                  >
+                    View Items <ArrowRight className="h-3 w-3" />
+                  </Link>
+                </div>
               </div>
+            ))}
+          </div>
+
+          {/* Reusable Pagination */}
+          {(meta.totalResult > 10 || meta.totalPage > 1) && (
+            <div className="rounded-2xl border border-slate-200 overflow-hidden bg-white">
+              <Pagination
+                currentPage={page}
+                totalPages={meta.totalPage || 1}
+                totalResults={meta.totalResult || categories.length}
+                pageSize={limit}
+                onPageChange={(newPage) => {
+                  setPage(newPage);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                onPageSizeChange={(newLimit) => {
+                  setLimit(newLimit);
+                  setPage(1);
+                }}
+                itemName="categories"
+              />
             </div>
-          ))}
+          )}
         </div>
       )}
 
