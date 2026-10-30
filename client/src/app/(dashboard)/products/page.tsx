@@ -21,6 +21,7 @@ import Cookies from "js-cookie";
 import { useAuthService } from "@/hooks/auth";
 import { useUserRole } from "@/context/role-context";
 import CustomSelect from "@/components/reuseable/custom-select";
+import Pagination from "@/components/reuseable/pagination";
 
 export default function ProductsListPage() {
   const { user: currentUser } = useAuthService();
@@ -36,6 +37,7 @@ export default function ProductsListPage() {
   const [selectedStatus, setSelectedStatus] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("-createdAt");
   const [page, setPage] = useState<number>(1);
+  const [limit, setLimit] = useState<number>(10);
   const [meta, setMeta] = useState<any>({ totalResult: 0, totalPage: 1 });
 
   // Quick Adjustment Modal State
@@ -62,7 +64,7 @@ export default function ProductsListPage() {
       if (selectedStatus) params.append("status", selectedStatus);
       params.append("sort", sortBy);
       params.append("page", String(page));
-      params.append("limit", "10");
+      params.append("limit", String(limit));
 
       const res = await apiClient(`/products/get-all?${params.toString()}`);
       if (res?.success) {
@@ -74,7 +76,7 @@ export default function ProductsListPage() {
     } finally {
       setLoading(false);
     }
-  }, [searchTerm, selectedCategory, selectedStatus, sortBy, page]);
+  }, [searchTerm, selectedCategory, selectedStatus, sortBy, page, limit]);
 
   useEffect(() => {
     fetchProducts();
@@ -418,32 +420,23 @@ export default function ProductsListPage() {
           </div>
         )}
 
-        {/* Pagination Bar */}
-        {meta.totalPage > 1 && (
-          <div className="p-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span>
-              Showing {(page - 1) * 10 + 1} to {Math.min(page * 10, meta.totalResult)} of {meta.totalResult} results
-            </span>
-            <div className="flex items-center gap-1.5">
-              <button
-                disabled={page <= 1}
-                onClick={() => setPage(page - 1)}
-                className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 transition-colors cursor-pointer"
-              >
-                Previous
-              </button>
-              <span className="px-3 py-1.5 font-bold text-slate-900">
-                Page {page} of {meta.totalPage}
-              </span>
-              <button
-                disabled={page >= meta.totalPage}
-                onClick={() => setPage(page + 1)}
-                className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 transition-colors cursor-pointer"
-              >
-                Next
-              </button>
-            </div>
-          </div>
+        {/* Professional Pagination Bar */}
+        {(meta.totalResult > 0 || meta.totalPage > 1) && (
+          <Pagination
+            currentPage={page}
+            totalPages={meta.totalPage || 1}
+            totalResults={meta.totalResult || products.length}
+            pageSize={limit}
+            onPageChange={(newPage) => {
+              setPage(newPage);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            onPageSizeChange={(newLimit) => {
+              setLimit(newLimit);
+              setPage(1);
+            }}
+            itemName="products"
+          />
         )}
       </div>
 
