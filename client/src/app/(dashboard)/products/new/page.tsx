@@ -16,7 +16,6 @@ import {
   Plus,
   Trash2,
   Link2,
-  Sparkles,
   CheckCircle2,
 } from "lucide-react";
 import { apiClient } from "@/utils/api";
@@ -25,7 +24,7 @@ import Cookies from "js-cookie";
 import { useAuthService } from "@/hooks/auth";
 import RestrictedAccess from "@/components/reuseable/restricted-access";
 import { useUserRole } from "@/context/role-context";
-import CustomSelect from "@/components/reuseable/custom-select";
+import { CustomSelect, CustomInput } from "@/components/form";
 
 interface FeatureImageItem {
   id: string;
@@ -50,16 +49,16 @@ export default function AddProductPage() {
   const [categories, setCategories] = useState<any[]>([]);
   const [submitting, setSubmitting] = useState<boolean>(false);
 
-  // Form state
-  const [name, setName] = useState<string>("Wireless Bluetooth Headset");
+  // Form state - no hardcoded demo default values
+  const [name, setName] = useState<string>("");
   const [sku, setSku] = useState<string>("");
   const [barcode, setBarcode] = useState<string>("");
   const [category, setCategory] = useState<string>("");
   const [description, setDescription] = useState<string>("");
-  const [costPrice, setCostPrice] = useState<string>("25.00");
-  const [sellingPrice, setSellingPrice] = useState<string>("49.99");
-  const [quantity, setQuantity] = useState<string>("30");
-  const [lowStockThreshold, setLowStockThreshold] = useState<string>("10");
+  const [costPrice, setCostPrice] = useState<string>("");
+  const [sellingPrice, setSellingPrice] = useState<string>("");
+  const [quantity, setQuantity] = useState<string>("");
+  const [lowStockThreshold, setLowStockThreshold] = useState<string>("");
   const [unit, setUnit] = useState<string>("pcs");
 
   // Thumbnail (Single Image) state
@@ -89,28 +88,21 @@ export default function AddProductPage() {
     };
   }, []);
 
-  // Fetch categories on mount
+  // Fetch categories on mount (no auto-selected default)
   useEffect(() => {
     apiClient("/categories/get-all").then((res) => {
       if (res?.success) {
         setCategories(res.data || []);
-        if (res.data?.length > 0) {
-          setCategory(res.data[0]._id);
-        }
       }
     });
   }, []);
 
-  // Auto-generate SKU helper
+  // Manual Auto-generate SKU helper
   const handleGenerateSKU = () => {
     const prefix = name ? name.slice(0, 3).toUpperCase().replace(/[^A-Z]/g, "ITM") : "SKU";
     const rand = Math.floor(1000 + Math.random() * 9000);
     setSku(`${prefix}-${rand}`);
   };
-
-  useEffect(() => {
-    if (!sku) handleGenerateSKU();
-  }, [name]);
 
   // Real-time Gross Margin calculation
   const cPrice = parseFloat(costPrice) || 0;
@@ -270,6 +262,10 @@ export default function AddProductPage() {
       message.error("Please select a category");
       return;
     }
+    if (!sellingPrice.trim() || isNaN(sPrice)) {
+      message.error("Selling price is required");
+      return;
+    }
     if (sPrice < 0 || cPrice < 0) {
       message.error("Pricing numbers cannot be negative");
       return;
@@ -358,13 +354,12 @@ export default function AddProductPage() {
                 <label className="block text-slate-700 font-semibold mb-1.5">
                   Product Name <span className="text-rose-500">*</span>
                 </label>
-                <input
+                <CustomInput
                   type="text"
                   required
                   placeholder="e.g. Wireless Bluetooth Headset"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#0F42C0]"
                 />
               </div>
 
@@ -383,13 +378,13 @@ export default function AddProductPage() {
                       <span>Auto Generate</span>
                     </button>
                   </div>
-                  <input
+                  <CustomInput
                     type="text"
                     required
                     placeholder="e.g. WIR-1049"
                     value={sku}
                     onChange={(e) => setSku(e.target.value.toUpperCase())}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-mono placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#0F42C0]"
+                    className="font-mono"
                   />
                 </div>
 
@@ -397,12 +392,12 @@ export default function AddProductPage() {
                   <label className="block text-slate-700 font-semibold mb-1.5">
                     Barcode / UPC (Optional)
                   </label>
-                  <input
+                  <CustomInput
                     type="text"
                     placeholder="e.g. 8901234567890"
                     value={barcode}
                     onChange={(e) => setBarcode(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-mono placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#0F42C0]"
+                    className="font-mono"
                   />
                 </div>
               </div>
@@ -416,6 +411,7 @@ export default function AddProductPage() {
                   onChange={(e) => setCategory(e.target.value)}
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:bg-white focus:border-[#0F42C0] cursor-pointer"
                 >
+                  <option value="">Select a category</option>
                   {categories.map((c) => (
                     <option key={c._id} value={c._id}>
                       {c.name}
@@ -570,18 +566,15 @@ export default function AddProductPage() {
               ) : (
                 <div className="space-y-3">
                   <div className="flex gap-2">
-                    <div className="relative flex-1">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                        <Link2 size={14} />
-                      </div>
-                      <input
-                        type="url"
-                        placeholder="https://example.com/images/product-thumbnail.jpg"
-                        value={thumbnailUrl}
-                        onChange={(e) => handleThumbnailUrlChange(e.target.value)}
-                        className="w-full pl-9 pr-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#0F42C0]"
-                      />
-                    </div>
+                    <CustomInput
+                      type="url"
+                      placeholder="https://example.com/images/product-thumbnail.jpg"
+                      value={thumbnailUrl}
+                      onChange={(e) => handleThumbnailUrlChange(e.target.value)}
+                      leftIcon={<Link2 size={14} />}
+                      className="bg-white text-xs"
+                      wrapperClassName="flex-1"
+                    />
                     {thumbnailUrl && (
                       <button
                         type="button"
@@ -694,24 +687,21 @@ export default function AddProductPage() {
               {/* Mode 2: Add by URL */}
               {featureTab === "url" && (
                 <div className="flex gap-2">
-                  <div className="relative flex-1">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                      <Link2 size={14} />
-                    </div>
-                    <input
-                      type="url"
-                      placeholder="https://example.com/images/feature-angle-1.jpg"
-                      value={featureUrlInput}
-                      onChange={(e) => setFeatureUrlInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          handleAddFeatureUrl();
-                        }
-                      }}
-                      className="w-full pl-9 pr-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#0F42C0]"
-                    />
-                  </div>
+                  <CustomInput
+                    type="url"
+                    placeholder="https://example.com/images/feature-angle-1.jpg"
+                    value={featureUrlInput}
+                    onChange={(e) => setFeatureUrlInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleAddFeatureUrl();
+                      }
+                    }}
+                    leftIcon={<Link2 size={14} />}
+                    className="bg-white text-xs"
+                    wrapperClassName="flex-1"
+                  />
                   <button
                     type="button"
                     onClick={handleAddFeatureUrl}
@@ -816,14 +806,15 @@ export default function AddProductPage() {
                 <label className="block text-slate-700 font-semibold mb-1.5">
                   Cost Price ($) <span className="text-rose-500">*</span>
                 </label>
-                <input
+                <CustomInput
                   type="number"
                   step="0.01"
                   min="0"
                   required
+                  placeholder="0.00"
                   value={costPrice}
                   onChange={(e) => setCostPrice(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-mono focus:outline-none focus:bg-white focus:border-[#0F42C0]"
+                  className="font-mono"
                 />
               </div>
 
@@ -831,14 +822,15 @@ export default function AddProductPage() {
                 <label className="block text-slate-700 font-semibold mb-1.5">
                   Selling Price ($) <span className="text-rose-500">*</span>
                 </label>
-                <input
+                <CustomInput
                   type="number"
                   step="0.01"
                   min="0"
                   required
+                  placeholder="0.00"
                   value={sellingPrice}
                   onChange={(e) => setSellingPrice(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-mono focus:outline-none focus:bg-white focus:border-[#0F42C0]"
+                  className="font-mono"
                 />
               </div>
             </div>
@@ -877,13 +869,14 @@ export default function AddProductPage() {
                 <label className="block text-slate-700 font-semibold mb-1.5">
                   Initial Quantity on Hand
                 </label>
-                <input
+                <CustomInput
                   type="number"
                   min="0"
                   required
+                  placeholder="0"
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-mono focus:outline-none focus:bg-white focus:border-[#0F42C0]"
+                  className="font-mono"
                 />
                 <p className="text-[11px] text-slate-500 mt-1">
                   Will create an initial Stock IN audit record
@@ -894,13 +887,14 @@ export default function AddProductPage() {
                 <label className="block text-slate-700 font-semibold mb-1.5">
                   Low Stock Threshold (Reorder Point)
                 </label>
-                <input
+                <CustomInput
                   type="number"
                   min="1"
                   required
+                  placeholder="5"
                   value={lowStockThreshold}
                   onChange={(e) => setLowStockThreshold(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-mono focus:outline-none focus:bg-white focus:border-[#0F42C0]"
+                  className="font-mono"
                 />
                 <p className="text-[11px] text-slate-500 mt-1">
                   Triggers dashboard warnings when stock drops to or below this level
