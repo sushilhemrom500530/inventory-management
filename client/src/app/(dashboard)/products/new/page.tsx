@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useForm } from "react-hook-form";
 import {
   ArrowLeft,
   Package,
@@ -35,6 +36,19 @@ interface FeatureImageItem {
   size?: number;
 }
 
+interface ProductFormValues {
+  name: string;
+  sku: string;
+  barcode: string;
+  category: string;
+  description: string;
+  costPrice: string;
+  sellingPrice: string;
+  quantity: string;
+  lowStockThreshold: string;
+  unit: string;
+}
+
 export default function AddProductPage() {
   const router = useRouter();
   const { user: currentUser } = useAuthService();
@@ -47,19 +61,36 @@ export default function AddProductPage() {
   }
 
   const [categories, setCategories] = useState<any[]>([]);
-  const [submitting, setSubmitting] = useState<boolean>(false);
 
-  // Form state - no hardcoded demo default values
-  const [name, setName] = useState<string>("");
-  const [sku, setSku] = useState<string>("");
-  const [barcode, setBarcode] = useState<string>("");
-  const [category, setCategory] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
-  const [costPrice, setCostPrice] = useState<string>("");
-  const [sellingPrice, setSellingPrice] = useState<string>("");
-  const [quantity, setQuantity] = useState<string>("");
-  const [lowStockThreshold, setLowStockThreshold] = useState<string>("");
-  const [unit, setUnit] = useState<string>("pcs");
+  // React Hook Form initialization - completely empty initial values
+  const {
+    register,
+    handleSubmit: handleFormSubmit,
+    setValue,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<ProductFormValues>({
+    defaultValues: {
+      name: "",
+      sku: "",
+      barcode: "",
+      category: "",
+      description: "",
+      costPrice: "",
+      sellingPrice: "",
+      quantity: "",
+      lowStockThreshold: "",
+      unit: "pcs",
+    },
+    mode: "onBlur",
+  });
+
+  // Watch fields for calculations & reactive controls
+  const nameValue = watch("name");
+  const categoryValue = watch("category");
+  const unitValue = watch("unit");
+  const costPriceValue = watch("costPrice");
+  const sellingPriceValue = watch("sellingPrice");
 
   // Thumbnail (Single Image) state
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
@@ -88,7 +119,7 @@ export default function AddProductPage() {
     };
   }, []);
 
-  // Fetch categories on mount (no auto-selected default)
+  // Fetch categories on mount (no default category selected)
   useEffect(() => {
     apiClient("/categories/get-all").then((res) => {
       if (res?.success) {
@@ -99,14 +130,14 @@ export default function AddProductPage() {
 
   // Manual Auto-generate SKU helper
   const handleGenerateSKU = () => {
-    const prefix = name ? name.slice(0, 3).toUpperCase().replace(/[^A-Z]/g, "ITM") : "SKU";
+    const prefix = nameValue ? nameValue.slice(0, 3).toUpperCase().replace(/[^A-Z]/g, "ITM") : "SKU";
     const rand = Math.floor(1000 + Math.random() * 9000);
-    setSku(`${prefix}-${rand}`);
+    setValue("sku", `${prefix}-${rand}`, { shouldValidate: true, shouldDirty: true });
   };
 
-  // Real-time Gross Margin calculation
-  const cPrice = parseFloat(costPrice) || 0;
-  const sPrice = parseFloat(sellingPrice) || 0;
+  // Real-time Gross Margin calculation from watched values
+  const cPrice = parseFloat(costPriceValue) || 0;
+  const sPrice = parseFloat(sellingPriceValue) || 0;
   const grossProfit = Math.max(0, sPrice - cPrice);
   const marginPct = sPrice > 0 ? Math.round((grossProfit / sPrice) * 100) : 0;
 
@@ -247,43 +278,33 @@ export default function AddProductPage() {
     setFeatureImages([]);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!name.trim()) {
-      message.error("Product name is required");
-      return;
-    }
-    if (!sku.trim()) {
-      message.error("SKU is required");
-      return;
-    }
-    if (!category) {
+  // Form Submission via React Hook Form
+  const onSubmit = async (values: ProductFormValues) => {
+    if (!values.category) {
       message.error("Please select a category");
       return;
     }
-    if (!sellingPrice.trim() || isNaN(sPrice)) {
-      message.error("Selling price is required");
-      return;
-    }
-    if (sPrice < 0 || cPrice < 0) {
+
+    const parsedCost = parseFloat(values.costPrice) || 0;
+    const parsedSelling = parseFloat(values.sellingPrice) || 0;
+
+    if (parsedCost < 0 || parsedSelling < 0) {
       message.error("Pricing numbers cannot be negative");
       return;
     }
 
-    setSubmitting(true);
     try {
       const formData = new FormData();
-      formData.append("name", name.trim());
-      formData.append("sku", sku.trim().toUpperCase());
-      if (barcode.trim()) formData.append("barcode", barcode.trim());
-      formData.append("category", category);
-      if (description.trim()) formData.append("description", description.trim());
-      formData.append("costPrice", cPrice.toString());
-      formData.append("sellingPrice", sPrice.toString());
-      formData.append("quantity", (parseInt(quantity) || 0).toString());
-      formData.append("lowStockThreshold", (parseInt(lowStockThreshold) || 5).toString());
-      formData.append("unit", unit);
+      formData.append("name", values.name.trim());
+      formData.append("sku", values.sku.trim().toUpperCase());
+      if (values.barcode.trim()) formData.append("barcode", values.barcode.trim());
+      formData.append("category", values.category);
+      if (values.description.trim()) formData.append("description", values.description.trim());
+      formData.append("costPrice", parsedCost.toString());
+      formData.append("sellingPrice", parsedSelling.toString());
+      formData.append("quantity", (parseInt(values.quantity) || 0).toString());
+      formData.append("lowStockThreshold", (parseInt(values.lowStockThreshold) || 5).toString());
+      formData.append("unit", values.unit || "pcs");
 
       // Thumbnail Image (Single)
       if (thumbnailFile) {
@@ -312,8 +333,6 @@ export default function AddProductPage() {
       }
     } catch (error: any) {
       message.error(error.message || "Failed to create product");
-    } finally {
-      setSubmitting(false);
     }
   };
 
@@ -339,7 +358,7 @@ export default function AddProductPage() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <form onSubmit={handleFormSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left 2 Cols: Main Info, Media & Pricing */}
         <div className="lg:col-span-2 space-y-6">
           {/* Card 1: Basic Information */}
@@ -356,10 +375,12 @@ export default function AddProductPage() {
                 </label>
                 <CustomInput
                   type="text"
-                  required
                   placeholder="e.g. Wireless Bluetooth Headset"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  {...register("name", {
+                    required: "Product name is required",
+                    minLength: { value: 2, message: "Name must be at least 2 characters" },
+                  })}
+                  error={errors.name}
                 />
               </div>
 
@@ -380,11 +401,13 @@ export default function AddProductPage() {
                   </div>
                   <CustomInput
                     type="text"
-                    required
                     placeholder="e.g. WIR-1049"
-                    value={sku}
-                    onChange={(e) => setSku(e.target.value.toUpperCase())}
-                    className="font-mono"
+                    className="font-mono uppercase"
+                    {...register("sku", {
+                      required: "SKU is required",
+                      minLength: { value: 2, message: "SKU must be at least 2 characters" },
+                    })}
+                    error={errors.sku}
                   />
                 </div>
 
@@ -395,9 +418,9 @@ export default function AddProductPage() {
                   <CustomInput
                     type="text"
                     placeholder="e.g. 8901234567890"
-                    value={barcode}
-                    onChange={(e) => setBarcode(e.target.value)}
                     className="font-mono"
+                    {...register("barcode")}
+                    error={errors.barcode}
                   />
                 </div>
               </div>
@@ -407,8 +430,8 @@ export default function AddProductPage() {
                   Category <span className="text-rose-500">*</span>
                 </label>
                 <CustomSelect
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
+                  value={categoryValue}
+                  onChange={(e) => setValue("category", e.target.value, { shouldValidate: true })}
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:bg-white focus:border-[#0F42C0] cursor-pointer"
                 >
                   <option value="">Select a category</option>
@@ -418,6 +441,11 @@ export default function AddProductPage() {
                     </option>
                   ))}
                 </CustomSelect>
+                {errors.category && (
+                  <p className="text-[11px] text-rose-500 font-medium mt-1">
+                    {errors.category.message}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -427,8 +455,7 @@ export default function AddProductPage() {
                 <textarea
                   rows={3}
                   placeholder="Material specs, manufacturer notes, storage requirements..."
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  {...register("description")}
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#0F42C0]"
                 />
               </div>
@@ -810,11 +837,13 @@ export default function AddProductPage() {
                   type="number"
                   step="0.01"
                   min="0"
-                  required
                   placeholder="0.00"
-                  value={costPrice}
-                  onChange={(e) => setCostPrice(e.target.value)}
                   className="font-mono"
+                  {...register("costPrice", {
+                    required: "Cost price is required",
+                    validate: (v) => !v || parseFloat(v) >= 0 || "Cost price cannot be negative",
+                  })}
+                  error={errors.costPrice}
                 />
               </div>
 
@@ -826,11 +855,13 @@ export default function AddProductPage() {
                   type="number"
                   step="0.01"
                   min="0"
-                  required
                   placeholder="0.00"
-                  value={sellingPrice}
-                  onChange={(e) => setSellingPrice(e.target.value)}
                   className="font-mono"
+                  {...register("sellingPrice", {
+                    required: "Selling price is required",
+                    validate: (v) => parseFloat(v) >= 0 || "Selling price cannot be negative",
+                  })}
+                  error={errors.sellingPrice}
                 />
               </div>
             </div>
@@ -872,11 +903,12 @@ export default function AddProductPage() {
                 <CustomInput
                   type="number"
                   min="0"
-                  required
                   placeholder="0"
-                  value={quantity}
-                  onChange={(e) => setQuantity(e.target.value)}
                   className="font-mono"
+                  {...register("quantity", {
+                    validate: (v) => !v || parseInt(v) >= 0 || "Quantity cannot be negative",
+                  })}
+                  error={errors.quantity}
                 />
                 <p className="text-[11px] text-slate-500 mt-1">
                   Will create an initial Stock IN audit record
@@ -890,11 +922,12 @@ export default function AddProductPage() {
                 <CustomInput
                   type="number"
                   min="1"
-                  required
                   placeholder="5"
-                  value={lowStockThreshold}
-                  onChange={(e) => setLowStockThreshold(e.target.value)}
                   className="font-mono"
+                  {...register("lowStockThreshold", {
+                    validate: (v) => !v || parseInt(v) >= 0 || "Threshold cannot be negative",
+                  })}
+                  error={errors.lowStockThreshold}
                 />
                 <p className="text-[11px] text-slate-500 mt-1">
                   Triggers dashboard warnings when stock drops to or below this level
@@ -906,8 +939,8 @@ export default function AddProductPage() {
                   Unit of Measurement
                 </label>
                 <CustomSelect
-                  value={unit}
-                  onChange={(e) => setUnit(e.target.value)}
+                  value={unitValue}
+                  onChange={(e) => setValue("unit", e.target.value, { shouldValidate: true })}
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:bg-white focus:border-[#0F42C0] cursor-pointer"
                 >
                   <option value="pcs">Pieces (pcs)</option>
@@ -924,11 +957,11 @@ export default function AddProductPage() {
           <div className="p-5 rounded-2xl bg-white border border-slate-200 space-y-3">
             <button
               type="submit"
-              disabled={submitting}
+              disabled={isSubmitting}
               className="w-full py-3 rounded-xl bg-[#0F42C0] hover:bg-[#0C369E] text-white text-xs font-bold transition-all shadow-md shadow-[#0F42C0]/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             >
               <Save size={16} />
-              <span>{submitting ? "Saving Product..." : "Save & Publish Product"}</span>
+              <span>{isSubmitting ? "Saving Product..." : "Save & Publish Product"}</span>
             </button>
 
             <Link

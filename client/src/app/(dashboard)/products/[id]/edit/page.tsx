@@ -3,6 +3,7 @@
 import React, { useEffect, useState, use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
 import {
   ArrowLeft,
   Save,
@@ -17,11 +18,26 @@ import { message } from "antd";
 import { useAuthService } from "@/hooks/auth";
 import RestrictedAccess from "@/components/reuseable/restricted-access";
 import { useUserRole } from "@/context/role-context";
-import CustomSelect from "@/components/reuseable/custom-select";
+import { CustomSelect, CustomInput } from "@/components/form";
 
 interface Category {
   _id: string;
   name: string;
+}
+
+interface EditProductFormValues {
+  name: string;
+  sku: string;
+  barcode: string;
+  categoryId: string;
+  description: string;
+  unit: string;
+  costPrice: number | string;
+  sellingPrice: number | string;
+  quantity: number | string;
+  reorderLevel: number | string;
+  safetyStock: number | string;
+  adjustmentNote: string;
 }
 
 export default function EditProductPage({
@@ -44,22 +60,40 @@ export default function EditProductPage({
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-
-  // Form State
-  const [name, setName] = useState("");
-  const [sku, setSku] = useState("");
-  const [barcode, setBarcode] = useState("");
-  const [categoryId, setCategoryId] = useState("");
-  const [description, setDescription] = useState("");
-  const [unit, setUnit] = useState("piece");
-  const [costPrice, setCostPrice] = useState<number>(0);
-  const [sellingPrice, setSellingPrice] = useState<number>(0);
-  const [quantity, setQuantity] = useState<number>(0);
   const [initialQuantity, setInitialQuantity] = useState<number>(0);
-  const [reorderLevel, setReorderLevel] = useState<number>(10);
-  const [safetyStock, setSafetyStock] = useState<number>(5);
-  const [adjustmentNote, setAdjustmentNote] = useState("");
+
+  // React Hook Form for Product Update
+  const {
+    register,
+    handleSubmit: handleFormSubmit,
+    setValue,
+    reset,
+    watch,
+    formState: { errors, isSubmitting: saving },
+  } = useForm<EditProductFormValues>({
+    defaultValues: {
+      name: "",
+      sku: "",
+      barcode: "",
+      categoryId: "",
+      description: "",
+      unit: "piece",
+      costPrice: 0,
+      sellingPrice: 0,
+      quantity: 0,
+      reorderLevel: 10,
+      safetyStock: 5,
+      adjustmentNote: "",
+    },
+    mode: "onBlur",
+  });
+
+  // Watched values for dynamic real-time profit & margin calculations
+  const costPrice = Number(watch("costPrice")) || 0;
+  const sellingPrice = Number(watch("sellingPrice")) || 0;
+  const quantity = Number(watch("quantity")) || 0;
+  const categoryId = watch("categoryId");
+  const unit = watch("unit");
 
   useEffect(() => {
     const initData = async () => {
@@ -74,20 +108,22 @@ export default function EditProductPage({
         const prodRes = await fetchApi<any>(`/products/${productId}`);
         if (prodRes?.data) {
           const p = prodRes.data;
-          setName(p.name || "");
-          setSku(p.sku || "");
-          setBarcode(p.barcode || "");
-          setCategoryId(
-            typeof p.category === "object" ? p.category?._id : p.category || ""
-          );
-          setDescription(p.description || "");
-          setUnit(p.unit || "piece");
-          setCostPrice(p.costPrice || 0);
-          setSellingPrice(p.sellingPrice || 0);
-          setQuantity(p.quantity || 0);
-          setInitialQuantity(p.quantity || 0);
-          setReorderLevel(p.reorderLevel || 10);
-          setSafetyStock(p.safetyStock || 5);
+          reset({
+            name: p.name || "",
+            sku: p.sku || "",
+            barcode: p.barcode || "",
+            categoryId:
+              typeof p.category === "object" ? p.category?._id : p.category || "",
+            description: p.description || "",
+            unit: p.unit || "piece",
+            costPrice: p.costPrice ?? 0,
+            sellingPrice: p.sellingPrice ?? 0,
+            quantity: p.quantity ?? 0,
+            reorderLevel: p.reorderLevel ?? p.lowStockThreshold ?? 10,
+            safetyStock: p.safetyStock ?? 5,
+            adjustmentNote: "",
+          });
+          setInitialQuantity(p.quantity ?? 0);
         }
       } catch (err: any) {
         message.error(err?.message || "Failed to load product data");
@@ -99,7 +135,7 @@ export default function EditProductPage({
     if (productId) {
       initData();
     }
-  }, [productId]);
+  }, [productId, reset]);
 
   const profitPerUnit = sellingPrice - costPrice;
   const marginPercent =
@@ -108,44 +144,39 @@ export default function EditProductPage({
     costPrice > 0 ? ((profitPerUnit / costPrice) * 100).toFixed(1) : "0.0";
   const isStockModified = quantity !== initialQuantity;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (values: EditProductFormValues) => {
+    const parsedCost = Number(values.costPrice) || 0;
+    const parsedSelling = Number(values.sellingPrice) || 0;
+    const parsedQty = Number(values.quantity) || 0;
+    const parsedReorder = Number(values.reorderLevel) || 0;
+    const parsedSafety = Number(values.safetyStock) || 0;
 
-    if (!name.trim()) {
-      message.error("Product name is required");
-      return;
-    }
-    if (!sku.trim()) {
-      message.error("SKU is required");
-      return;
-    }
-    if (costPrice < 0 || sellingPrice < 0) {
+    if (parsedCost < 0 || parsedSelling < 0) {
       message.error("Prices cannot be negative");
       return;
     }
 
     try {
-      setSaving(true);
-
       await fetchApi(`/products/${productId}`, {
         method: "PATCH",
         body: JSON.stringify({
-          name: name.trim(),
-          sku: sku.trim(),
-          barcode: barcode.trim() || undefined,
-          categoryId: categoryId || undefined,
-          category: categoryId || undefined,
-          description: description.trim() || undefined,
-          unit,
-          costPrice,
-          sellingPrice,
-          reorderLevel,
-          safetyStock,
+          name: values.name.trim(),
+          sku: values.sku.trim(),
+          barcode: values.barcode.trim() || undefined,
+          categoryId: values.categoryId || undefined,
+          category: values.categoryId || undefined,
+          description: values.description.trim() || undefined,
+          unit: values.unit,
+          costPrice: parsedCost,
+          sellingPrice: parsedSelling,
+          reorderLevel: parsedReorder,
+          lowStockThreshold: parsedReorder,
+          safetyStock: parsedSafety,
         }),
       });
 
       if (isStockModified) {
-        const diff = quantity - initialQuantity;
+        const diff = parsedQty - initialQuantity;
         const type = diff > 0 ? "IN" : "OUT";
         await fetchApi("/stock-movements/adjust", {
           method: "POST",
@@ -154,8 +185,8 @@ export default function EditProductPage({
             type,
             quantity: Math.abs(diff),
             reason:
-              adjustmentNote ||
-              `Manual inventory correction from edit form (${initialQuantity} -> ${quantity})`,
+              values.adjustmentNote ||
+              `Manual inventory correction from edit form (${initialQuantity} -> ${parsedQty})`,
           }),
         });
       }
@@ -164,8 +195,6 @@ export default function EditProductPage({
       router.push(`/products/${productId}`);
     } catch (err: any) {
       message.error(err?.message || "Failed to save product updates");
-    } finally {
-      setSaving(false);
     }
   };
 
@@ -198,7 +227,8 @@ export default function EditProductPage({
         </div>
 
         <button
-          onClick={handleSubmit}
+          type="button"
+          onClick={handleFormSubmit(onSubmit)}
           disabled={saving}
           className="flex items-center gap-2 rounded-xl bg-[#0F42C0] px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-[#0F42C0]/20 transition hover:bg-[#0C369E] disabled:opacity-50 cursor-pointer"
         >
@@ -207,7 +237,7 @@ export default function EditProductPage({
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleFormSubmit(onSubmit)} className="space-y-6">
         {/* Section 1: Basic Information */}
         <div className="rounded-2xl border border-slate-200 bg-white p-6">
           <div className="flex items-center gap-2 pb-4 border-b border-slate-100 text-slate-900 font-bold text-base">
@@ -220,12 +250,14 @@ export default function EditProductPage({
               <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
                 Product Name <span className="text-rose-500">*</span>
               </label>
-              <input
+              <CustomInput
                 type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:border-[#0F42C0] focus:outline-none"
+                placeholder="Product name"
+                {...register("name", {
+                  required: "Product name is required",
+                  minLength: { value: 2, message: "Name must be at least 2 characters" },
+                })}
+                error={errors.name}
               />
             </div>
 
@@ -233,12 +265,15 @@ export default function EditProductPage({
               <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
                 SKU (Stock Keeping Unit) <span className="text-rose-500">*</span>
               </label>
-              <input
+              <CustomInput
                 type="text"
-                value={sku}
-                onChange={(e) => setSku(e.target.value)}
-                required
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 font-mono text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:border-[#0F42C0] focus:outline-none"
+                placeholder="SKU"
+                className="font-mono uppercase"
+                {...register("sku", {
+                  required: "SKU is required",
+                  minLength: { value: 2, message: "SKU must be at least 2 characters" },
+                })}
+                error={errors.sku}
               />
             </div>
 
@@ -246,11 +281,12 @@ export default function EditProductPage({
               <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
                 Barcode / UPC / EAN
               </label>
-              <input
+              <CustomInput
                 type="text"
-                value={barcode}
-                onChange={(e) => setBarcode(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 font-mono text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:border-[#0F42C0] focus:outline-none"
+                placeholder="Barcode / UPC / EAN"
+                className="font-mono"
+                {...register("barcode")}
+                error={errors.barcode}
               />
             </div>
 
@@ -260,7 +296,7 @@ export default function EditProductPage({
               </label>
               <CustomSelect
                 value={categoryId}
-                onChange={(e) => setCategoryId(e.target.value)}
+                onChange={(e) => setValue("categoryId", e.target.value, { shouldValidate: true })}
                 className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 focus:bg-white focus:border-[#0F42C0] focus:outline-none cursor-pointer"
               >
                 <option value="">Select Category</option>
@@ -270,6 +306,11 @@ export default function EditProductPage({
                   </option>
                 ))}
               </CustomSelect>
+              {errors.categoryId && (
+                <p className="text-[11px] text-rose-500 font-medium mt-1">
+                  {errors.categoryId.message}
+                </p>
+              )}
             </div>
 
             <div>
@@ -278,7 +319,7 @@ export default function EditProductPage({
               </label>
               <CustomSelect
                 value={unit}
-                onChange={(e) => setUnit(e.target.value)}
+                onChange={(e) => setValue("unit", e.target.value, { shouldValidate: true })}
                 className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 focus:bg-white focus:border-[#0F42C0] focus:outline-none cursor-pointer"
               >
                 <option value="piece">Piece (pcs)</option>
@@ -295,8 +336,8 @@ export default function EditProductPage({
               </label>
               <textarea
                 rows={3}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Product description and specifications..."
+                {...register("description")}
                 className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:border-[#0F42C0] focus:outline-none"
               />
             </div>
@@ -315,14 +356,17 @@ export default function EditProductPage({
               <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
                 Cost Price ($) <span className="text-rose-500">*</span>
               </label>
-              <input
+              <CustomInput
                 type="number"
                 step="0.01"
                 min="0"
-                value={costPrice}
-                onChange={(e) => setCostPrice(parseFloat(e.target.value) || 0)}
-                required
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 focus:bg-white focus:border-[#0F42C0] focus:outline-none"
+                placeholder="0.00"
+                className="font-mono"
+                {...register("costPrice", {
+                  required: "Cost price is required",
+                  validate: (v) => Number(v) >= 0 || "Prices cannot be negative",
+                })}
+                error={errors.costPrice}
               />
             </div>
 
@@ -330,14 +374,17 @@ export default function EditProductPage({
               <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
                 Selling Price ($) <span className="text-rose-500">*</span>
               </label>
-              <input
+              <CustomInput
                 type="number"
                 step="0.01"
                 min="0"
-                value={sellingPrice}
-                onChange={(e) => setSellingPrice(parseFloat(e.target.value) || 0)}
-                required
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 focus:bg-white focus:border-[#0F42C0] focus:outline-none"
+                placeholder="0.00"
+                className="font-mono"
+                {...register("sellingPrice", {
+                  required: "Selling price is required",
+                  validate: (v) => Number(v) >= 0 || "Prices cannot be negative",
+                })}
+                error={errors.sellingPrice}
               />
             </div>
           </div>
@@ -379,12 +426,15 @@ export default function EditProductPage({
               <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
                 Current Stock (Units)
               </label>
-              <input
+              <CustomInput
                 type="number"
                 min="0"
-                value={quantity}
-                onChange={(e) => setQuantity(parseInt(e.target.value) || 0)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 font-bold text-sm text-slate-900 focus:bg-white focus:border-[#0F42C0] focus:outline-none"
+                placeholder="0"
+                className="font-mono font-bold"
+                {...register("quantity", {
+                  validate: (v) => Number(v) >= 0 || "Quantity cannot be negative",
+                })}
+                error={errors.quantity}
               />
               <p className="mt-1 text-[11px] text-slate-400">
                 Initial: {initialQuantity} units
@@ -395,12 +445,15 @@ export default function EditProductPage({
               <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
                 Reorder Threshold
               </label>
-              <input
+              <CustomInput
                 type="number"
                 min="0"
-                value={reorderLevel}
-                onChange={(e) => setReorderLevel(parseInt(e.target.value) || 0)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 focus:bg-white focus:border-[#0F42C0] focus:outline-none"
+                placeholder="10"
+                className="font-mono"
+                {...register("reorderLevel", {
+                  validate: (v) => Number(v) >= 0 || "Reorder level cannot be negative",
+                })}
+                error={errors.reorderLevel}
               />
               <p className="mt-1 text-[11px] text-slate-400">Triggers Low Stock status</p>
             </div>
@@ -409,12 +462,15 @@ export default function EditProductPage({
               <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
                 Safety Stock Buffer
               </label>
-              <input
+              <CustomInput
                 type="number"
                 min="0"
-                value={safetyStock}
-                onChange={(e) => setSafetyStock(parseInt(e.target.value) || 0)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 focus:bg-white focus:border-[#0F42C0] focus:outline-none"
+                placeholder="5"
+                className="font-mono"
+                {...register("safetyStock", {
+                  validate: (v) => Number(v) >= 0 || "Safety stock cannot be negative",
+                })}
+                error={errors.safetyStock}
               />
               <p className="mt-1 text-[11px] text-slate-400">Emergency reserve buffer</p>
             </div>
@@ -427,12 +483,11 @@ export default function EditProductPage({
                 <p className="text-xs text-amber-700 mb-2">
                   This change will automatically be logged to the immutable Stock Movement audit trail.
                 </p>
-                <input
+                <CustomInput
                   type="text"
                   placeholder="Optional audit reason (e.g. Broken packaging replacement, physical count reconciliation)"
-                  value={adjustmentNote}
-                  onChange={(e) => setAdjustmentNote(e.target.value)}
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-900 placeholder-slate-400 focus:border-amber-500 focus:outline-none"
+                  className="bg-white text-xs border-amber-300 focus:border-amber-500"
+                  {...register("adjustmentNote")}
                 />
               </div>
             )}

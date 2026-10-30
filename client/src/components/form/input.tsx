@@ -1,10 +1,11 @@
 "use client";
 
 import React, { forwardRef, InputHTMLAttributes, ReactNode } from "react";
+import { FieldError } from "react-hook-form";
 
 export interface CustomInputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: ReactNode;
-  error?: string;
+  error?: string | FieldError;
   helperText?: string;
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
@@ -28,6 +29,8 @@ const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
     },
     ref
   ) => {
+    const errorMessage = typeof error === "string" ? error : error?.message;
+
     const inputElement = (
       <div className={`relative ${leftIcon || rightIcon ? "flex items-center" : ""} ${wrapperClassName}`}>
         {leftIcon && (
@@ -41,9 +44,11 @@ const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
           id={id}
           type={type}
           disabled={disabled}
-          className={`w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#0F42C0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${leftIcon ? "pl-9" : ""
-            } ${rightIcon ? "pr-9" : ""} ${error ? "border-rose-300 focus:border-rose-500 bg-rose-50/20" : ""
-            } ${className}`}
+          className={`w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#0F42C0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+            leftIcon ? "pl-9" : ""
+          } ${rightIcon ? "pr-9" : ""} ${
+            errorMessage ? "border-rose-300 focus:border-rose-500 bg-rose-50/20" : ""
+          } ${className}`}
           {...rest}
         />
 
@@ -55,7 +60,7 @@ const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
       </div>
     );
 
-    if (!label && !error && !helperText) {
+    if (!label && !errorMessage && !helperText) {
       return inputElement;
     }
 
@@ -67,8 +72,8 @@ const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
           </label>
         )}
         {inputElement}
-        {error && <p className="text-[11px] text-rose-500 font-medium">{error}</p>}
-        {helperText && !error && <p className="text-[11px] text-slate-500">{helperText}</p>}
+        {errorMessage && <p className="text-[11px] text-rose-500 font-medium">{errorMessage}</p>}
+        {helperText && !errorMessage && <p className="text-[11px] text-slate-500">{helperText}</p>}
       </div>
     );
   }
