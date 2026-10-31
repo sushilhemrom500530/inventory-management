@@ -1,5 +1,5 @@
 {
-  "name": "ERP Management Server",
+  "name": "Stock-Wise Server",
   "version": "1.0.0",
   "main": "dist/server.js",
   "scripts": {

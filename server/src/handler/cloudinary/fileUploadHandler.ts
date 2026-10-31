@@ -1,7 +1,7 @@
 import multer, { FileFilterCallback } from "multer";
 import { Request, Response, NextFunction } from "express";
 import { v2 as cloudinary } from "cloudinary";
-import { v4 as uuidv4 } from "uuid";
+import { randomUUID } from "crypto";
 import {
   CLOUDINARY_NAME,
   CLOUDINARY_API_KEY,
@@ -51,7 +51,7 @@ const uploadToCloudinary = async (
   const result = await cloudinary.uploader.upload(
     `data:${file.mimetype};base64,${base64}`,
     {
-      public_id: uuidv4(),
+      public_id: randomUUID(),
       resource_type: "auto",
     },
   );

@@ -6,9 +6,13 @@ const MAX_RETRIES = 5;
 const RETRY_INTERVAL = 5000; // 5 seconds
 
 export const connectDB = async (retryCount = 0): Promise<void> => {
+  if (mongoose.connection.readyState >= 1) {
+    return;
+  }
+
   if (!DATABASE_URL) {
     logger.error("❌ DATABASE_URL is not defined in .env file");
-    process.exit(1);
+    return;
   }
 
   try {
@@ -37,7 +41,6 @@ export const connectDB = async (retryCount = 0): Promise<void> => {
       setTimeout(() => connectDB(retryCount + 1), RETRY_INTERVAL);
     } else {
       logger.error("❌ Max retries reached. Could not connect to MongoDB.");
-      process.exit(1);
     }
   }
 };

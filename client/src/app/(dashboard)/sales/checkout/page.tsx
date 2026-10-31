@@ -14,13 +14,10 @@ import {
   Printer,
   CheckCircle2,
   Package,
-  Layers,
   Receipt,
-  User,
   ArrowRight,
   ArrowLeft,
   RefreshCw,
-  AlertCircle,
 } from "lucide-react";
 import { fetchApi } from "@/utils/api";
 import { StockBadge } from "@/components/reuseable/stock-badge";
@@ -490,7 +487,7 @@ export default function PosCheckoutPage() {
       {/* Top Header */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-slate-200 pb-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0F42C0] text-white shadow-md shadow-[#0F42C0]/20">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0F42C0] text-white">
             <ShoppingCart className="h-5 w-5" />
           </div>
           <div>
@@ -522,7 +519,7 @@ export default function PosCheckoutPage() {
           type="button"
           onClick={() => setMobileTab("catalog")}
           className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg transition cursor-pointer ${mobileTab === "catalog"
-            ? "bg-white text-slate-900 shadow-xs"
+            ? "bg-white text-slate-900"
             : "text-slate-600 hover:text-slate-900"
             }`}
         >
@@ -533,7 +530,7 @@ export default function PosCheckoutPage() {
           type="button"
           onClick={() => setMobileTab("cart")}
           className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg transition cursor-pointer relative ${mobileTab === "cart"
-            ? "bg-white text-[#0F42C0] shadow-xs"
+            ? "bg-white text-[#0F42C0]"
             : "text-slate-600 hover:text-slate-900"
             }`}
         >
@@ -555,7 +552,7 @@ export default function PosCheckoutPage() {
             }`}
         >
           {/* Search & Category Pills */}
-          <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-3.5 sm:p-4 shadow-2xs">
+          <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-3.5 sm:p-4">
             <div className="relative">
               <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input
@@ -572,7 +569,7 @@ export default function PosCheckoutPage() {
               <button
                 onClick={() => setSelectedCategory("all")}
                 className={`whitespace-nowrap rounded-xl px-3 py-1.5 text-xs font-semibold transition cursor-pointer shrink-0 ${selectedCategory === "all"
-                  ? "bg-[#0F42C0] text-white shadow-xs"
+                  ? "bg-[#0F42C0] text-white"
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
                   }`}
               >
@@ -583,7 +580,7 @@ export default function PosCheckoutPage() {
                   key={c._id}
                   onClick={() => setSelectedCategory(c._id)}
                   className={`whitespace-nowrap rounded-xl px-3 py-1.5 text-xs font-semibold transition cursor-pointer shrink-0 ${selectedCategory === c._id
-                    ? "bg-[#0F42C0] text-white shadow-xs"
+                    ? "bg-[#0F42C0] text-white"
                     : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
                     }`}
                 >
@@ -623,10 +620,10 @@ export default function PosCheckoutPage() {
                     className={`group relative flex flex-col justify-between rounded-xl sm:rounded-2xl border transition-all duration-200 select-none overflow-hidden ${isOutOfStock
                       ? "border-slate-200 bg-slate-50/70 opacity-60 cursor-not-allowed"
                       : isMaxInCart
-                        ? "border-blue-300 bg-blue-50/40 shadow-2xs cursor-default ring-1 ring-[#0F42C0]/20"
+                        ? "border-blue-300 bg-blue-50/40 cursor-default ring-1 ring-[#0F42C0]/20"
                         : inCartQty > 0
-                          ? "border-blue-200 bg-white shadow-2xs ring-1 ring-blue-100 hover:border-[#0F42C0] hover:shadow-md cursor-pointer"
-                          : "border-slate-200 bg-white hover:border-[#0F42C0] hover:shadow-md cursor-pointer"
+                          ? "border-blue-200 bg-white ring-1 ring-blue-100 hover:border-[#0F42C0] cursor-pointer"
+                          : "border-slate-200 bg-white hover:border-[#0F42C0] cursor-pointer"
                       }`}
                   >
                     {/* Thumbnail Image Container */}
@@ -655,7 +652,7 @@ export default function PosCheckoutPage() {
                       {/* Floating Badges */}
                       {/* Top-Left: SKU */}
                       <div className="absolute top-2 left-2 z-10">
-                        <span className="font-mono text-[9px] sm:text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-white/90 backdrop-blur-xs text-slate-600 border border-slate-200/80 shadow-2xs truncate max-w-[75px] sm:max-w-[100px] inline-block">
+                        <span className="font-mono text-[9px] sm:text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-white/90 backdrop-blur-xs text-slate-600 border border-slate-200/80 truncate max-w-[75px] sm:max-w-[100px] inline-block">
                           {p.sku}
                         </span>
                       </div>
@@ -663,7 +660,7 @@ export default function PosCheckoutPage() {
                       {/* Top-Right: Stock badge */}
                       <div className="absolute top-2 right-2 z-10">
                         <span
-                          className={`text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-md border shadow-2xs backdrop-blur-xs ${p.quantity > 5
+                          className={`text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-md border backdrop-blur-xs ${p.quantity > 5
                             ? "bg-emerald-50/95 text-emerald-700 border-emerald-200"
                             : p.quantity > 0
                               ? "bg-amber-50/95 text-amber-700 border-amber-200"
@@ -677,7 +674,7 @@ export default function PosCheckoutPage() {
                       {/* In-Cart Overlay Badge */}
                       {inCartQty > 0 && (
                         <div className="absolute bottom-2 left-2 z-10">
-                          <span className="flex items-center gap-1 rounded-md bg-[#0F42C0] px-1.5 sm:px-2 py-0.5 text-[9px] sm:text-[10px] font-bold text-white shadow-xs">
+                          <span className="flex items-center gap-1 rounded-md bg-[#0F42C0] px-1.5 sm:px-2 py-0.5 text-[9px] sm:text-[10px] font-bold text-white">
                             <span>In Cart: {inCartQty}</span>
                           </span>
                         </div>
@@ -713,7 +710,7 @@ export default function PosCheckoutPage() {
                             >
                               <Minus className="h-3 w-3" />
                             </button>
-                            <span className="flex h-6 min-w-[20px] sm:h-7 sm:min-w-[24px] px-1 items-center justify-center rounded-md bg-[#0F42C0] text-[11px] sm:text-xs font-bold text-white shadow-2xs">
+                            <span className="flex h-6 min-w-[20px] sm:h-7 sm:min-w-[24px] px-1 items-center justify-center rounded-md bg-[#0F42C0] text-[11px] sm:text-xs font-bold text-white">
                               {inCartQty}
                             </span>
                             <button
@@ -737,7 +734,7 @@ export default function PosCheckoutPage() {
                               e.stopPropagation();
                               addToCart(p);
                             }}
-                            className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-700 hover:bg-[#0F42C0] hover:text-white hover:shadow-xs transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                            className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-700 hover:bg-[#0F42C0] hover:text-white transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                             title="Add to Cart"
                           >
                             <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
@@ -760,7 +757,7 @@ export default function PosCheckoutPage() {
               {/* Show loading spinner while fetching next page on scroll */}
               {loadingMore && (
                 <div className="py-4 flex flex-col items-center justify-center">
-                  <div className="flex items-center gap-2 rounded-xl bg-white border border-slate-200 px-4 py-2 text-xs font-semibold text-[#0F42C0] shadow-2xs">
+                  <div className="flex items-center gap-2 rounded-xl bg-white border border-slate-200 px-4 py-2 text-xs font-semibold text-[#0F42C0]">
                     <RefreshCw className="h-4 w-4 animate-spin text-[#0F42C0]" />
                     <span>Loading more products...</span>
                   </div>
@@ -775,7 +772,7 @@ export default function PosCheckoutPage() {
           className={`space-y-4 lg:col-span-5 xl:col-span-4 lg:sticky lg:top-24 lg:self-start z-10 ${mobileTab === "catalog" ? "hidden lg:block" : "block"
             }`}
         >
-          <div className="flex flex-col rounded-2xl border border-slate-200 bg-white p-3.5 sm:p-4 shadow-2xs lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
+          <div className="flex flex-col rounded-2xl border border-slate-200 bg-white p-3.5 sm:p-4 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
             {/* Cart Header */}
             <div className="flex items-center justify-between border-b border-slate-200 pb-3">
               <div className="flex items-center gap-2">
@@ -806,7 +803,7 @@ export default function PosCheckoutPage() {
             </div>
 
             {/* Cart Items List */}
-            <div className="my-3 max-h-[320px] space-y-2 overflow-y-auto pr-1">
+            <div className="my-3 flex-1 min-h-[220px] max-h-[420px] space-y-2.5 overflow-y-auto pr-1">
               {cart.length === 0 ? (
                 <div className="py-12 text-center">
                   <ShoppingCart className="mx-auto h-8 w-8 text-slate-300 mb-2" />
@@ -826,14 +823,16 @@ export default function PosCheckoutPage() {
               ) : (
                 cart.map((item) => {
                   const itemThumb = getProductThumbnail(item.product);
+                  const unitPrice = Number(item.product.sellingPrice ?? (item.product as any).price ?? 0);
+                  const itemTotal = unitPrice * item.quantity;
                   return (
                     <div
                       key={item.product._id}
-                      className="flex items-center justify-between gap-2 rounded-xl border border-slate-200 bg-slate-50/80 p-2 sm:p-2.5 transition hover:bg-slate-50"
+                      className="rounded-xl border border-slate-200 bg-slate-50/70 p-2.5 transition hover:bg-slate-50 hover:border-slate-300 space-y-2"
                     >
-                      {/* Left: Product Thumbnail and Name */}
-                      <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                        <div className="relative h-10 w-10 sm:h-11 sm:w-11 flex-shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-white flex items-center justify-center">
+                      {/* Top Row: Thumbnail, Full Product Name, SKU/Unit Price, and Delete Button */}
+                      <div className="flex items-start gap-2.5">
+                        <div className="relative h-11 w-11 flex-shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-white flex items-center justify-center">
                           {itemThumb ? (
                             <img
                               src={itemThumb}
@@ -855,49 +854,64 @@ export default function PosCheckoutPage() {
                         </div>
 
                         <div className="min-w-0 flex-1">
-                          <p className="text-xs font-semibold text-slate-900 truncate">{item.product.name}</p>
-                          <p className="font-mono text-[10px] text-slate-500">
-                            ${Number(item.product.sellingPrice ?? (item.product as any).price ?? 0).toFixed(2)} / unit
+                          <p className="text-xs font-semibold text-slate-900 leading-snug line-clamp-2" title={item.product.name}>
+                            {item.product.name}
                           </p>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="font-mono text-[11px] text-slate-500">
+                              ${unitPrice.toFixed(2)} / unit
+                            </span>
+                            {item.product.sku && (
+                              <span className="text-[10px] text-slate-400 font-mono">
+                                • {item.product.sku}
+                              </span>
+                            )}
+                          </div>
                         </div>
-                      </div>
-
-                      {/* Right: Quantity Adjuster, Total & Delete */}
-                      <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                        <div className="flex items-center rounded-lg border border-slate-200 bg-white shadow-2xs">
-                          <button
-                            type="button"
-                            onClick={() => updateQuantity(item.product._id, -1)}
-                            className="flex h-7 w-7 items-center justify-center text-slate-500 hover:text-slate-900 transition cursor-pointer"
-                            title="Decrease quantity"
-                          >
-                            <Minus className="h-3 w-3" />
-                          </button>
-                          <span className="min-w-[20px] px-1 text-center text-xs font-bold text-slate-900">
-                            {item.quantity}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => updateQuantity(item.product._id, 1)}
-                            className="flex h-7 w-7 items-center justify-center text-slate-500 hover:text-slate-900 transition cursor-pointer"
-                            title="Increase quantity"
-                          >
-                            <Plus className="h-3 w-3" />
-                          </button>
-                        </div>
-
-                        <span className="w-14 text-right font-mono text-xs font-bold text-slate-900">
-                          ${(Number(item.product.sellingPrice ?? (item.product as any).price ?? 0) * item.quantity).toFixed(2)}
-                        </span>
 
                         <button
                           type="button"
                           onClick={() => removeFromCart(item.product._id)}
-                          className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
+                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
                           title="Remove item"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </button>
+                      </div>
+
+                      {/* Bottom Row: Quantity Stepper & Line Total */}
+                      <div className="flex items-center justify-between border-t border-slate-200/60 pt-2 pl-0.5">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">Qty</span>
+                          <div className="flex items-center rounded-lg border border-slate-200 bg-white">
+                            <button
+                              type="button"
+                              onClick={() => updateQuantity(item.product._id, -1)}
+                              className="flex h-7 w-7 items-center justify-center text-slate-500 hover:text-slate-900 transition cursor-pointer"
+                              title="Decrease quantity"
+                            >
+                              <Minus className="h-3 w-3" />
+                            </button>
+                            <span className="min-w-[24px] px-1 text-center text-xs font-bold text-slate-900">
+                              {item.quantity}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => updateQuantity(item.product._id, 1)}
+                              className="flex h-7 w-7 items-center justify-center text-slate-500 hover:text-slate-900 transition cursor-pointer"
+                              title="Increase quantity"
+                            >
+                              <Plus className="h-3 w-3" />
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-[10px] text-slate-400">Total:</span>
+                          <span className="font-mono text-sm font-bold text-slate-900">
+                            ${itemTotal.toFixed(2)}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   );
@@ -945,7 +959,7 @@ export default function PosCheckoutPage() {
                   type="button"
                   onClick={() => setPaymentMethod("cash")}
                   className={`flex items-center justify-center gap-1.5 rounded-xl border p-2 text-xs font-semibold transition cursor-pointer ${paymentMethod === "cash"
-                    ? "border-[#0F42C0] bg-blue-50 text-[#0F42C0] font-bold shadow-2xs"
+                    ? "border-[#0F42C0] bg-blue-50 text-[#0F42C0] font-bold"
                     : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
                     }`}
                 >
@@ -956,7 +970,7 @@ export default function PosCheckoutPage() {
                   type="button"
                   onClick={() => setPaymentMethod("card")}
                   className={`flex items-center justify-center gap-1.5 rounded-xl border p-2 text-xs font-semibold transition cursor-pointer ${paymentMethod === "card"
-                    ? "border-[#0F42C0] bg-blue-50 text-[#0F42C0] font-bold shadow-2xs"
+                    ? "border-[#0F42C0] bg-blue-50 text-[#0F42C0] font-bold"
                     : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
                     }`}
                 >
@@ -967,7 +981,7 @@ export default function PosCheckoutPage() {
                   type="button"
                   onClick={() => setPaymentMethod("bank_transfer")}
                   className={`flex items-center justify-center gap-1.5 rounded-xl border p-2 text-xs font-semibold transition cursor-pointer ${paymentMethod === "bank_transfer"
-                    ? "border-[#0F42C0] bg-blue-50 text-[#0F42C0] font-bold shadow-2xs"
+                    ? "border-[#0F42C0] bg-blue-50 text-[#0F42C0] font-bold"
                     : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
                     }`}
                 >
@@ -1038,7 +1052,7 @@ export default function PosCheckoutPage() {
             <button
               onClick={handleCheckout}
               disabled={submitting || cart.length === 0}
-              className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[#0F42C0] py-3 text-sm font-bold text-white shadow-sm shadow-[#0F42C0]/20 transition hover:bg-[#0C369E] disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[#0F42C0] py-3 text-sm font-bold text-white transition hover:bg-[#0C369E] disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
             >
               <CheckCircle2 className="h-4 w-4" />
               {submitting ? "Processing Transaction..." : `Charge $${grandTotal.toFixed(2)}`}
@@ -1051,9 +1065,9 @@ export default function PosCheckoutPage() {
       {
         cart.length > 0 && mobileTab === "catalog" && (
           <div className="fixed bottom-3 left-3 right-3 z-30 lg:hidden animate-in fade-in slide-in-from-bottom-2 duration-200">
-            <div className="flex items-center justify-between gap-3 rounded-2xl bg-slate-900/95 backdrop-blur-md p-3 text-white shadow-2xl border border-slate-800">
+            <div className="flex items-center justify-between gap-3 rounded-2xl bg-slate-900/95 backdrop-blur-md p-3 text-white border border-slate-800">
               <div className="flex items-center gap-2.5">
-                <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-[#0F42C0] text-white shadow-sm">
+                <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-[#0F42C0] text-white">
                   <ShoppingCart className="h-5 w-5" />
                   <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white border-2 border-slate-900">
                     {totalCartCount}
@@ -1072,7 +1086,7 @@ export default function PosCheckoutPage() {
               <button
                 type="button"
                 onClick={() => setMobileTab("cart")}
-                className="flex items-center gap-1.5 rounded-xl bg-[#0F42C0] hover:bg-[#0C369E] px-4 py-2.5 text-xs font-bold text-white shadow-sm transition cursor-pointer"
+                className="flex items-center gap-1.5 rounded-xl bg-[#0F42C0] hover:bg-[#0C369E] px-4 py-2.5 text-xs font-bold text-white transition cursor-pointer"
               >
                 <span>View Order & Pay</span>
                 <ArrowRight className="h-3.5 w-3.5" />
